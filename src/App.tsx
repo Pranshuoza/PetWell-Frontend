@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Pages/Landing/Landing";
 import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreationStep1";
 import "./App.css";
+import Home from "./Pages/HomePage/HomePage";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<ProfileCreationStep1 />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </div>
   );
