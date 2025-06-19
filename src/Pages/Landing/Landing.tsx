@@ -1,11 +1,10 @@
 import React from "react";
 import LoginPage from "../../Assets/LoginPage.png";
 import PetWellLogo from '../../Assets/PetWell.png';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-  // You can use navigation hooks here if you want to redirect
-  // For example, with react-router-dom v6:
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleLogin = () => {
     // Redirect to login page or perform login logic
@@ -14,9 +13,7 @@ const Login: React.FC = () => {
   };
 
   const handleSignUp = () => {
-    // Redirect to signup page
-    // Example: navigate('/signup');
-    console.log("Redirect to signup");
+    navigate('/signup');
   };
 
   return (
@@ -47,14 +44,14 @@ const Login: React.FC = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFA500] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFB23E] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
             >
               Log In
             </button>
             <button
               type="button"
               onClick={handleSignUp}
-              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFA500] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFB23E] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
             >
               Sign Up
             </button>
