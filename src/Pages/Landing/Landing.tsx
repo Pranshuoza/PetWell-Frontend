@@ -47,14 +47,14 @@ const Login: React.FC = () => {
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFA500] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFB23E] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
             >
               Log In
             </button>
             <button
               type="button"
               onClick={handleSignUp}
-              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFA500] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFB23E] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
             >
               Sign Up
             </button>
