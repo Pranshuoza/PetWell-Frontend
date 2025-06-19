@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import PetWellLogo from '../../Assets/PetWell.png';
 import ProfileCreationSuccessModal from './ProfileCreationSuccessModal';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileCreationStep4: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-[#1C232E] flex flex-col items-center justify-center w-full relative">
@@ -67,7 +69,7 @@ const ProfileCreationStep4: React.FC = () => {
         {showSuccess && (
           <ProfileCreationSuccessModal
             onClose={() => setShowSuccess(false)}
-            onGoHome={() => {}}
+            onGoHome={() => navigate('/home')}
             onUploadRecords={() => {}}
           />
         )}
