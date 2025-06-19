@@ -27,14 +27,9 @@ const Login: React.FC = () => {
       <div className="absolute inset-0 bg-black opacity-40"></div>
 
       {/* Login Card */}
-      <div className="relative z-10 w-760 max-w-xl mx-4">
+      <div className="relative z-10 w-[760px] max-w-xl mx-4">
         <div
-          className="rounded-2xl p-16 shadow-2xl flex flex-col items-center min-h-[520px] justify-center gap-10"
-          style={{
-            background: "rgba(28, 35, 46, 0.9)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-          }}
+          className="rounded-2xl p-16 shadow-2xl flex flex-col items-center min-h-[520px] justify-center gap-10 bg-[#1C232E]/[0.90] backdrop-blur-lg"
         >
           {/* Logo */}
           <div className="flex justify-center mb-6">
@@ -43,25 +38,23 @@ const Login: React.FC = () => {
 
           {/* Title */}
           <div className="text-center mb-2">
-            <h1 className="font-bold mb-2" style={{ fontFamily: 'Alike, serif', color: '#EBD5BD', fontSize: '140px', lineHeight: '1' }}>PetWell</h1>
-            <p className="text-lg" style={{ fontFamily: 'Cabin, sans-serif', color: '#EBD5BD' }}>
+            <h1 className="font-bold mb-2 text-[140px] leading-[1] font-[Alike,serif] text-[#EBD5BD]">PetWell</h1>
+            <p className="text-[25px] font-[Cabin,sans-serif] text-[#EBD5BD]">
               We love you for loving your pets
             </p>
           </div>
-          <div className="flex gap-6 pt-4 w-full justify-center" style={{ fontFamily: 'Cabin, sans-serif' }}>
+          <div className="flex gap-6 pt-4 w-full justify-center font-[Cabin,sans-serif]">
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full py-4 text-black rounded-lg transition-colors font-semibold text-[28px] shadow-lg"
-              style={{ backgroundColor: "#FFA500"}}
+              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFA500] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
             >
               Log In
             </button>
             <button
               type="button"
               onClick={handleSignUp}
-              className="w-full py-4 text-black rounded-lg transition-colors font-semibold text-[28px] shadow-lg"
-              style={{ backgroundColor: "#FFA500" }}
+              className="w-full h-[66px] py-4 font-[Cabin,sans-serif] text-black rounded-lg transition-colors font-medium text-[20px] shadow-lg bg-[#FFA500] hover:bg-[#ffb733] focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
             >
               Sign Up
             </button>
