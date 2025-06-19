@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="min-h-screen">
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Login />} />
       </Routes>
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
 import LoginPage from "../../Assets/LoginPage.png";
+import PetWellLogo from '../../Assets/PetWell.png';
 
 const Login: React.FC = () => {
   // You can use navigation hooks here if you want to redirect
@@ -26,37 +27,40 @@ const Login: React.FC = () => {
       <div className="absolute inset-0 bg-black opacity-40"></div>
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-gray-900 bg-opacity-95 rounded-2xl p-8 shadow-2xl">
+      <div className="relative z-10 w-760 max-w-xl mx-4">
+        <div
+          className="rounded-2xl p-16 shadow-2xl flex flex-col items-center min-h-[520px] justify-center gap-10"
+          style={{
+            background: "rgba(28, 35, 46, 0.9)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+          }}
+        >
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
-              <div className="w-10 h-10 border-4 border-gray-800 rounded-full relative">
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-800 rounded-full"></div>
-              </div>
-            </div>
+            <img src={PetWellLogo} alt="PetWell Logo" className="w-28 h-28 object-contain rounded-full p-2" />
           </div>
 
           {/* Title */}
           <div className="text-center mb-2">
-            <h1 className="text-4xl font-bold text-white mb-2">PetWell</h1>
-            <p className="text-gray-300 text-lg italic">
+            <h1 className="font-bold mb-2" style={{ fontFamily: 'Alike, serif', color: '#EBD5BD', fontSize: '140px', lineHeight: '1' }}>PetWell</h1>
+            <p className="text-lg" style={{ fontFamily: 'Cabin, sans-serif', color: '#EBD5BD' }}>
               We love you for loving your pets
             </p>
           </div>
-          <div className="space-y-4 pt-8">
+          <div className="flex gap-6 pt-4 w-full justify-center" style={{ fontFamily: 'Cabin, sans-serif' }}>
             <button
               type="button"
               onClick={handleLogin}
-              className="w-full py-4 text-white rounded-lg transition-colors font-semibold text-lg shadow-lg"
-              style={{ backgroundColor: "#FFA500" }}
+              className="w-full py-4 text-black rounded-lg transition-colors font-semibold text-[28px] shadow-lg"
+              style={{ backgroundColor: "#FFA500"}}
             >
               Log In
             </button>
             <button
               type="button"
               onClick={handleSignUp}
-              className="w-full py-4 text-white rounded-lg transition-colors font-semibold text-lg shadow-lg"
+              className="w-full py-4 text-black rounded-lg transition-colors font-semibold text-[28px] shadow-lg"
               style={{ backgroundColor: "#FFA500" }}
             >
               Sign Up
