@@ -1,17 +1,16 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUpload, FaPencilAlt } from "react-icons/fa";
+// import { FaUpload, FaPencilAlt } from "react-icons/fa";
 import PetWellLogo from "../../Assets/PetWell.png";
 import Loader from "../../Components/Loader";
 
-const profileImg = "https://randomuser.me/api/portraits/dogs/1.jpg"; // Placeholder, replace as needed
 
 const UploadDocuments: React.FC = () => {
   const [uploads, setUploads] = useState<
     { name: string; size: string; type: string; progress: number }[]
   >([]);
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState("");
+//   const [, setEditingIdx] = useState<number | null>(null);
+//   const [editValue, setEditValue] = useState("");
   const [showLoader, setShowLoader] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
@@ -59,34 +58,34 @@ const UploadDocuments: React.FC = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleEdit = (idx: number, currentName: string) => {
-    setEditingIdx(idx);
-    setEditValue(currentName);
-  };
+//   const handleEdit = (idx: number, currentName: string) => {
+//     setEditingIdx(idx);
+//     setEditValue(currentName);
+//   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditValue(e.target.value);
-  };
+//   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setEditValue(e.target.value);
+//   };
 
-  const handleEditBlur = (idx: number) => {
-    if (editValue.trim() !== "") {
-      setUploads((prev) =>
-        prev.map((item, i) => (i === idx ? { ...item, name: editValue } : item))
-      );
-    }
-    setEditingIdx(null);
-  };
+//   const handleEditBlur = (idx: number) => {
+//     if (editValue.trim() !== "") {
+//       setUploads((prev) =>
+//         prev.map((item, i) => (i === idx ? { ...item, name: editValue } : item))
+//       );
+//     }
+//     setEditingIdx(null);
+//   };
 
-  const handleEditKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    idx: number
-  ) => {
-    if (e.key === "Enter") {
-      handleEditBlur(idx);
-    } else if (e.key === "Escape") {
-      setEditingIdx(null);
-    }
-  };
+//   const handleEditKeyDown = (
+//     e: React.KeyboardEvent<HTMLInputElement>,
+//     idx: number
+//   ) => {
+//     if (e.key === "Enter") {
+//       handleEditBlur(idx);
+//     } else if (e.key === "Escape") {
+//       setEditingIdx(null);
+//     }
+//   };
 
   return (
     <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
