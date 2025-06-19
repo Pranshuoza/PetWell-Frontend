@@ -1,5 +1,6 @@
 import React from "react";
 import Navbar from "../../Components/Navbar";
+import VaccineInfo from "../../Components/VaccineInfo";
 
 const Home: React.FC = () => {
   const vaccines = [
@@ -7,8 +8,6 @@ const Home: React.FC = () => {
       name: "K9 DA2PPV 3 Year (VANGUARD)",
       administered: "4/15/23",
       expires: "In 3 days",
-      alert:
-        "It looks like Syd is due for a vaccine. Schedule an appointment now",
     },
     {
       name: "Heartgard Plus",
@@ -58,58 +57,20 @@ const Home: React.FC = () => {
         <div className="flex flex-row justify-between items-start gap-8">
           {/* Vaccines Section */}
           <div className="w-[32%]">
+            <h2 className="text-2xl font-semibold mb-4">
+              Vaccines{" "}
+              <span className="text-[#FFA500] text-base ml-2 cursor-pointer">
+                View All &gt;
+              </span>
+            </h2>
             <div className="space-y-6">
               {vaccines.map((vaccine, index) => (
-                <div
+                <VaccineInfo
                   key={index}
-                  className="bg-[#EBD5BD1A] rounded-2xl shadow-lg p-6 relative border border-[#232b41] text-[#EBD5BD]"
-                >
-                  <div className="flex items-center mb-3">
-                    <button className="absolute right-4 text-gray-400 text-sm hover:text-[#FFA500] font-medium">
-                      Edit
-                    </button>
-                    <span className="mr-4  text-xl text-[#E3D0BA]">💉</span>
-                  </div>
-                  <div className="flex items-center mb-3 font-bold text-left text-xl text-[#EBD5BD]">
-                    {vaccine.name}
-                  </div>
-                  {/* Dates - Fixed Layout */}
-                  <div className="grid grid-cols-3 gap-4 mt-2 text-left">
-                    <div>
-                      <div className="text-gray-400 text-sm font-normal">
-                        Administered
-                      </div>
-                      <div className="font-bold text-left text-[#EBD5BD]">
-                        {vaccine.administered}
-                      </div>
-                    </div>
-                    <div className="text-left">
-                      <div className="text-gray-400 text-sm font-normal">
-                        Expires
-                      </div>
-                      <div className="font-bold text-base text-[#EBD5BD] flex items-center">
-                        {vaccine.expires}
-                        {vaccine.alert && (
-                          <span className="text-[#FF5A5F] text-lg  ml-1">
-                            ❗
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div></div> {/* Empty third column for spacing */}
-                  </div>
-                  {/* Divider */}
-                  {vaccine.alert && (
-                    <hr className="my-3 border-gray-600 opacity-40" />
-                  )}
-                  {/* Alert */}
-                  {vaccine.alert && (
-                    <div className="text-[#EBD5BD] text-sm flex items-start">
-                      <span className="text-lg mt-0.5">❗</span>
-                      <span>{vaccine.alert}</span>
-                    </div>
-                  )}
-                </div>
+                  name={vaccine.name}
+                  administered={vaccine.administered}
+                  expires={vaccine.expires}
+                />
               ))}
             </div>
           </div>
