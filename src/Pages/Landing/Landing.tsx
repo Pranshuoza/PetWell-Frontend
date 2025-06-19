@@ -3,7 +3,7 @@ import LoginPage from "../../Assets/LoginPage.png";
 import PetWellLogo from '../../Assets/PetWell.png';
 import { useNavigate } from 'react-router-dom';
 
-const Login: React.FC = () => {
+const Landing: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
@@ -62,4 +62,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Landing;
