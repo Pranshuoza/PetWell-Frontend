@@ -1,9 +1,7 @@
-import React, { useState } from "react";
-import PetWellLogo from "../../Assets/PetWell.png";
+import React from "react";
+import Navbar from "../../Components/Navbar";
 
 const Home: React.FC = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const vaccines = [
     {
       name: "K9 DA2PPV 3 Year (VANGUARD)",
@@ -26,114 +24,12 @@ const Home: React.FC = () => {
     { name: "Training Plan_Syd.pdf", size: "3.2 MB" },
   ];
 
-  const handleDropdownToggle = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleEditProfile = () => {
-    console.log("Edit Profile clicked");
-    setIsDropdownOpen(false);
-  };
-
-  const handleSwitchProfile = () => {
-    console.log("Switch Profile clicked");
-    setIsDropdownOpen(false);
-  };
-
-  const handleSettings = () => {
-    console.log("Settings clicked");
-    setIsDropdownOpen(false);
-  };
-
   return (
-    <div className="fixed inset-0 bg-[#1C232E] text-[#EBD5BD] overflow-hidden min-h-screen w-screen font-sans">
-      {/* Top Navigation Bar */}
-      <nav className="flex items-center justify-between px-12 py-6 bg-transparent">
-        <div className="flex items-center space-x-4">
-          <img
-            src={PetWellLogo}
-            alt="PetWell Logo"
-            className="w-10 h-10 object-contain"
-          />
-        </div>
-        <div className="flex space-x-20 text-lg font-medium">
-          <a href="#" className="hover:text-[#FFA500] transition">
-            Home
-          </a>
-          <a href="#" className="hover:text-[#FFA500] transition">
-            Vaccines
-          </a>
-          <a href="#" className="hover:text-[#FFA500] transition">
-            Documents
-          </a>
-          <a href="#" className="hover:text-[#FFA500] transition">
-            Team
-          </a>
-        </div>
-        <div className="relative flex items-center space-x-3">
-          <span className="text-white font-semibold">Syd</span>
-          <div className="relative">
-            <button
-              onClick={handleDropdownToggle}
-              className="flex items-center space-x-2 focus:outline-none"
-            >
-              <img
-                src=""
-                alt="User"
-                className="w-10 h-10 rounded-full object-cover border-2 border-[#FFA500]"
-              />
-              <svg
-                className={`w-4 h-4 text-[#EBD5BD] transition-transform ${
-                  isDropdownOpen ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-            
-            {/* Dropdown Menu */}
-            {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-[#2A3441] rounded-lg shadow-lg border border-[#3A4551] z-50">
-                <div className="py-2">
-                  <button
-                    onClick={handleEditProfile}
-                    className="flex items-center w-full px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#3A4551] hover:text-[#FFA500] transition"
-                  >
-                    Edit Profile Info
-                  </button>
-                  
-                  <button
-                    onClick={handleSwitchProfile}
-                    className="flex items-center w-full px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#3A4551] hover:text-[#FFA500] transition"
-                  >
-                    Not Syd? Switch Profile
-                  </button>
-                                    
-                  <button
-                    onClick={handleSettings}
-                    className="flex items-center w-full px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#3A4551] hover:text-[#FFA500] transition"
-                  >
-                    Settings
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex items-center text-3xl font-serif font-semibold justify-between px-16 py-4 ">
-        <span>Welcome Syd!</span>
-      </div>
-
+    <div className="fixed inset-0 bg-[#101624] text-white overflow-hidden min-h-screen w-screen">
+      <Navbar
+        userName="Syd"
+        userImage="https://randomuser.me/api/portraits/men/32.jpg"
+      />
       {/* Main Content */}
       <div className="px-16 pt-2 pb-8">
         {/* Main Headings Row */}
@@ -167,7 +63,7 @@ const Home: React.FC = () => {
                 <div
                   key={index}
                   className="bg-[#EBD5BD1A] rounded-2xl shadow-lg p-6 relative border border-[#232b41] text-[#EBD5BD]"
-                  >
+                >
                   <div className="flex items-center mb-3">
                     <button className="absolute right-4 text-gray-400 text-sm hover:text-[#FFA500] font-medium">
                       Edit
@@ -175,7 +71,7 @@ const Home: React.FC = () => {
                     <span className="mr-4  text-xl text-[#E3D0BA]">💉</span>
                   </div>
                   <div className="flex items-center mb-3 font-bold text-left text-xl text-[#EBD5BD]">
-                      {vaccine.name}
+                    {vaccine.name}
                   </div>
                   {/* Dates - Fixed Layout */}
                   <div className="grid grid-cols-3 gap-4 mt-2 text-left">
@@ -194,7 +90,9 @@ const Home: React.FC = () => {
                       <div className="font-bold text-base text-[#EBD5BD] flex items-center">
                         {vaccine.expires}
                         {vaccine.alert && (
-                          <span className="text-[#FF5A5F] text-lg  ml-1">❗</span>
+                          <span className="text-[#FF5A5F] text-lg  ml-1">
+                            ❗
+                          </span>
                         )}
                       </div>
                     </div>
@@ -237,7 +135,9 @@ const Home: React.FC = () => {
                   <span className="flex-1 truncate text-base font-medium text-[#F5F5F5]">
                     {doc.name}
                   </span>
-                  <span className="mx-2 text-[#EBD5BD] text-sm">{doc.size}</span>
+                  <span className="mx-2 text-[#EBD5BD] text-sm">
+                    {doc.size}
+                  </span>
                   <button className="ml-2 text-gray-400 hover:text-red-500 text-xl">
                     ×
                   </button>
