@@ -20,7 +20,6 @@ const VaccineInfo: React.FC<VaccineInfoProps> = ({
         className="text-[#EBD5BD] hover:text-[#FFA500] text-sm absolute right-4"
         onClick={onEdit}
       >
-        Edit
       </button>
     </div>
     <div>

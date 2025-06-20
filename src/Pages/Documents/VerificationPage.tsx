@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import PetWellLogo from "../../Assets/PetWell.png";
 import VaccineInfo from "../../Components/VaccineInfo";
+import EditVaccineModal from "../../Components/EditVaccineModal";
+import { FaPencilAlt } from "react-icons/fa";
 
 const vaccines = [
   {
@@ -35,6 +37,7 @@ const documents = [
 ];
 
 const VerificationPage: React.FC = () => {
+  const [editIdx, setEditIdx] = useState<number | null>(null);
   return (
     <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
       {/* Logo and Header */}
@@ -47,7 +50,7 @@ const VerificationPage: React.FC = () => {
       </div>
       <div className="flex justify-between items-center w-full max-w-6xl mt-12 mb-4 px-8">
         <h1 className="text-3xl font-bold text-[#EBD5BD]">
-          Here’s what we know. Check it out!
+          Here's what we know. Check it out!
         </h1>
         <div className="flex items-center space-x-3">
           <span className="text-[#EBD5BD] font-semibold">Syd</span>
@@ -73,18 +76,32 @@ const VerificationPage: React.FC = () => {
       </div>
       <div className="w-full max-w-6xl px-8">
         <p className="text-[#EBD5BD] opacity-80 mb-8 text-lg">
-          You can review, edit, or add notes before saving it to Syd’s profile.
+          You can review, edit, or add notes before saving it to Syd's profile.
         </p>
         {/* Vaccines Section */}
-        <h2 className="text-xl font-semibold mb-4">Syd’s Vaccines</h2>
+        <h2 className="text-xl font-semibold mb-4">Syd's Vaccines</h2>
         <div className="grid grid-cols-3 gap-6 mb-10">
           {vaccines.map((vaccine, idx) => (
-            <VaccineInfo
-              key={idx}
-              name={vaccine.name}
-              administered={vaccine.administered}
-              expires={vaccine.expires}
-            />
+            <div className="relative group" key={idx}>
+              <VaccineInfo
+                name={vaccine.name}
+                administered={vaccine.administered}
+                expires={vaccine.expires}
+              />
+              <button
+                className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 bg-[#232b3e] rounded-full p-2 text-[#FFA500] hover:bg-[#FFA500] hover:text-white transition"
+                onClick={() => setEditIdx(idx)}
+              >
+                <FaPencilAlt className="w-5 h-5" />
+              </button>
+              {editIdx === idx && (
+                <EditVaccineModal
+                  open={editIdx === idx}
+                  onClose={() => setEditIdx(null)}
+                  vaccine={vaccine}
+                />
+              )}
+            </div>
           ))}
           {/* Add a Vaccine Card */}
           <div className="border-2 border-[#EBD5BD] border-dashed rounded-xl flex flex-col items-center justify-center min-h-[120px] cursor-pointer hover:border-[#FFA500] transition">
