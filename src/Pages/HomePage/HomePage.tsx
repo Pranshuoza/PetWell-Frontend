@@ -8,6 +8,8 @@ const Home: React.FC = () => {
       name: "K9 DA2PPV 3 Year (VANGUARD)",
       administered: "4/15/23",
       expires: "In 3 days",
+      soon: true,
+      warning: "Syd is due for the vaccine soon. Schedule now!",
     },
     {
       name: "Heartgard Plus",
@@ -57,19 +59,19 @@ const Home: React.FC = () => {
         <div className="flex flex-row justify-between items-start gap-8">
           {/* Vaccines Section */}
           <div className="w-[32%]">
-            <h2 className="text-2xl font-semibold mb-4">
-              Vaccines{" "}
-              <span className="text-[#FFA500] text-base ml-2 cursor-pointer">
-                View All &gt;
-              </span>
-            </h2>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
               {vaccines.map((vaccine, index) => (
                 <VaccineInfo
                   key={index}
                   name={vaccine.name}
                   administered={vaccine.administered}
                   expires={vaccine.expires}
+                  soon={vaccine.soon}
+                  warning={vaccine.warning}
+                  showEdit={true}
+                  onEdit={() => {
+                    /* Add edit logic here if needed */
+                  }}
                 />
               ))}
             </div>

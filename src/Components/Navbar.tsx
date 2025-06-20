@@ -44,10 +44,10 @@ const Navbar: React.FC<NavbarProps> = ({
         />
       </div>
       <div className="flex space-x-20 text-lg font-medium">
-        <a href="#" className="hover:text-[#FFA500] transition">
+        <a href="/home" className="hover:text-[#FFA500] transition">
           Home
         </a>
-        <a href="#" className="hover:text-[#FFA500] transition">
+        <a href="/vaccine" className="hover:text-[#FFA500] transition">
           Vaccines
         </a>
         <a href="#" className="hover:text-[#FFA500] transition">
