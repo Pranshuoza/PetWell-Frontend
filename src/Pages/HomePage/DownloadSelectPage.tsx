@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../Components/Navbar";
+import Navbar from "../../Components/Layout/Navbar";
 import VaccineInfo from "../../Components/VaccineInfo";
 
 const vaccines = [

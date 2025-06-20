@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../../Components/Navbar";
+import Navbar from "../../Components/Layout/Navbar";
 import VaccineInfo from "../../Components/VaccineInfo";
 
 const Home: React.FC = () => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import PetWellLogo from "../Assets/PetWell.png";
+import PetWellLogo from "../../Assets/PetWell.png";
 
 interface NavbarProps {
   userName?: string;

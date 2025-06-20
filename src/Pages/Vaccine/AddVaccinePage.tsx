@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../../Components/Navbar";
+import Navbar from "../../Components/Layout/Navbar";
+import { Input } from "../../Components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../Components/ui/select";
+import { Checkbox } from "../../Components/ui/checkbox";
+import { Button } from "../../Components/ui/button";
+import { Card } from "../../Components/ui/card";
 
 const vaccineOptions = [
   "K9 DA2PPV 3 Year (VANGUARD)",
@@ -24,12 +35,13 @@ const AddVaccinePage: React.FC = () => {
         userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
       <div className="max-w-lg mx-auto pt-8 pb-12 flex flex-col items-center">
-        <button
+        <Button
+          variant="ghost"
           className="text-[#FFA500] text-md mb-4 flex items-center hover:underline bg-transparent self-start"
           onClick={() => navigate(-1)}
         >
           <span className="mr-2">&lt; Go Back</span>
-        </button>
+        </Button>
         <div className="flex flex-col items-center w-full">
           <svg
             className="w-14 h-14 mb-2 text-[#EBD5BD]"
@@ -62,7 +74,7 @@ const AddVaccinePage: React.FC = () => {
         </div>
         <div className="w-full flex flex-col items-center">
           {/* Upload Card */}
-          <div className="w-full max-w-md bg-[#232b3e] rounded-2xl shadow-xl p-8 flex flex-col items-center mb-4">
+          <Card className="w-full max-w-md bg-[#232b3e] rounded-2xl shadow-xl p-8 flex flex-col items-center mb-4">
             <label
               htmlFor="vaccine-upload"
               className="flex flex-col items-center cursor-pointer w-full"
@@ -86,14 +98,14 @@ const AddVaccinePage: React.FC = () => {
               <span className="text-sm text-[#EBD5BD] opacity-70 mb-2">
                 Supported formats: PDF, JPG, PNG, DOC.
               </span>
-              <input
+              <Input
                 id="vaccine-upload"
                 type="file"
                 className="hidden"
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
               />
             </label>
-          </div>
+          </Card>
           <div className="w-full flex items-center my-4">
             <div className="flex-1 h-px bg-[#232b3e]" />
             <span className="mx-4 text-[#EBD5BD] opacity-70">Or</span>
@@ -105,24 +117,24 @@ const AddVaccinePage: React.FC = () => {
               <label className="block text-[#EBD5BD] text-sm mb-1">
                 Vaccine Name
               </label>
-              <select
-                className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2 appearance-none"
-                value={vaccine}
-                onChange={(e) => setVaccine(e.target.value)}
-              >
-                <option value="">Select Vaccine</option>
-                {vaccineOptions.map((v, i) => (
-                  <option key={i} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
+              <Select value={vaccine} onValueChange={setVaccine}>
+                <SelectTrigger className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2">
+                  <SelectValue placeholder="Select Vaccine" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vaccineOptions.map((v, i) => (
+                    <SelectItem key={i} value={v}>
+                      {v}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="block text-[#EBD5BD] text-sm mb-1">
                 Date Administered
               </label>
-              <input
+              <Input
                 className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2"
                 type="date"
                 value={administered}
@@ -134,7 +146,7 @@ const AddVaccinePage: React.FC = () => {
               <label className="block text-[#EBD5BD] text-sm mb-1">
                 Expiry Date
               </label>
-              <input
+              <Input
                 className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2"
                 type="date"
                 value={expiry}
@@ -146,26 +158,25 @@ const AddVaccinePage: React.FC = () => {
               <label className="block text-[#EBD5BD] text-sm mb-1">
                 Administered By
               </label>
-              <select
-                className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2 appearance-none"
-                value={doctor}
-                onChange={(e) => setDoctor(e.target.value)}
-              >
-                <option value="">Select Doctor</option>
-                {doctorOptions.map((d, i) => (
-                  <option key={i} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <Select value={doctor} onValueChange={setDoctor}>
+                <SelectTrigger className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2">
+                  <SelectValue placeholder="Select Doctor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {doctorOptions.map((d, i) => (
+                    <SelectItem key={i} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-start gap-2 mt-2">
-              <input
-                type="checkbox"
-                className="mt-1 accent-[#FFA500]"
+              <Checkbox
                 id="verify-checkbox"
                 checked={verified}
-                onChange={(e) => setVerified(e.target.checked)}
+                onCheckedChange={setVerified}
+                className="mt-1 accent-[#FFA500]"
               />
               <label
                 htmlFor="verify-checkbox"
@@ -176,18 +187,19 @@ const AddVaccinePage: React.FC = () => {
               </label>
             </div>
             <div className="flex justify-between gap-4 mt-6">
-              <button
+              <Button
                 type="button"
-                className="flex-1 py-3 rounded-lg border border-[#FFA500] text-[#FFA500] font-semibold text-lg hover:bg-[#FFA500] hover:text-white transition bg-transparent"
+                variant="outline"
+                className="flex-1 border-[#FFA500] text-[#FFA500] hover:bg-[#FFA500] hover:text-white transition bg-transparent"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="flex-1 py-3 rounded-lg bg-[#FFA500] text-white font-semibold text-lg hover:brightness-110 transition"
+                className="flex-1 bg-[#FFA500] text-white font-semibold text-lg hover:brightness-110 transition"
               >
                 Add Vaccine
-              </button>
+              </Button>
             </div>
           </form>
         </div>
