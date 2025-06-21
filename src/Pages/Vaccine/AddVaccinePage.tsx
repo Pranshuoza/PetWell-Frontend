@@ -175,7 +175,7 @@ const AddVaccinePage: React.FC = () => {
               <Checkbox
                 id="verify-checkbox"
                 checked={verified}
-                onCheckedChange={setVerified}
+                onCheckedChange={(checked) => setVerified(checked === true)}
                 className="mt-1 accent-[#FFA500]"
               />
               <label

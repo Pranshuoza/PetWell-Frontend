@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
-import VaccineInfo from "../../Components/VaccineInfo";
-import EditVaccineModal from "../../Components/EditVaccineModal";
+import VaccineInfo from "../../Components/Vaccine/VaccineInfo";
+import EditVaccineModal from "../../Components/Vaccine/EditVaccineModal";
 
 const vaccines = [
   {

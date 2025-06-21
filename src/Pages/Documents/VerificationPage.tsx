@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PetWellLogo from "../../Assets/PetWell.png";
-import VaccineInfo from "../../Components/VaccineInfo";
-import EditVaccineModal from "../../Components/EditVaccineModal";
+import VaccineInfo from "../../Components/Vaccine/VaccineInfo";
+import EditVaccineModal from "../../Components/Vaccine/EditVaccineModal";
 import { FaPencilAlt } from "react-icons/fa";
 
 const vaccines = [
