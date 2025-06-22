@@ -18,7 +18,7 @@ const teams = [
 		phone: "(555) 555-5555",
 		email: "info@vetoffice.com",
 		address: "78 Hudson St, New York",
-		avatar: "/avatars/vet-office.jpg",
+		avatar: "https://randomuser.me/api/portraits/men/32.jpg",
 	},
 	{
 		name: "Clean Pup Groomers",
@@ -26,7 +26,7 @@ const teams = [
 		phone: "(555) 555-5555",
 		email: "info@vetoffice.com",
 		address: "112 W 34th St, New York",
-		avatar: "/avatars/groomer.jpg",
+		avatar: "https://randomuser.me/api/portraits/women/44.jpg",
 	},
 	{
 		name: "Happy Tails Boarding",
@@ -34,7 +34,7 @@ const teams = [
 		phone: "(555) 123-4567",
 		email: "contact@happytails.com",
 		address: "200 Park Ave, New York",
-		avatar: "/avatars/boarding.jpg",
+		avatar: "https://randomuser.me/api/portraits/men/65.jpg",
 	},
 	{
 		name: "Pawsitive Trainers",
@@ -42,7 +42,7 @@ const teams = [
 		phone: "(555) 987-6543",
 		email: "info@pawsitivetrainers.com",
 		address: "55 Broadway, New York",
-		avatar: "/avatars/trainer.jpg",
+		avatar: "https://randomuser.me/api/portraits/women/68.jpg",
 	},
 	{
 		name: "Pet Wellness Pharmacy",
@@ -50,7 +50,7 @@ const teams = [
 		phone: "(555) 222-3333",
 		email: "pharmacy@petwell.com",
 		address: "300 5th Ave, New York",
-		avatar: "/avatars/pharmacy.jpg",
+		avatar: "https://randomuser.me/api/portraits/men/77.jpg",
 	},
 	{
 		name: "Downtown Animal Hospital",
@@ -58,7 +58,7 @@ const teams = [
 		phone: "(555) 444-5555",
 		email: "info@downtownvet.com",
 		address: "400 6th Ave, New York",
-		avatar: "/avatars/animal-hospital.jpg",
+		avatar: "https://randomuser.me/api/portraits/women/12.jpg",
 	},
 ];
 

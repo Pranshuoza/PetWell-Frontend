@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import PetWellLogo from "../../Assets/PetWell.png";
 
 interface NavbarProps {
@@ -16,6 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({
   onSwitchProfile,
   onSettings,
 }) => {
+  const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -46,25 +48,41 @@ const Navbar: React.FC<NavbarProps> = ({
       <div className="flex flex-col md:flex-row md:space-x-16 space-y-2 md:space-y-0 text-base md:text-lg font-medium items-center mb-4 md:mb-0">
         <a
           href="/home"
-          className="hover:text-[var(--color-primary)] text-[var(--color-text)] transition"
+          className={`hover:text-[var(--color-primary)] transition ${
+            location.pathname === "/home"
+              ? "text-[var(--color-primary)] font-bold underline underline-offset-8"
+              : "text-[var(--color-text)]"
+          }`}
         >
           Home
         </a>
         <a
           href="/vaccine"
-          className="hover:text-[var(--color-primary)] text-[var(--color-text)] transition"
+          className={`hover:text-[var(--color-primary)] transition ${
+            location.pathname === "/vaccine"
+              ? "text-[var(--color-primary)] font-bold underline underline-offset-8"
+              : "text-[var(--color-text)]"
+          }`}
         >
           Vaccines
         </a>
         <a
           href="/documents"
-          className="hover:text-[var(--color-primary)] text-[var(--color-text)] transition"
+          className={`hover:text-[var(--color-primary)] transition ${
+            location.pathname === "/documents"
+              ? "text-[var(--color-primary)] font-bold underline underline-offset-8"
+              : "text-[var(--color-text)]"
+          }`}
         >
           Documents
         </a>
         <a
           href="/team"
-          className="hover:text-[var(--color-primary)] text-[var(--color-text)] transition"
+          className={`hover:text-[var(--color-primary)] transition ${
+            location.pathname === "/team"
+              ? "text-[var(--color-primary)] font-bold underline underline-offset-8"
+              : "text-[var(--color-text)]"
+          }`}
         >
           Team
         </a>

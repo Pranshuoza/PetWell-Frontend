@@ -11,6 +11,7 @@ import AddVaccinePage from "./Pages/Vaccine/AddVaccinePage";
 import DocumentPage from "./Pages/HomePage/DocumentPage";
 import TeamsPage from "./Pages/HomePage/TeamsPage";
 import AddTeamPage from "./Components/Teams/AddTeamPage";
+import LoginPage from "./Pages/Authentication/LoginPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/signup" element={<ProfileCreationStep1 />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/vaccine" element={<VaccinesPage />} />
         <Route path="/documents" element={<DocumentPage />} />

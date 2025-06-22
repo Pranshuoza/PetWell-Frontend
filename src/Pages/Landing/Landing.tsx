@@ -7,9 +7,7 @@ const Landing: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // Redirect to login page or perform login logic
-    // Example: navigate('/dashboard');
-    console.log("Redirect to login");
+    navigate('/login');
   };
 
   const handleSignUp = () => {
