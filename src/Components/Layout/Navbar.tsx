@@ -57,7 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({
           Vaccines
         </a>
         <a
-          href="#"
+          href="/documents"
           className="hover:text-[var(--color-primary)] text-[var(--color-text)] transition"
         >
           Documents

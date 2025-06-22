@@ -7,7 +7,8 @@ body.no-scroll {
   touch-action: none;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
   overflow-y: scroll;
   scrollbar-width: none;
@@ -21,30 +22,34 @@ html, body {
   -ms-overflow-style: none;
 }
 
-html::-webkit-scrollbar, body::-webkit-scrollbar {
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
   display: none;
 }
 
 @layer base {
   :root {
-    --color-primary: #FFA500;
+    --color-primary: #ffb23e;
     --color-primary-foreground: #232b3e;
     --color-background: #101624;
-    --color-card: #232b3e;
-    --color-text: #EBD5BD;
-    --color-warning: #FFA500;
+    --color-card: #ebd5bd1a;
+    --color-modal: #232b3e;
+    --color-modal-foreground: #ebd5bd;
+    --color-modal-border: #232b41;
+    --color-text: #ebd5bd;
+    --color-warning: #ffa500;
     --color-shadow: #232b41;
-    --color-accent: #EBD5BD1A;
+    --color-accent: #ebd5bd1a;
     --color-danger: #ff4d4f;
     --color-success: #22c55e;
-    --color-link: #FFA500;
+    --color-link: #ffa500;
     --color-border: #232b41;
     --color-input: #232b3e;
     --color-secondary: #232b3e;
-    --color-secondary-foreground: #EBD5BD;
+    --color-secondary-foreground: #ebd5bd;
     --color-destructive: #ff4d4f;
-    --color-ring: #FFA500;
-    --color-accent-foreground: #FFA500;
+    --color-ring: #ffa500;
+    --color-accent-foreground: #ffa500;
     --color-accent-hover: #ffb733;
     --color-white: #fff;
     --color-black: #000;

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 // import { FaUpload, FaPencilAlt } from "react-icons/fa";
 import PetWellLogo from "../../Assets/PetWell.png";
-import Loader from "../../Components/Loader";
+import Loader from "../../Components/ui/Loader";
 
 
 const UploadDocuments: React.FC = () => {

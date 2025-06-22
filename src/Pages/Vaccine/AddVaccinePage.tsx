@@ -1,207 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
-import { Input } from "../../Components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../Components/ui/select";
-import { Checkbox } from "../../Components/ui/checkbox";
-import { Button } from "../../Components/ui/button";
-import { Card } from "../../Components/ui/card";
-
-const vaccineOptions = [
-  "K9 DA2PPV 3 Year (VANGUARD)",
-  "Heartgard Plus",
-  "K9 Leptospira Vaccine 1 Year",
-];
-const doctorOptions = ["Dr. John Doe", "Dr. Jane Smith", "Dr. Emily Brown"];
-
+import AddVaccine from "../../Components/Vaccine/AddVaccine";
 const AddVaccinePage: React.FC = () => {
   const navigate = useNavigate();
-  const [vaccine, setVaccine] = useState("");
-  const [administered, setAdministered] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [doctor, setDoctor] = useState("");
-  const [verified, setVerified] = useState(false);
-
   return (
-    <div className="min-h-screen w-screen bg-[#101624] text-[#EBD5BD] font-sans">
+    <div className="min-h-screen w-screen bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar
         userName="Syd"
         userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
-      <div className="max-w-lg mx-auto pt-8 pb-12 flex flex-col items-center">
-        <Button
-          variant="ghost"
-          className="text-[#FFA500] text-md mb-4 flex items-center hover:underline bg-transparent self-start"
+      <div className="max-w-8xl mx-auto px-12 pt-4 pb-12">
+        <button
+          className="text-[#FFA500] text-md mb-4 flex items-center hover:underline bg-transparent"
           onClick={() => navigate(-1)}
         >
           <span className="mr-2">&lt; Go Back</span>
-        </Button>
-        <div className="flex flex-col items-center w-full">
-          <svg
-            className="w-14 h-14 mb-2 text-[#EBD5BD]"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M18.364 5.636l-1-1m0 0a2 2 0 00-2.828 0l-1.415 1.414a2 2 0 000 2.828l1 1m2.243-2.243l-9.9 9.9a2 2 0 002.828 2.828l9.9-9.9m-2.243 2.243l1 1m-1-1l-1-1"
-            />
-            <circle cx="19" cy="5" r="2" fill="#FFA500" />
-            <text
-              x="18.5"
-              y="6.5"
-              textAnchor="middle"
-              fontSize="1.2rem"
-              fill="#fff"
-              fontWeight="bold"
-            >
-              +
-            </text>
-          </svg>
-          <h1 className="text-3xl font-serif font-bold mb-2">Add Vaccine</h1>
-          <p className="text-lg opacity-80 mb-8 text-center">
-            Start by uploading a document or fill in the vaccine info manually.
-          </p>
-        </div>
-        <div className="w-full flex flex-col items-center">
-          {/* Upload Card */}
-          <Card className="w-full max-w-md bg-[#232b3e] rounded-2xl shadow-xl p-8 flex flex-col items-center mb-4">
-            <label
-              htmlFor="vaccine-upload"
-              className="flex flex-col items-center cursor-pointer w-full"
-            >
-              <svg
-                className="w-8 h-8 mb-2 text-[#EBD5BD]"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-                />
-              </svg>
-              <span className="text-lg text-[#EBD5BD] font-medium mb-1">
-                Upload vaccine document
-              </span>
-              <span className="text-sm text-[#EBD5BD] opacity-70 mb-2">
-                Supported formats: PDF, JPG, PNG, DOC.
-              </span>
-              <Input
-                id="vaccine-upload"
-                type="file"
-                className="hidden"
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              />
-            </label>
-          </Card>
-          <div className="w-full flex items-center my-4">
-            <div className="flex-1 h-px bg-[#232b3e]" />
-            <span className="mx-4 text-[#EBD5BD] opacity-70">Or</span>
-            <div className="flex-1 h-px bg-[#232b3e]" />
-          </div>
-          {/* Form */}
-          <form className="w-full flex flex-col gap-4">
-            <div>
-              <label className="block text-[#EBD5BD] text-sm mb-1">
-                Vaccine Name
-              </label>
-              <Select value={vaccine} onValueChange={setVaccine}>
-                <SelectTrigger className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2">
-                  <SelectValue placeholder="Select Vaccine" />
-                </SelectTrigger>
-                <SelectContent>
-                  {vaccineOptions.map((v, i) => (
-                    <SelectItem key={i} value={v}>
-                      {v}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="block text-[#EBD5BD] text-sm mb-1">
-                Date Administered
-              </label>
-              <Input
-                className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2"
-                type="date"
-                value={administered}
-                onChange={(e) => setAdministered(e.target.value)}
-                placeholder="Select Date"
-              />
-            </div>
-            <div>
-              <label className="block text-[#EBD5BD] text-sm mb-1">
-                Expiry Date
-              </label>
-              <Input
-                className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2"
-                type="date"
-                value={expiry}
-                onChange={(e) => setExpiry(e.target.value)}
-                placeholder="Select Date"
-              />
-            </div>
-            <div>
-              <label className="block text-[#EBD5BD] text-sm mb-1">
-                Administered By
-              </label>
-              <Select value={doctor} onValueChange={setDoctor}>
-                <SelectTrigger className="w-full rounded-lg px-4 py-2 bg-[#181f32] text-[#EBD5BD] border border-[#232b41] mb-2">
-                  <SelectValue placeholder="Select Doctor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {doctorOptions.map((d, i) => (
-                    <SelectItem key={i} value={d}>
-                      {d}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-start gap-2 mt-2">
-              <Checkbox
-                id="verify-checkbox"
-                checked={verified}
-                onCheckedChange={(checked) => setVerified(checked === true)}
-                className="mt-1 accent-[#FFA500]"
-              />
-              <label
-                htmlFor="verify-checkbox"
-                className="text-[#EBD5BD] text-xs"
-              >
-                By selecting this box, I verify that the information here is
-                correct and verifiable by a third party if needed.
-              </label>
-            </div>
-            <div className="flex justify-between gap-4 mt-6">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1 border-[#FFA500] text-[#FFA500] hover:bg-[#FFA500] hover:text-white transition bg-transparent"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1 bg-[#FFA500] text-white font-semibold text-lg hover:brightness-110 transition"
-              >
-                Add Vaccine
-              </Button>
-            </div>
-          </form>
+        </button>
+        <div className="max-w-lg mx-auto pt-8 pb-12 flex flex-col items-center">
+          <AddVaccine />
         </div>
       </div>
     </div>

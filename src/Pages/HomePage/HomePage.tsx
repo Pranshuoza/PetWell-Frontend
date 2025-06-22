@@ -1,8 +1,8 @@
 import React from "react";
 import Navbar from "../../Components/Layout/Navbar";
-import VaccineBox from "../../Components/Vaccine/VaccineBox";
 import DocumentSection from "../../Components/Document/DocumentSection";
 import TeamSection from "../../Components/Teams/TeamSection";
+import VaccineSection from "../../Components/Vaccine/VaccineSection";
 
 const vaccines = [
   {
@@ -67,10 +67,10 @@ const Home: React.FC = () => {
         userName="Syd"
         userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
-      <div className="container pt-8 pb-10 mx-auto max-w-8xl">
+      <div className="container pt-8 pb-12 pr-8 pl-8 mx-auto max-w-8xl">
         <h1 className="text-3xl font-serif font-bold mb-2">Welcome Syd!</h1>
         {/* Vaccines Section */}
-        <VaccineBox vaccines={vaccines} />
+        <VaccineSection vaccines={vaccines}  />
         {/* Documents Section */}
         <DocumentSection documents={documents as any} />
         {/* Teams Section */}

@@ -3,11 +3,12 @@ import Landing from "./Pages/Landing/Landing";
 import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreationStep1";
 import "./App.css";
 import Home from "./Pages/HomePage/HomePage";
-import UploadDocuments from "./Pages/Documents/UploadDocuments";
-import VerificationPage from "./Pages/Documents/VerificationPage";
+import UploadDocuments from "./Pages/UploadDocuments/UploadDocuments";
+import VerificationPage from "./Pages/UploadDocuments/VerificationPage";
 import VaccinesPage from "./Pages/Vaccine/VaccinesPage";
 import DownloadSelectPage from "./Pages/Vaccine/DownloadSelectPage";
 import AddVaccinePage from "./Pages/Vaccine/AddVaccinePage";
+import DocumentPage from "./Pages/HomePage/DocumentPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signup" element={<ProfileCreationStep1 />} />
         <Route path="/home" element={<Home />} />
         <Route path="/vaccine" element={<VaccinesPage />} />
+        <Route path="/documents" element={<DocumentPage />} />
         <Route path="/download-select" element={<DownloadSelectPage />} />
         <Route path="/add-vaccine" element={<AddVaccinePage />} />
         <Route path="/upload" element={<UploadDocuments />} />

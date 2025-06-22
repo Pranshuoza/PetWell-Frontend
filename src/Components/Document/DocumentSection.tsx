@@ -22,7 +22,7 @@ const DocumentSection: React.FC<DocumentSectionProps> = ({
 }) => {
   return (
     <section className="mb-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h2 className="text-xl font-serif font-semibold mb-2 md:mb-0">
           Recently Uploaded Documents
         </h2>

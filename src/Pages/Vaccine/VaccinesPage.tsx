@@ -51,7 +51,7 @@ const VaccinesPage: React.FC = () => {
         userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
       <div className="container max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-2xl font-serif font-bold mt-2">Syd's Vaccines</h1>
           <div className="flex gap-4">
             <button
