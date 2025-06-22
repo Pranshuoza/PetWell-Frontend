@@ -12,15 +12,15 @@ import DocumentPage from "./Pages/HomePage/DocumentPage";
 import TeamsPage from "./Pages/HomePage/TeamsPage";
 import AddTeamPage from "./Components/Teams/AddTeamPage";
 import LoginPage from "./Pages/Authentication/LoginPage";
-import SignupPage from "./Pages/Authentication/SignupPage";
+import PetProfile from "./Pages/HomePage/PetProfile";
+import SwitchProfilePage from "./Pages/HomePage/SwitchProfilePage";
 
 function App() {
   return (
     <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/profile-creation" element={<ProfileCreationStep1 />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/signup" element={<ProfileCreationStep1 />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/vaccine" element={<VaccinesPage />} />
@@ -31,6 +31,8 @@ function App() {
         <Route path="/verify" element={<VerificationPage />} />
         <Route path="/team" element={<TeamsPage />} />
         <Route path="/add-team" element={<AddTeamPage />} />
+        <Route path="/pet-profile" element={<PetProfile />} />
+        <Route path="/switch-profile" element={<SwitchProfilePage />} />
       </Routes>
     </div>
   );
