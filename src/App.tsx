@@ -3,7 +3,7 @@ import Landing from "./Pages/Landing/Landing";
 import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreationStep1";
 import "./App.css";
 import Home from "./Pages/HomePage/HomePage";
-import UploadDocuments from "./Pages/UploadDocuments/UploadDocuments";
+import UploadDocuments from "./Pages/UploadDocuments/UploadDocumentsPage";
 import VerificationPage from "./Pages/UploadDocuments/VerificationPage";
 import VaccinesPage from "./Pages/Vaccine/VaccinesPage";
 import DownloadSelectPage from "./Pages/Vaccine/DownloadSelectPage";

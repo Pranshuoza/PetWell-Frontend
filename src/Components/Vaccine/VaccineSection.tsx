@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import VaccineInfo from "./VaccineInfo";
 import EditVaccineModal from "./EditVaccineModal";
 
@@ -17,7 +16,6 @@ interface VaccineBoxProps {
 
 const VaccineSection: React.FC<VaccineBoxProps> = ({ vaccines }) => {
   const [editIdx, setEditIdx] = useState<number | null>(null);
-  const navigate = useNavigate();
 
   return (
     <section className="mb-8">
