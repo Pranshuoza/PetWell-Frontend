@@ -98,7 +98,7 @@ const AddTeamPage: React.FC = () => {
                 {/* Results dropdown */}
                 {search && filteredTeams.length > 0 && (
                   <div className="absolute left-0 right-0 mt-1 bg-white rounded-md shadow-lg z-10 border border-[#ececec] overflow-hidden" style={{width: '100%'}}>
-                    {filteredTeams.map((team, idx) => (
+                    {filteredTeams.map((team) => (
                       <div key={team.name} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[var(--color-card)] border-b last:border-b-0 border-[#ececec]"
                         onClick={() => { setSelectedTeam(team); setModalOpen(true); }}>
                         <img src={team.avatar} alt={team.name} className="w-9 h-9 rounded-full object-cover" />
@@ -151,7 +151,6 @@ const AddTeamPage: React.FC = () => {
       {showTeamAdded && (
         <TeamAddedModal
           teamName={addedTeamName}
-          teamAvatar={selectedTeam?.avatar}
           onClose={() => setShowTeamAdded(false)}
           onGoHome={() => navigate("/home")}
           onAddMore={() => {
