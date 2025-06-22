@@ -70,7 +70,7 @@ const ProfileCreationStep4: React.FC = () => {
           <ProfileCreationSuccessModal
             onClose={() => setShowSuccess(false)}
             onGoHome={() => navigate('/home')}
-            onUploadRecords={() => {}}
+            onUploadRecords={() => navigate('/upload')}
           />
         )}
       </div>
@@ -78,4 +78,4 @@ const ProfileCreationStep4: React.FC = () => {
   );
 };
 
-export default ProfileCreationStep4; 
+export default ProfileCreationStep4;
