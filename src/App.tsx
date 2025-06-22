@@ -14,13 +14,15 @@ import AddTeamPage from "./Components/Teams/AddTeamPage";
 import LoginPage from "./Pages/Authentication/LoginPage";
 import PetProfile from "./Pages/HomePage/PetProfile";
 import SwitchProfilePage from "./Pages/HomePage/SwitchProfilePage";
+import SignupPage from "./Pages/Authentication/SignupPage";
 
 function App() {
   return (
     <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/signup" element={<ProfileCreationStep1 />} />
+        <Route path="/profile-creation" element={<ProfileCreationStep1 />} />
+        <Route path="/signup" element={<SignupPage/>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/vaccine" element={<VaccinesPage />} />
