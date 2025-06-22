@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import RenameDocumentModal from "./RenameDocumentModal";
 import DeleteDocumentModal from "./DeleteDocumentModal";
+import { Pencil, X as LucideX } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface DocumentBoxProps {
   name: string;
@@ -49,33 +51,24 @@ const DocumentBox: React.FC<DocumentBoxProps> = ({
         <span className="flex-1 truncate text-base font-medium text-[var(--color-white)]">
           {docName}
         </span>
-        <button
-          className="ml-2 text-[var(--color-primary)] hover:text-[var(--color-accent-hover)] text-lg"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-2 text-[var(--color-primary)] hover:text-[var(--color-accent-hover)]"
           onClick={() => setShowRename(true)}
           aria-label="Edit Document"
         >
-          <svg
-            width="18"
-            height="18"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16.862 5.487a2.1 2.1 0 1 1 2.97 2.97l-9.193 9.193a2 2 0 0 1-.707.464l-3.11 1.037a.5.5 0 0 1-.633-.633l1.037-3.11a2 2 0 0 1 .464-.707l9.193-9.193z"
-            />
-          </svg>
-        </button>
-        <button
-          className="ml-2 text-gray-400 hover:text-[var(--color-danger)] text-xl"
+          <Pencil size={18} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-2 text-gray-400 hover:text-[var(--color-danger)]"
           onClick={() => setShowDelete(true)}
           aria-label="Delete Document"
         >
-          ×
-        </button>
+          <LucideX size={20} />
+        </Button>
       </div>
       <RenameDocumentModal
         open={showRename}
