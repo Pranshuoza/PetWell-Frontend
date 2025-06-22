@@ -12,7 +12,7 @@ interface UploadListProps {
   onRemove: (index: number) => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onNext: () => void;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   showLoader: boolean;
 }
 
