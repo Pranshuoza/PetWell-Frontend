@@ -9,6 +9,8 @@ import VaccinesPage from "./Pages/Vaccine/VaccinesPage";
 import DownloadSelectPage from "./Pages/Vaccine/DownloadSelectPage";
 import AddVaccinePage from "./Pages/Vaccine/AddVaccinePage";
 import DocumentPage from "./Pages/HomePage/DocumentPage";
+import TeamsPage from "./Pages/HomePage/TeamsPage";
+import AddTeamPage from "./Components/Teams/AddTeamPage";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
         <Route path="/add-vaccine" element={<AddVaccinePage />} />
         <Route path="/upload" element={<UploadDocuments />} />
         <Route path="/verify" element={<VerificationPage />} />
+        <Route path="/team" element={<TeamsPage />} />
+        <Route path="/add-team" element={<AddTeamPage />} />
       </Routes>
     </div>
   );

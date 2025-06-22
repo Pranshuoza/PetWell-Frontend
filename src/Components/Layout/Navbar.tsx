@@ -63,7 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({
           Documents
         </a>
         <a
-          href="#"
+          href="/team"
           className="hover:text-[var(--color-primary)] text-[var(--color-text)] transition"
         >
           Team
