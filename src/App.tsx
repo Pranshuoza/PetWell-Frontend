@@ -12,6 +12,8 @@ import DocumentPage from "./Pages/HomePage/DocumentPage";
 import TeamsPage from "./Pages/HomePage/TeamsPage";
 import AddTeamPage from "./Components/Teams/AddTeamPage";
 import LoginPage from "./Pages/Authentication/LoginPage";
+import PetProfile from "./Pages/HomePage/PetProfile";
+import SwitchProfilePage from "./Pages/HomePage/SwitchProfilePage";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
         <Route path="/verify" element={<VerificationPage />} />
         <Route path="/team" element={<TeamsPage />} />
         <Route path="/add-team" element={<AddTeamPage />} />
+        <Route path="/pet-profile" element={<PetProfile />} />
+        <Route path="/switch-profile" element={<SwitchProfilePage />} />
       </Routes>
     </div>
   );
