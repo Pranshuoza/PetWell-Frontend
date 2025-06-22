@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import { Input } from "../../Components/ui/input";
 import { Button } from "../../Components/ui/button";
@@ -28,6 +29,8 @@ const documents = [
 ];
 
 const DocumentPage: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar
@@ -58,7 +61,10 @@ const DocumentPage: React.FC = () => {
                 />
               </svg>
             </div>
-            <Button className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition px-6 py-2 font-semibold rounded-lg w-full sm:w-auto">
+            <Button
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition px-6 py-2 font-semibold rounded-lg w-full sm:w-auto"
+              onClick={() => navigate("/upload")}
+            >
               <span className="mr-2">↑</span> Upload New Document
             </Button>
           </div>

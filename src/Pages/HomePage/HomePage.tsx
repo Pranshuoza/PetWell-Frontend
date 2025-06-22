@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import DocumentSection from "../../Components/Document/DocumentSection";
 import TeamSection from "../../Components/Teams/TeamSection";
@@ -61,6 +62,14 @@ const teams = [
 ];
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
+  const handleAddVaccine = () => {
+    navigate("/add-vaccine");
+  };
+  const handleAddDocument = () => {
+    navigate("/upload");
+  };
+
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)]">
       <Navbar
@@ -69,8 +78,32 @@ const Home: React.FC = () => {
       />
       <div className="container pt-8 pb-12 pr-8 pl-8 mx-auto max-w-8xl">
         <h1 className="text-3xl font-serif font-bold mb-2">Welcome Syd!</h1>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <h2 className="text-xl font-serif font-semibold mb-2 md:mb-0">
+            Vaccines
+          </h2>
+          <div className="flex gap-2">
+            <button
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-5 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
+              onClick={handleAddVaccine}
+            >
+              <span className="text-lg">+</span> Add New Vaccine
+            </button>
+          </div>
+        </div>
         {/* Vaccines Section */}
-        <VaccineSection vaccines={vaccines}  />
+        <VaccineSection vaccines={vaccines} />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <h2 className="text-xl font-serif font-semibold mb-2 md:mb-0">
+            Recently Uploaded Documents
+          </h2>
+          <button
+            className="border border-[var(--color-primary)] text-[var(--color-primary)] px-5 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
+            onClick={handleAddDocument}
+          >
+            <span className="text-lg">+</span> Upload New Document
+          </button>
+        </div>
         {/* Documents Section */}
         <DocumentSection documents={documents as any} />
         {/* Teams Section */}

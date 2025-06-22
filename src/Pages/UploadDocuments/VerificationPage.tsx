@@ -1,8 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import PetWellLogo from "../../Assets/PetWell.png";
-import VaccineInfo from "../../Components/Vaccine/VaccineInfo";
-import EditVaccineModal from "../../Components/Vaccine/EditVaccineModal";
-import { FaPencilAlt } from "react-icons/fa";
+import DetailSection from "../../Components/Verification/DetailSection";
+import VaccineSection from "../../Components/Vaccine/VaccineSection";
+import DocumentSection from "../../Components/Document/DocumentSection";
+import { useNavigate } from "react-router-dom";
+
+const pet = {
+  name: "Syd",
+  age: "13 years old",
+  weight: "12lbs",
+  breed: "Chihuahua Mix",
+  color: "Brown Tan",
+  microchip: "0192837465",
+  birthdate: "21/8/13",
+  image: "https://randomuser.me/api/portraits/men/32.jpg",
+};
+const user = {
+  name: "Monica Lee",
+  phone: "565-555-5562",
+  location: "Dallas, Texas",
+  email: "email@website.com",
+};
 
 const vaccines = [
   {
@@ -27,7 +46,7 @@ const vaccines = [
   },
 ];
 
-const documents = [
+const documents: { name: string; size: string; type: "img" | "pdf" }[] = [
   { name: "Full Med Record_2025.pdf", size: "3.2 MB", type: "pdf" },
   { name: "Training Plan_Syd.pdf", size: "3.2 MB", type: "pdf" },
   { name: "Syd left jaw.png", size: "3.2 MB", type: "img" },
@@ -36,8 +55,61 @@ const documents = [
   { name: "Syd left jaw.png", size: "3.2 MB", type: "img" },
 ];
 
+const ProfileDropdown: React.FC<{ image: string; name: string }> = ({
+  image,
+  name,
+}) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div className="absolute top-8 right-8 z-50" ref={ref}>
+      <button
+        className="flex items-center gap-2 focus:outline-none"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <img
+          src={image}
+          alt={name}
+          className="w-10 h-10 rounded-full object-cover border-2 border-[var(--color-background)]"
+        />
+        <span className="text-lg font-medium text-[var(--color-modal-foreground)]">
+          {name}
+        </span>
+        <ChevronDown
+          className="text-[var(--color-modal-foreground)]"
+          size={22}
+        />
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-3 bg-[var(--color-card)] rounded-2xl shadow-lg px-8 py-6 flex flex-col gap-2 min-w-[220px] z-50">
+          <button className="text-[var(--color-modal-foreground)] text-lg text-left hover:underline focus:outline-none mb-2">
+            Go to Profile
+          </button>
+          <div className="text-[var(--color-modal-foreground)] text-base">
+            Not {name}?{" "}
+            <button className="font-bold text-[var(--color-modal-foreground)] hover:underline focus:outline-none">
+              Switch Profile
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const VerificationPage: React.FC = () => {
-  const [editIdx, setEditIdx] = useState<number | null>(null);
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
       {/* Logo and Header */}
@@ -48,104 +120,33 @@ const VerificationPage: React.FC = () => {
           className="w-12 h-12 object-contain"
         />
       </div>
-      <div className="flex justify-between items-center w-full max-w-6xl mt-12 mb-4 px-8">
-        <h1 className="text-3xl font-bold text-[#EBD5BD]">
+      <div className="flex flex-col items-center w-full max-w-6xl mt-10 mb-4 px-8">
+        <h1 className="text-4xl font-bold text-[#EBD5BD] mb-2">
           Here's what we know. Check it out!
         </h1>
-        <div className="flex items-center space-x-3">
-          <span className="text-[#EBD5BD] font-semibold">Syd</span>
-          <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
-            alt="Profile"
-            className="w-10 h-10 rounded-full object-cover border-2 border-[#FFA500]"
-          />
-          <svg
-            className="w-4 h-4 text-[#EBD5BD]"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </div>
-      </div>
-      <div className="w-full max-w-6xl px-8">
-        <p className="text-[#EBD5BD] opacity-80 mb-8 text-lg">
+        <p className="text-[#EBD5BD] opacity-80 mb-8 text-lg text-center">
           You can review, edit, or add notes before saving it to Syd's profile.
         </p>
+      </div>
+      <div className="w-full max-w-6xl px-8">
+        {/* Details Section */}
+        <DetailSection pet={pet} user={user} />
         {/* Vaccines Section */}
-        <h2 className="text-xl font-semibold mb-4">Syd's Vaccines</h2>
-        <div className="grid grid-cols-3 gap-6 mb-10">
-          {vaccines.map((vaccine, idx) => (
-            <div className="relative group" key={idx}>
-              <VaccineInfo
-                name={vaccine.name}
-                administered={vaccine.administered}
-                expires={vaccine.expires}
-              />
-              <button
-                className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 bg-[#232b3e] rounded-full p-2 text-[#FFA500] hover:bg-[#FFA500] hover:text-white transition"
-                onClick={() => setEditIdx(idx)}
-              >
-                <FaPencilAlt className="w-5 h-5" />
-              </button>
-              {editIdx === idx && (
-                <EditVaccineModal
-                  open={editIdx === idx}
-                  onClose={() => setEditIdx(null)}
-                  vaccine={vaccine}
-                />
-              )}
-            </div>
-          ))}
-          {/* Add a Vaccine Card */}
-          <div className="border-2 border-[#EBD5BD] border-dashed rounded-xl flex flex-col items-center justify-center min-h-[120px] cursor-pointer hover:border-[#FFA500] transition">
-            <span className="text-3xl text-[#EBD5BD] mb-2">+</span>
-            <span className="text-[#EBD5BD] font-semibold">Add a Vaccine</span>
-          </div>
-        </div>
+        <h2 className="text-xl font-semibold mb-4 mt-10">Syd's Vaccines</h2>
+        <VaccineSection vaccines={vaccines} />
         {/* Uploaded Documents Section */}
-        <h2 className="text-xl font-semibold mb-4">Uploaded Documents</h2>
-        <div className="grid grid-cols-2 gap-6 mb-10">
-          {documents.map((doc, idx) => (
-            <div
-              key={idx}
-              className="flex items-center bg-[#232b3e] rounded-xl px-4 py-3 shadow-md"
-            >
-              <div
-                className={`w-8 h-8 flex items-center justify-center rounded-full mr-3 ${
-                  doc.type === "pdf" ? "bg-red-600" : "bg-green-600"
-                }`}
-              >
-                {doc.type === "pdf" ? (
-                  <span className="text-white font-bold">PDF</span>
-                ) : (
-                  <span className="text-white font-bold">IMG</span>
-                )}
-              </div>
-              <span className="flex-1 truncate text-base font-medium">
-                {doc.name}
-              </span>
-              <span className="mx-2 text-[#EBD5BD] text-sm opacity-80">
-                {doc.size}
-              </span>
-              <button className="ml-2 text-[#EBD5BD] hover:text-red-500 text-xl">
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-end gap-8 mt-4 w-full">
-          <button className="px-8 py-3 mb-4 rounded-lg bg-[#FFA500] text-white font-semibold text-lg hover:brightness-110 transition">
+        <h2 className="text-xl font-semibold mb-4 mt-10">Upload Documents</h2>
+        <DocumentSection documents={documents} />
+        <div className="flex justify-end gap-8 mt-8 w-full">
+          <button
+            className="px-8 py-3 mb-4 rounded-lg bg-[#FFA500] text-white font-semibold text-lg hover:brightness-110 transition"
+            onClick={() => navigate("/home")}
+          >
             Next
           </button>
         </div>
       </div>
+      <ProfileDropdown image={pet.image} name={pet.name} />
     </div>
   );
 };

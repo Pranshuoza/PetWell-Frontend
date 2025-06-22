@@ -1,4 +1,4 @@
-import React from "react";
+import { Syringe } from "lucide-react";
 
 const EditVaccineModal = ({
   open,
@@ -21,19 +21,7 @@ const EditVaccineModal = ({
           &times;
         </button>
         {/* Syringe Icon */}
-        <svg
-          className="w-12 h-12 mb-4 text-[#EBD5BD]"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M18.364 5.636l-1-1m0 0a2 2 0 00-2.828 0l-1.415 1.414a2 2 0 000 2.828l1 1m2.243-2.243l-9.9 9.9a2 2 0 002.828 2.828l9.9-9.9m-2.243 2.243l1 1m-1-1l-1-1"
-          />
-        </svg>
+        <Syringe className="w-12 h-12 mb-4 text-[#EBD5BD]" />
         <h2 className="text-2xl font-serif font-semibold text-[#EBD5BD] mb-6">
           Edit Vaccine
         </h2>
