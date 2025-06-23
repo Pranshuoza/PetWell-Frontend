@@ -12,7 +12,7 @@ interface Upload {
   progress: number;
 }
 
-const SignupPage: React.FC = () => {
+const PetParentSignupPage: React.FC = () => {
   const navigate = useNavigate();
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [showLoader, setShowLoader] = useState(false);
@@ -142,4 +142,4 @@ const SignupPage: React.FC = () => {
   );
 };
 
-export default SignupPage;
+export default PetParentSignupPage;

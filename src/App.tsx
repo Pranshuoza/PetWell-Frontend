@@ -2,19 +2,23 @@ import { Routes, Route } from "react-router-dom";
 import Landing from "./Pages/Landing/Landing";
 import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreationStep1";
 import "./App.css";
-import Home from "./Pages/HomePage/HomePage";
-import UploadDocuments from "./Pages/UploadDocuments/UploadDocumentsPage";
-import VerificationPage from "./Pages/UploadDocuments/VerificationPage";
-import VaccinesPage from "./Pages/Vaccine/VaccinesPage";
-import DownloadSelectPage from "./Pages/Vaccine/DownloadSelectPage";
-import AddVaccinePage from "./Pages/Vaccine/AddVaccinePage";
-import DocumentPage from "./Pages/HomePage/DocumentPage";
-import TeamsPage from "./Pages/HomePage/TeamsPage";
+import Home from "./Pages/PetParentHomePage/HomePage";
+import UploadDocuments from "./Pages/PetParentUploadDocuments/UploadDocumentsPage";
+import VerificationPage from "./Pages/PetParentUploadDocuments/VerificationPage";
+import VaccinesPage from "./Pages/PetParentVaccine/VaccinesPage";
+import DownloadSelectPage from "./Pages/PetParentVaccine/DownloadSelectPage";
+import AddVaccinePage from "./Pages/PetParentVaccine/AddVaccinePage";
+import DocumentPage from "./Pages/PetParentDocumentPage.tsx/DocumentPage";
+import TeamsPage from "./Pages/PetParentTeamPage/TeamsPage";
 import AddTeamPage from "./Components/Teams/AddTeamPage";
 import LoginPage from "./Pages/Authentication/LoginPage";
-import PetProfile from "./Pages/HomePage/PetProfile";
-import SwitchProfilePage from "./Pages/HomePage/SwitchProfilePage";
-import SignupPage from "./Pages/Authentication/SignupPage";
+import PetProfile from "./Pages/PetParentHomePage/PetProfile";
+import SwitchProfilePage from "./Pages/PetParentHomePage/SwitchProfilePage";
+import ForgotPasswordPage from "./Pages/Authentication/ForgotPasswordPage";
+import SignupTypeSelectPage from "./Pages/Authentication/SignupTypeSelectPage";
+import PetParentSignupPage from "./Pages/Authentication/PetParentSignupPage";
+// import StaffSignupPage from "./Pages/Authentication/StaffSignupPage";
+// import BusinessSignupPage from "./Pages/Authentication/BusinessSignupPage";
 
 function App() {
   return (
@@ -22,8 +26,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/profile-creation" element={<ProfileCreationStep1 />} />
-        <Route path="/signup" element={<SignupPage/>} />
+        <Route path="/signup-type" element={<SignupTypeSelectPage />} />
+        <Route path="/signup/pet-parent" element={<PetParentSignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/vaccine" element={<VaccinesPage />} />
         <Route path="/documents" element={<DocumentPage />} />

@@ -1,14 +1,30 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import PetWellLogo from "../../Assets/PetWell.png";
 import authServices from "../../Services/authServices";
 
+interface LocationState {
+  message?: string;
+}
+
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    // Check for success message in location state (e.g., from password reset)
+    const state = location.state as LocationState;
+    if (state?.message) {
+      setSuccessMessage(state.message);
+      // Clear the message from location state
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +59,11 @@ const LoginPage: React.FC = () => {
         <h2 className="text-2xl font-[Alike,serif] text-[#EBD5BD] mb-6 text-center font-semibold">
           Sign in to your account
         </h2>
+        {successMessage && (
+          <div className="w-full mb-4 text-center text-green-400 bg-green-900/30 rounded py-2 px-3 text-sm animate-fade-in">
+            {successMessage}
+          </div>
+        )}
         {error && (
           <div className="w-full mb-4 text-center text-red-400 bg-red-900/30 rounded py-2 px-3 text-sm animate-fade-in">
             {error}
@@ -124,14 +145,14 @@ const LoginPage: React.FC = () => {
           <button
             className="hover:text-[#FFB23E] transition-colors"
             type="button"
-            onClick={() => alert("Forgot password flow coming soon!")}
+            onClick={() => navigate("/forgot-password")}
           >
             Forgot password?
           </button>
           <button
             className="hover:text-[#FFB23E] transition-colors"
             type="button"
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/signup-type")}
           >
             Create account
           </button>
