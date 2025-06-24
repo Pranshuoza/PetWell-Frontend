@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Landing from "./Pages/Landing/Landing";
-import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreationStep1";
+import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreation/ProfileCreationStep1";
 import "./App.css";
 import Home from "./Pages/PetParentHomePage/HomePage";
 import UploadDocuments from "./Pages/PetParentUploadDocuments/UploadDocumentsPage";

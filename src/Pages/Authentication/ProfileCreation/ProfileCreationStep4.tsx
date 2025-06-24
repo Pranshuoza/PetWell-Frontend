@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PetWellLogo from '../../Assets/PetWell.png';
+import PetWellLogo from '../../../Assets/PetWell.png';
 import ProfileCreationSuccessModal from './ProfileCreationSuccessModal';
 import { useNavigate } from 'react-router-dom';
 

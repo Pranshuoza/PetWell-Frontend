@@ -23,12 +23,12 @@ const SignupTypeSelectPage: React.FC = () => {
         >
           Pet Parent
         </button>
-        <button
+        {/* <button
           className="w-full py-4 mb-4 rounded-lg bg-[#EBD5BD] text-[#181f27] text-lg font-semibold hover:brightness-110 transition"
           onClick={() => navigate("/signup/staff")}
         >
           Staff (Veterinarian/Employee)
-        </button>
+        </button> */}
         <button
           className="w-full py-4 rounded-lg bg-[#232b3e] text-[var(--color-primary)] text-lg font-semibold border border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-black transition"
           onClick={() => navigate("/signup/business")}

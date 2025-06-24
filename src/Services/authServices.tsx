@@ -6,27 +6,60 @@ import { SERVER_BASE_URL } from "../utils/config";
 // Pet User (Human Owner)
 interface HumanOwnerSignupData {
   username: string;
-  name: string;
+  human_owner_name: string;
   email: string;
+  location: string;
+  phone: string;
   password: string;
-  role: string; // e.g., "Individual"
 }
 
 // Staff User
 interface StaffSignupData {
   username: string;
-  name: string;
+  staff_name: string;
   email: string;
   password: string;
-  role: string; // e.g., "Veterinarian"
+  role: string;
   business_id: string;
 }
 
 // Business Owner
 interface BusinessSignupData {
-  name: string;
+  business_name: string;
+  email: string;
+  phone: string;
+  password: string;
+  description: string;
+  website?: string;
+  instagram?: string;
+  facebook?: string;
+  x?: string;
+}
+
+interface LoginData {
   email: string;
   password: string;
+  username: string;
+}
+
+interface VerifyOTPData {
+  identifier: string;
+  otp_code: string;
+}
+
+interface ResendOTPData {
+  email: string;
+  otp_type: "Registration" | "ForgotPassword" | "EmailVerification";
+}
+
+interface ForgotPasswordData {
+  identifier: string;
+}
+
+interface ResetPasswordData {
+  email: string;
+  otp_code: string;
+  new_password: string;
 }
 
 interface AuthResponse {
@@ -41,38 +74,15 @@ interface AuthResponse {
   };
 }
 
-interface ForgotPasswordResponse {
-  message: string;
-  success: boolean;
-}
-
-interface VerifyOTPResponse {
+interface OTPResponse {
   message: string;
   success: boolean;
   token?: string;
 }
 
-interface VerifyOTPData {
-  identifier: string;
-  otp_code: string;
-}
-
-type OTPType = "Registration" | "ForgotPassword" | "EmailVerification";
-
-interface ResendOTPData {
-  email: string;
-  otp_type: OTPType;
-}
-
-interface ResendOTPResponse {
+interface ForgotPasswordResponse {
   message: string;
   success: boolean;
-}
-
-interface ResetPasswordData {
-  email: string;
-  otp_code: string;
-  new_password: string;
 }
 
 interface ResetPasswordResponse {
@@ -81,10 +91,7 @@ interface ResetPasswordResponse {
 }
 
 const authServices = {
-  async login(data: {
-    email: string;
-    password: string;
-  }): Promise<AuthResponse> {
+  async login(data: LoginData): Promise<AuthResponse> {
     try {
       const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/login`,
@@ -107,7 +114,6 @@ const authServices = {
     }
   },
 
-  // Pet User (Human Owner)
   async signupHumanOwner(data: HumanOwnerSignupData): Promise<AuthResponse> {
     try {
       const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
@@ -125,15 +131,12 @@ const authServices = {
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Pet user signup failed"
-        );
+        throw new Error(error.response.data.message || "Human owner signup failed");
       }
-      throw new Error("Pet user signup failed");
+      throw new Error("Human owner signup failed");
     }
   },
 
-  // Staff User
   async signupStaff(data: StaffSignupData): Promise<AuthResponse> {
     try {
       const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
@@ -157,7 +160,6 @@ const authServices = {
     }
   },
 
-  // Business Owner
   async signupBusiness(data: BusinessSignupData): Promise<AuthResponse> {
     try {
       const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
@@ -175,103 +177,99 @@ const authServices = {
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Business signup failed"
-        );
+        throw new Error(error.response.data.message || "Business signup failed");
       }
       throw new Error("Business signup failed");
     }
   },
 
-  // Forgot Password
-  async forgotPassword(identifier: string): Promise<ForgotPasswordResponse> {
+  async verifyOTP(data: VerifyOTPData): Promise<OTPResponse> {
     try {
-      const response: AxiosResponse<{ data: ForgotPasswordResponse }> =
-        await axios.post(
-          `${SERVER_BASE_URL}/api/v1/auth/forgot-password`,
-          { identifier },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      if (!response.data.data) {
-        throw new Error("Invalid response from server");
-      }
-      return response.data.data;
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Password reset request failed"
-        );
-      }
-      throw new Error("Password reset request failed");
-    }
-  },
-
-  // Verify OTP
-  async verifyOTP(data: VerifyOTPData): Promise<VerifyOTPResponse> {
-    try {
-      const response: AxiosResponse<{ data: VerifyOTPResponse }> =
-        await axios.post(`${SERVER_BASE_URL}/api/v1/auth/verify-otp`, data, {
+      const response: AxiosResponse<{ data: OTPResponse }> = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/auth/verify-otp`,
+        data,
+        {
           headers: {
             "Content-Type": "application/json",
           },
-        });
+        }
+      );
       if (!response.data.data) {
         throw new Error("Invalid response from server");
       }
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error("OTP verification failed");
+        throw new Error(error.response.data.message || "OTP verification failed");
       }
       throw new Error("OTP verification failed");
     }
   },
 
-  // Resend OTP
-  async resendOTP(data: ResendOTPData): Promise<ResendOTPResponse> {
+  async resendOTP(data: ResendOTPData): Promise<OTPResponse> {
     try {
-      const response: AxiosResponse<{ data: ResendOTPResponse }> =
-        await axios.post(`${SERVER_BASE_URL}/api/v1/auth/resend-otp`, data, {
+      const response: AxiosResponse<{ data: OTPResponse }> = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/auth/resend-otp`,
+        data,
+        {
           headers: {
             "Content-Type": "application/json",
           },
-        });
+        }
+      );
       if (!response.data.data) {
         throw new Error("Invalid response from server");
       }
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error("OTP resend failed");
+        throw new Error(error.response.data.message || "OTP resend failed");
       }
       throw new Error("OTP resend failed");
     }
   },
 
-  // Reset Password
-  async resetPassword(data: ResetPasswordData): Promise<ResetPasswordResponse> {
+  async forgotPassword(data: ForgotPasswordData): Promise<ForgotPasswordResponse> {
     try {
-      const response: AxiosResponse<{ data: ResetPasswordResponse }> =
-        await axios.post(
-          `${SERVER_BASE_URL}/api/v1/auth/reset-password`,
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      const response: AxiosResponse<{ data: ForgotPasswordResponse }> = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/auth/forgot-password`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.data.data) {
         throw new Error("Invalid response from server");
       }
       return response.data.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error("Password reset failed");
+        throw new Error(error.response.data.message || "Password reset request failed");
+      }
+      throw new Error("Password reset request failed");
+    }
+  },
+
+  async resetPassword(data: ResetPasswordData): Promise<ResetPasswordResponse> {
+    try {
+      const response: AxiosResponse<{ data: ResetPasswordResponse }> = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/auth/reset-password`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.data.data) {
+        throw new Error("Invalid response from server");
+      }
+      return response.data.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        throw new Error(error.response.data.message || "Password reset failed");
       }
       throw new Error("Password reset failed");
     }
