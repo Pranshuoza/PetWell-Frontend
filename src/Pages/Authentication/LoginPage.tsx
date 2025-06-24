@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
     setError("");
     setLoading(true);
     try {
-      await authServices.login({ email, password });
+      await authServices.login({ email, password, username: "" });
       setLoading(false);
       navigate("/home");
     } catch (err: any) {
