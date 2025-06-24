@@ -8,7 +8,7 @@ import VerificationPage from "./Pages/PetParentUploadDocuments/VerificationPage"
 import VaccinesPage from "./Pages/PetParentVaccine/VaccinesPage";
 import DownloadSelectPage from "./Pages/PetParentVaccine/DownloadSelectPage";
 import AddVaccinePage from "./Pages/PetParentVaccine/AddVaccinePage";
-import DocumentPage from "./Pages/PetParentDocumentPage.tsx/DocumentPage";
+import DocumentPage from "./Pages/PetParentDocumentPage/DocumentPage";
 import TeamsPage from "./Pages/PetParentTeamPage/TeamsPage";
 import AddTeamPage from "./Components/Teams/AddTeamPage";
 import LoginPage from "./Pages/Authentication/LoginPage";
