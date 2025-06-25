@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -81,7 +80,7 @@ interface ResetPasswordData {
 
 interface AuthResponse {
   message: string;
-  accessToken?: string;
+  access_token?: string;
   user?: {
     id: string;
     email: string;
@@ -116,7 +115,7 @@ const authServices = {
       if (data.username && data.username.trim() !== "") {
         payload.username = data.username.trim();
       }
-      const response: AxiosResponse<AuthResponse > = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/login`,
         payload,
         {
@@ -139,7 +138,7 @@ const authServices = {
 
   async signupHumanOwner(data: HumanOwnerSignupData): Promise<AuthResponse> {
     try {
-      const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/register/human-owner`,
         data,
         {
@@ -148,10 +147,10 @@ const authServices = {
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(
@@ -209,17 +208,13 @@ const authServices = {
       console.log("Making request to:", url);
       console.log("Request headers:", headers);
 
-      const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
-        url,
-        payload,
-        {
-          headers,
-          timeout: 30000, // Increased timeout to 30 seconds
-          validateStatus: function (status) {
-            return status < 500; // Resolve only if status is less than 500
-          },
-        }
-      );
+      const response = await axios.post(url, payload, {
+        headers,
+        timeout: 30000, // Increased timeout to 30 seconds
+        validateStatus: function (status) {
+          return status < 500; // Resolve only if status is less than 500
+        },
+      });
 
       console.log("Response status:", response.status);
       console.log("Response headers:", response.headers);
@@ -236,7 +231,7 @@ const authServices = {
       let responseData: AuthResponse;
 
       if (response.data?.data) {
-        responseData = response.data.data;
+        responseData = response.data;
       } else if ((response.data as any)?.message) {
         responseData = response.data as unknown as AuthResponse;
       } else {
@@ -297,7 +292,7 @@ const authServices = {
 
   async signupStaff(data: StaffSignupData): Promise<AuthResponse> {
     try {
-      const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/register/staff`,
         data,
         {
@@ -306,10 +301,10 @@ const authServices = {
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Staff signup failed");
@@ -320,7 +315,7 @@ const authServices = {
 
   async signupBusiness(data: BusinessSignupData): Promise<AuthResponse> {
     try {
-      const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/register/business`,
         data,
         {
@@ -329,10 +324,10 @@ const authServices = {
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(
@@ -346,7 +341,7 @@ const authServices = {
   async verifyOTP(data: VerifyOTPData): Promise<OTPResponse> {
     try {
       console.log("Verifying OTP with data:", data);
-      const response: AxiosResponse<OTPResponse> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/verify-otp`,
         data,
         {
@@ -372,7 +367,7 @@ const authServices = {
 
   async resendOTP(data: ResendOTPData): Promise<OTPResponse> {
     try {
-      const response: AxiosResponse<{ data: OTPResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/resend-otp`,
         data,
         {
@@ -381,10 +376,10 @@ const authServices = {
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "OTP resend failed");
@@ -397,20 +392,19 @@ const authServices = {
     data: ForgotPasswordData
   ): Promise<ForgotPasswordResponse> {
     try {
-      const response: AxiosResponse<{ data: ForgotPasswordResponse }> =
-        await axios.post(
-          `${SERVER_BASE_URL}/api/v1/auth/forgot-password`,
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      if (!response.data.data) {
+      const response = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/auth/forgot-password`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(
@@ -423,20 +417,19 @@ const authServices = {
 
   async resetPassword(data: ResetPasswordData): Promise<ResetPasswordResponse> {
     try {
-      const response: AxiosResponse<{ data: ResetPasswordResponse }> =
-        await axios.post(
-          `${SERVER_BASE_URL}/api/v1/auth/reset-password`,
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      if (!response.data.data) {
+      const response = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/auth/reset-password`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Password reset failed");

@@ -83,54 +83,66 @@ interface PaginatedRequest {
 const businessServices = {
   async getProfile(): Promise<BusinessResponse> {
     try {
-      const response: AxiosResponse<{ data: BusinessResponse }> = await axios.get(
-        `${SERVER_BASE_URL}/api/v1/businesses/profile`,
-        {
+      const response=
+        await axios.get(`${SERVER_BASE_URL}/api/v1/businesses/profile`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
-        }
-      );
-      if (!response.data.data) {
+        });
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching business profile failed");
+        throw new Error(
+          error.response.data.message || "Fetching business profile failed"
+        );
       }
       throw new Error("Fetching business profile failed");
     }
   },
 
-  async updateProfile(data: UpdateBusinessProfileData): Promise<BusinessResponse> {
+  async updateProfile(
+    data: UpdateBusinessProfileData
+  ): Promise<BusinessResponse> {
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         if (value) {
-          formData.append('key', key);
-          formData.append('value', value instanceof File ? value : typeof value === 'object' ? JSON.stringify(value) : value.toString());
-          formData.append('type', value instanceof File ? 'file' : 'text');
-          formData.append('description', `Optional: ${key}`);
+          formData.append("key", key);
+          formData.append(
+            "value",
+            value instanceof File
+              ? value
+              : typeof value === "object"
+              ? JSON.stringify(value)
+              : value.toString()
+          );
+          formData.append("type", value instanceof File ? "file" : "text");
+          formData.append("description", `Optional: ${key}`);
         }
       });
-      const response: AxiosResponse<{ data: BusinessResponse }> = await axios.patch(
-        `${SERVER_BASE_URL}/api/v1/businesses/profile`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
-          },
-        }
-      );
-      if (!response.data.data) {
+      const response=
+        await axios.patch(
+          `${SERVER_BASE_URL}/api/v1/businesses/profile`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+          }
+        );
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Business profile update failed");
+        throw new Error(
+          error.response.data.message || "Business profile update failed"
+        );
       }
       throw new Error("Business profile update failed");
     }
@@ -138,20 +150,20 @@ const businessServices = {
 
   async createStaff(data: CreateStaffData): Promise<StaffResponse> {
     try {
-      const response: AxiosResponse<{ data: StaffResponse }> = await axios.post(
+      const response= await axios.post(
         `${SERVER_BASE_URL}/api/v1/businesses/staff`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Staff creation failed");
@@ -160,22 +172,26 @@ const businessServices = {
     }
   },
 
-  async updateStaff(staffId: string, data: UpdateStaffData): Promise<StaffResponse> {
+  async updateStaff(
+    staffId: string,
+    data: UpdateStaffData
+  ): Promise<StaffResponse> {
     try {
-      const response: AxiosResponse<{ data: StaffResponse }> = await axios.patch(
-        `${SERVER_BASE_URL}/api/v1/businesses/staff/${staffId}`,
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
-          },
-        }
-      );
-      if (!response.data.data) {
+      const response=
+        await axios.patch(
+          `${SERVER_BASE_URL}/api/v1/businesses/staff/${staffId}`,
+          data,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+          }
+        );
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Staff update failed");
@@ -186,18 +202,19 @@ const businessServices = {
 
   async deleteStaff(staffId: string): Promise<StaffResponse> {
     try {
-      const response: AxiosResponse<{ data: StaffResponse }> = await axios.delete(
-        `${SERVER_BASE_URL}/api/v1/businesses/staff/${staffId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
-          },
-        }
-      );
-      if (!response.data.data) {
+      const response=
+        await axios.delete(
+          `${SERVER_BASE_URL}/api/v1/businesses/staff/${staffId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+          }
+        );
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Staff deletion failed");
@@ -208,46 +225,52 @@ const businessServices = {
 
   async getStaffList(params: PaginatedRequest): Promise<StaffResponse> {
     try {
-      const response: AxiosResponse<{ data: StaffResponse }> = await axios.get(
+      const response= await axios.get(
         `${SERVER_BASE_URL}/api/v1/businesses/staff/get`,
         {
           params: { page: params.page, limit: params.limit },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching staff list failed");
+        throw new Error(
+          error.response.data.message || "Fetching staff list failed"
+        );
       }
       throw new Error("Fetching staff list failed");
     }
   },
 
-  async createPetMapping(data: CreatePetMappingData): Promise<PetMappingResponse> {
+  async createPetMapping(
+    data: CreatePetMappingData
+  ): Promise<PetMappingResponse> {
     try {
-      const response: AxiosResponse<{ data: PetMappingResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/businesses/pets`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Pet mapping creation failed");
+        throw new Error(
+          error.response.data.message || "Pet mapping creation failed"
+        );
       }
       throw new Error("Pet mapping creation failed");
     }
@@ -255,22 +278,24 @@ const businessServices = {
 
   async getPetMappings(params: PaginatedRequest): Promise<PetMappingResponse> {
     try {
-      const response: AxiosResponse<{ data: PetMappingResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/businesses/pets`,
         {
           params: { page: params.page, limit: params.limit },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching pet mappings failed");
+        throw new Error(
+          error.response.data.message || "Fetching pet mappings failed"
+        );
       }
       throw new Error("Fetching pet mappings failed");
     }

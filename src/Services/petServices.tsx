@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -121,20 +120,20 @@ interface DocumentResponse {
 const petServices = {
   async createPet(data: CreatePetData): Promise<PetResponse> {
     try {
-      const response: AxiosResponse<{ data: PetResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/pets/create`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Pet creation failed");
@@ -145,18 +144,18 @@ const petServices = {
 
   async getPetsByOwner(): Promise<PetResponse> {
     try {
-      const response: AxiosResponse<{ data: PetResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/pets/owner`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching pets failed");
@@ -167,18 +166,18 @@ const petServices = {
 
   async getPetById(petId: string): Promise<PetResponse> {
     try {
-      const response: AxiosResponse<{ data: PetResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/pets/get/${petId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching pet failed");
@@ -195,20 +194,20 @@ const petServices = {
         type: value instanceof File ? 'file' : 'text',
         description: `Optional: ${key}`,
       }));
-      const response: AxiosResponse<{ data: PetResponse }> = await axios.patch(
+      const response = await axios.patch(
         `${SERVER_BASE_URL}/api/v1/pets/update/${petId}`,
         formData,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Pet update failed");
@@ -219,20 +218,20 @@ const petServices = {
 
   async searchSpecies(data: SearchSpeciesData): Promise<SpeciesResponse> {
     try {
-      const response: AxiosResponse<{ data: SpeciesResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/pets/species`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Species search failed");
@@ -243,20 +242,20 @@ const petServices = {
 
   async searchBreeds(data: SearchBreedsData): Promise<BreedResponse> {
     try {
-      const response: AxiosResponse<{ data: BreedResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/pets/breeds`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Breeds search failed");
@@ -267,18 +266,18 @@ const petServices = {
 
   async getBreedSpecies(): Promise<SpeciesResponse> {
     try {
-      const response: AxiosResponse<{ data: SpeciesResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/pets/breeds-species`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching breed species failed");
@@ -289,18 +288,18 @@ const petServices = {
 
   async getPetDocuments(petId: string): Promise<DocumentResponse> {
     try {
-      const response: AxiosResponse<{ data: DocumentResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/pets/documents/${petId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching documents failed");
@@ -315,20 +314,20 @@ const petServices = {
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value);
       });
-      const response: AxiosResponse<{ data: DocumentResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/pets/documents/${petId}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Document creation failed");
@@ -343,20 +342,20 @@ const petServices = {
       Object.entries(data).forEach(([key, value]) => {
         if (value) formData.append(key, value);
       });
-      const response: AxiosResponse<{ data: DocumentResponse }> = await axios.patch(
+      const response = await axios.patch(
         `${SERVER_BASE_URL}/api/v1/pets/documents/${documentId}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Document update failed");

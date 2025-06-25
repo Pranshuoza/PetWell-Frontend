@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -56,20 +55,20 @@ const vaccineServices = {
           formData.append(key, value instanceof File ? value : value.toString());
         }
       });
-      const response: AxiosResponse<{ data: VaccineResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/vaccines/create`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Vaccine creation failed");
@@ -80,18 +79,18 @@ const vaccineServices = {
 
   async getAllPetVaccines(petId: string): Promise<VaccineResponse> {
     try {
-      const response: AxiosResponse<{ data: VaccineResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/vaccines/getAllPetVaccines/${petId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching pet vaccines failed");
@@ -102,18 +101,18 @@ const vaccineServices = {
 
   async getPetVaccine(vaccineId: string): Promise<VaccineResponse> {
     try {
-      const response: AxiosResponse<{ data: VaccineResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/vaccines/getPetVaccine/${vaccineId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching vaccine failed");
@@ -130,20 +129,20 @@ const vaccineServices = {
           formData.append(key, value instanceof File ? value : value.toString());
         }
       });
-      const response: AxiosResponse<{ data: VaccineResponse }> = await axios.patch(
+      const response = await axios.patch(
         `${SERVER_BASE_URL}/api/v1/vaccines/update/${vaccineId}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Vaccine update failed");
@@ -154,18 +153,18 @@ const vaccineServices = {
 
   async deleteVaccine(vaccineId: string): Promise<VaccineResponse> {
     try {
-      const response: AxiosResponse<{ data: VaccineResponse }> = await axios.delete(
+      const response = await axios.delete(
         `${SERVER_BASE_URL}/api/v1/vaccines/delete/${vaccineId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Vaccine deletion failed");
@@ -176,19 +175,19 @@ const vaccineServices = {
 
   async getDoctors(petId: string, businessId: string): Promise<DoctorResponse> {
     try {
-      const response: AxiosResponse<{ data: DoctorResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/vaccines/doctors`,
         {
           params: { petId, businessId },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching doctors failed");

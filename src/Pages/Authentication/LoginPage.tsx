@@ -31,7 +31,10 @@ const LoginPage: React.FC = () => {
     setError("");
     setLoading(true);
     try {
-      await authServices.login({ email, password, username: "" });
+      const res = await authServices.login({ email, password, username: "" });
+      if (res.access_token) {
+        localStorage.setItem("token", res.access_token);
+      }
       setLoading(false);
       navigate("/home");
     } catch (err: any) {

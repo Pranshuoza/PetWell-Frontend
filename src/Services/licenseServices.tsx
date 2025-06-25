@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -30,20 +29,20 @@ interface LicenseResponse {
 const licenseServices = {
   async addLicense(data: CreateLicenseData): Promise<LicenseResponse> {
     try {
-      const response: AxiosResponse<{ data: LicenseResponse }> = await axios.post(
+      const response= await axios.post(
         `${SERVER_BASE_URL}/api/v1/licenses/add`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "License creation failed");
@@ -54,18 +53,18 @@ const licenseServices = {
 
   async getAllLicenses(): Promise<LicenseResponse> {
     try {
-      const response: AxiosResponse<{ data: LicenseResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/licenses/get-all`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching licenses failed");

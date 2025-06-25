@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -32,18 +31,18 @@ interface StaffResponse {
 const staffServices = {
   async getProfile(): Promise<StaffResponse> {
     try {
-      const response: AxiosResponse<{ data: StaffResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/staff/profile`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching staff profile failed");
@@ -63,20 +62,20 @@ const staffServices = {
           formData.append('description', `Optional: ${key}`);
         }
       });
-      const response: AxiosResponse<{ data: StaffResponse }> = await axios.patch(
+      const response = await axios.patch(
         `${SERVER_BASE_URL}/api/v1/staff/profile`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Staff profile update failed");

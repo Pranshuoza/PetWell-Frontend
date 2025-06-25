@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -37,20 +36,20 @@ interface BusinessSearchResponse {
 const teamServices = {
   async createTeam(data: CreateTeamData): Promise<TeamResponse> {
     try {
-      const response: AxiosResponse<{ data: TeamResponse }> = await axios.post(
+      const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/teams/create`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Team creation failed");
@@ -61,18 +60,18 @@ const teamServices = {
 
   async getAllTeams(): Promise<TeamResponse> {
     try {
-      const response: AxiosResponse<{ data: TeamResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/teams/getAll`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching teams failed");
@@ -83,18 +82,18 @@ const teamServices = {
 
   async getTeamById(teamId: string): Promise<TeamResponse> {
     try {
-      const response: AxiosResponse<{ data: TeamResponse }> = await axios.get(
+      const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/teams/getById/${teamId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching team failed");
@@ -105,20 +104,20 @@ const teamServices = {
 
   async updateTeam(teamId: string, data: UpdateTeamData): Promise<TeamResponse> {
     try {
-      const response: AxiosResponse<{ data: TeamResponse }> = await axios.patch(
+      const response = await axios.patch(
         `${SERVER_BASE_URL}/api/v1/teams/update/${teamId}`,
         data,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Team update failed");
@@ -129,18 +128,18 @@ const teamServices = {
 
   async deleteTeam(teamId: string): Promise<TeamResponse> {
     try {
-      const response: AxiosResponse<{ data: TeamResponse }> = await axios.delete(
+      const response = await axios.delete(
         `${SERVER_BASE_URL}/api/v1/teams/delete/${teamId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Team deletion failed");
@@ -151,19 +150,19 @@ const teamServices = {
 
   async searchBusinesses(query: string): Promise<BusinessSearchResponse> {
     try {
-      const response: AxiosResponse<{ data: BusinessSearchResponse }> = await axios.get(
+      const response  = await axios.get(
         `${SERVER_BASE_URL}/api/v1/teams/search/businesses`,
         {
           params: { query },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Business search failed");

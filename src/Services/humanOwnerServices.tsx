@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -28,18 +27,18 @@ interface HumanOwnerResponse {
 const humanOwnerServices = {
   async getProfile(): Promise<HumanOwnerResponse> {
     try {
-      const response: AxiosResponse<{ data: HumanOwnerResponse }> = await axios.get(
+      const response= await axios.get(
         `${SERVER_BASE_URL}/api/v1/human-owners/profile`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Fetching profile failed");
@@ -59,20 +58,20 @@ const humanOwnerServices = {
           formData.append('description', `Optional: ${key}`);
         }
       });
-      const response: AxiosResponse<{ data: HumanOwnerResponse }> = await axios.patch(
+      const response= await axios.patch(
         `${SERVER_BASE_URL}/api/v1/human-owners/profile`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('jwtToken') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Profile update failed");

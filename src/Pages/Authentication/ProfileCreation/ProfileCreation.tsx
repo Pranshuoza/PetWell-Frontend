@@ -819,18 +819,12 @@ const ProfileCreation: React.FC = () => {
           identifier: form.owner_email,
           otp_code: otp,
         });
-        const response = await authServices.verifyOTP({
+        await authServices.verifyOTP({
           identifier: form.owner_email,
           otp_code: otp,
         });
 
-        if (response.success) {
-          // Reset form and directly navigate to home page
-          resetForm();
-          navigate("/home");
-        } else {
-          setOtpError("OTP verification failed. Please try again.");
-        }
+        setShowSuccess(true);
       } catch (err: any) {
         console.error("OTP verification error:", err);
         setOtpError(
