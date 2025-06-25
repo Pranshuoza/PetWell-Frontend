@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Landing from "./Pages/Landing/Landing";
-import ProfileCreationStep1 from "./Pages/Authentication/ProfileCreation/ProfileCreationStep1";
+import ProfileCreation from "./Pages/Authentication/ProfileCreation/ProfileCreation";
 import "./App.css";
 import Home from "./Pages/PetParentHomePage/HomePage";
 import UploadDocuments from "./Pages/PetParentUploadDocuments/UploadDocumentsPage";
@@ -25,7 +25,7 @@ function App() {
     <div className="min-h-screen">
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/profile-creation" element={<ProfileCreationStep1 />} />
+        <Route path="/profile-creation" element={<ProfileCreation />} />
         <Route path="/signup-type" element={<SignupTypeSelectPage />} />
         <Route path="/signup/pet-parent" element={<PetParentSignupPage />} />
         <Route path="/login" element={<LoginPage />} />
