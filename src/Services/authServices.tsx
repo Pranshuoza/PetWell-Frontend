@@ -106,21 +106,29 @@ interface ResetPasswordResponse {
 }
 
 const authServices = {
-  async login(data: LoginData): Promise<AuthResponse> {
+  async login(data: Partial<LoginData>): Promise<AuthResponse> {
     try {
-      const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
+      // Remove empty username if not provided
+      const payload: Record<string, string> = {
+        email: data.email || "",
+        password: data.password || "",
+      };
+      if (data.username && data.username.trim() !== "") {
+        payload.username = data.username.trim();
+      }
+      const response: AxiosResponse<AuthResponse > = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/login`,
-        data,
+        payload,
         {
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
-      if (!response.data.data) {
+      if (!response.data) {
         throw new Error("Invalid response from server");
       }
-      return response.data.data;
+      return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Login failed");
@@ -156,120 +164,136 @@ const authServices = {
 
   // Enhanced signupHumanOwnerWithPet method with better debugging
 
-async signupHumanOwnerWithPet(
-  data: HumanOwnerWithPetSignupData | FormData
-): Promise<AuthResponse> {
-  try {
-    console.log("=== AUTH SERVICE DEBUG ===");
-    
-    let payload: FormData | HumanOwnerWithPetSignupData;
-    let headers: Record<string, string> = {};
+  async signupHumanOwnerWithPet(
+    data: HumanOwnerWithPetSignupData | FormData
+  ): Promise<AuthResponse> {
+    try {
+      console.log("=== AUTH SERVICE DEBUG ===");
 
-    if (data instanceof FormData) {
-      payload = data;
-      // Don't set Content-Type for FormData - let browser set it with boundary
-      // headers['Content-Type'] = 'multipart/form-data'; // Remove this line
-      
-      // Log FormData entries for debugging
-      const entries = Array.from(payload.entries());
-      if (entries.length === 0) {
-        throw new Error("FormData is empty. Please check form inputs.");
-      }
-      
-      console.log("FormData payload entries:");
-      for (const [key, value] of entries) {
-        console.log(`${key}: ${value instanceof File ? `FILE: ${value.name} (${value.size} bytes, ${value.type})` : value}`);
-      }
-    } else {
-      payload = data;
-      headers['Content-Type'] = 'application/json';
-      console.log("JSON payload:", payload);
-    }
+      let payload: FormData | HumanOwnerWithPetSignupData;
+      let headers: Record<string, string> = {};
 
-    // Validate SERVER_BASE_URL
-    if (!SERVER_BASE_URL) {
-      throw new Error("SERVER_BASE_URL is not defined. Check your config.");
-    }
+      if (data instanceof FormData) {
+        payload = data;
+        // Don't set Content-Type for FormData - let browser set it with boundary
+        // headers['Content-Type'] = 'multipart/form-data'; // Remove this line
 
-    const url = `${SERVER_BASE_URL}/api/v1/auth/register/human-owner-with-pet`;
-    console.log("Making request to:", url);
-    console.log("Request headers:", headers);
-
-    const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
-      url,
-      payload,
-      {
-        headers,
-        timeout: 30000, // Increased timeout to 30 seconds
-        validateStatus: function (status) {
-          return status < 500; // Resolve only if status is less than 500
+        // Log FormData entries for debugging
+        const entries = Array.from(payload.entries());
+        if (entries.length === 0) {
+          throw new Error("FormData is empty. Please check form inputs.");
         }
-      }
-    );
 
-    console.log("Response status:", response.status);
-    console.log("Response headers:", response.headers);
-    console.log("Response data:", response.data);
-
-    // Handle different response structures
-    if (response.status >= 400) {
-      const errorMessage = response.data?.data?.message || `HTTP ${response.status} error`;
-      throw new Error(errorMessage);
-    }
-
-    // Handle different response data structures
-    let responseData: AuthResponse;
-    
-    if (response.data?.data) {
-      responseData = response.data.data;
-    } else if ((response.data as any)?.message) {
-      responseData = response.data as unknown as AuthResponse;
-    } else {
-      throw new Error("Invalid response structure from server");
-    }
-
-    console.log("Processed response data:", responseData);
-    return responseData;
-    
-  } catch (error: unknown) {
-    console.error("=== AUTH SERVICE ERROR ===");
-    console.error("Error type:", typeof error);
-    console.error("Error object:", error);
-    
-    if (axios.isAxiosError(error)) {
-      console.error("Axios error details:");
-      console.error("- Code:", error.code);
-      console.error("- Message:", error.message);
-      console.error("- Response:", error.response?.data);
-      console.error("- Status:", error.response?.status);
-      console.error("- Request URL:", error.config?.url);
-      console.error("- Request method:", error.config?.method);
-      
-      // More specific error handling
-      if (error.code === 'NETWORK_ERROR') {
-        throw new Error("Network error. Please check your internet connection and server status.");
-      } else if (error.code === 'TIMEOUT') {
-        throw new Error("Request timeout. The server may be experiencing high load.");
-      } else if (error.code === 'ERR_CONNECTION_REFUSED') {
-        throw new Error("Connection refused. Please check if the server is running.");
-      } else if (error.response) {
-        // Server responded with error status
-        const message = error.response.data?.message || `Server error (${error.response.status})`;
-        throw new Error(message);
-      } else if (error.request) {
-        // Request was made but no response received
-        throw new Error("No response from server. Please check your network connection.");
+        console.log("FormData payload entries:");
+        for (const [key, value] of entries) {
+          console.log(
+            `${key}: ${
+              value instanceof File
+                ? `FILE: ${value.name} (${value.size} bytes, ${value.type})`
+                : value
+            }`
+          );
+        }
       } else {
-        // Error in setting up the request
-        throw new Error(`Request setup error: ${error.message}`);
+        payload = data;
+        headers["Content-Type"] = "application/json";
+        console.log("JSON payload:", payload);
       }
-    } else if (error instanceof Error) {
-      throw error;
-    } else {
-      throw new Error("Unknown error occurred during signup");
+
+      // Validate SERVER_BASE_URL
+      if (!SERVER_BASE_URL) {
+        throw new Error("SERVER_BASE_URL is not defined. Check your config.");
+      }
+
+      const url = `${SERVER_BASE_URL}/api/v1/auth/register/human-owner-with-pet`;
+      console.log("Making request to:", url);
+      console.log("Request headers:", headers);
+
+      const response: AxiosResponse<{ data: AuthResponse }> = await axios.post(
+        url,
+        payload,
+        {
+          headers,
+          timeout: 30000, // Increased timeout to 30 seconds
+          validateStatus: function (status) {
+            return status < 500; // Resolve only if status is less than 500
+          },
+        }
+      );
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      console.log("Response data:", response.data);
+
+      // Handle different response structures
+      if (response.status >= 400) {
+        const errorMessage =
+          response.data?.data?.message || `HTTP ${response.status} error`;
+        throw new Error(errorMessage);
+      }
+
+      // Handle different response data structures
+      let responseData: AuthResponse;
+
+      if (response.data?.data) {
+        responseData = response.data.data;
+      } else if ((response.data as any)?.message) {
+        responseData = response.data as unknown as AuthResponse;
+      } else {
+        throw new Error("Invalid response structure from server");
+      }
+
+      console.log("Processed response data:", responseData);
+      return responseData;
+    } catch (error: unknown) {
+      console.error("=== AUTH SERVICE ERROR ===");
+      console.error("Error type:", typeof error);
+      console.error("Error object:", error);
+
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error details:");
+        console.error("- Code:", error.code);
+        console.error("- Message:", error.message);
+        console.error("- Response:", error.response?.data);
+        console.error("- Status:", error.response?.status);
+        console.error("- Request URL:", error.config?.url);
+        console.error("- Request method:", error.config?.method);
+
+        // More specific error handling
+        if (error.code === "NETWORK_ERROR") {
+          throw new Error(
+            "Network error. Please check your internet connection and server status."
+          );
+        } else if (error.code === "TIMEOUT") {
+          throw new Error(
+            "Request timeout. The server may be experiencing high load."
+          );
+        } else if (error.code === "ERR_CONNECTION_REFUSED") {
+          throw new Error(
+            "Connection refused. Please check if the server is running."
+          );
+        } else if (error.response) {
+          // Server responded with error status
+          const message =
+            error.response.data?.message ||
+            `Server error (${error.response.status})`;
+          throw new Error(message);
+        } else if (error.request) {
+          // Request was made but no response received
+          throw new Error(
+            "No response from server. Please check your network connection."
+          );
+        } else {
+          // Error in setting up the request
+          throw new Error(`Request setup error: ${error.message}`);
+        }
+      } else if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error("Unknown error occurred during signup");
+      }
     }
-  }
-},
+  },
 
   async signupStaff(data: StaffSignupData): Promise<AuthResponse> {
     try {
