@@ -1,40 +1,115 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { Syringe } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
+import vaccineServices from "../../Services/vaccineServices";
 
-const vaccineOptions = [
-  "K9 DA2PPV 3 Year (VANGUARD)",
-  "Heartgard Plus",
-  "K9 Leptospira Vaccine 1 Year",
-];
-const doctorOptions = ["Dr. John Doe", "Dr. Jane Smith", "Dr. Emily Brown"];
+interface Doctor {
+  id: string;
+  staff_name: string;
+  role_name: string;
+}
 
 interface AddVaccineProps {
   onCancel?: () => void;
   onSubmit?: (data: any) => void;
+  petId: string;
+  businessId: string;
 }
 
-const AddVaccine: React.FC<AddVaccineProps> = ({ onCancel, onSubmit }) => {
+interface VaccineOption {
+  id: string;
+  vaccine_name: string;
+}
+
+const AddVaccine: React.FC<AddVaccineProps> = ({
+  onCancel,
+  onSubmit,
+  petId,
+  businessId,
+}) => {
   const [vaccine, setVaccine] = useState("");
   const [administered, setAdministered] = useState("");
   const [expiry, setExpiry] = useState("");
-  const [doctor, setDoctor] = useState("");
+  const [doctor, setDoctor] = useState<{ id: string; name: string } | null>(
+    null
+  );
+  const [doctorSearch, setDoctorSearch] = useState("");
+  const [doctorResults, setDoctorResults] = useState<Doctor[]>([]);
   const [verified, setVerified] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [doctorLoading, setDoctorLoading] = useState(false);
+  const [doctorError, setDoctorError] = useState<string | null>(null);
+  const [vaccineOptions, setVaccineOptions] = useState<VaccineOption[]>([]);
+  const [vaccineId, setVaccineId] = useState<string>("");
+
+  // Search doctors as user types
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      if (!doctorSearch.trim()) {
+        setDoctorResults([]);
+        return;
+      }
+      setDoctorLoading(true);
+      setDoctorError(null);
+      try {
+        const res = await vaccineServices.getDoctors(petId, businessId);
+        console.log("Doctors Response:", res);
+        const filtered = (res.data || []).filter((doc: Doctor) =>
+          doc.staff_name.toLowerCase().includes(doctorSearch.toLowerCase())
+        );
+        setDoctorResults(filtered);
+      } catch (err: any) {
+        setDoctorError("Failed to fetch doctors");
+      } finally {
+        setDoctorLoading(false);
+      }
+    };
+    if (doctorSearch.length > 1) fetchDoctors();
+    else setDoctorResults([]);
+  }, [doctorSearch, petId, businessId]);
+
+  // Fetch vaccine options from backend (all vaccines, no petId/businessId needed)
+  useEffect(() => {
+    const fetchVaccines = async () => {
+      try {
+        const res = await vaccineServices.getAllPetVaccines(""); // Pass empty string to get all
+        setVaccineOptions(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        setVaccineOptions([]);
+      }
+    };
+    fetchVaccines();
+  }, []);
+
+  // Update vaccineId when vaccine name changes
+  useEffect(() => {
+    const found = vaccineOptions.find((v) => v.vaccine_name === vaccine);
+    setVaccineId(found ? found.id : "");
+  }, [vaccine, vaccineOptions]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    } else {
+      setFile(null);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) {
-      onSubmit({ vaccine, administered, expiry, doctor, verified });
+      onSubmit({
+        vaccine,
+        vaccine_id: vaccineId,
+        administered,
+        expiry,
+        doctor: doctor ? { id: doctor.id, name: doctor.name } : null,
+        verified,
+        file,
+      });
     }
   };
 
@@ -42,7 +117,7 @@ const AddVaccine: React.FC<AddVaccineProps> = ({ onCancel, onSubmit }) => {
     <>
       <div className="w-full flex flex-col items-center">
         <div className="flex flex-col items-center w-full">
-            <Syringe className="w-12 h-12 text-[var(--color-text)] mb-4" />
+          <Syringe className="w-12 h-12 text-[var(--color-text)] mb-4" />
           <h1 className="text-3xl font-serif font-bold mb-2">Add Vaccine</h1>
           <p className="text-lg opacity-80 mb-8 text-center">
             Start by uploading a document or fill in the vaccine info manually.
@@ -78,6 +153,7 @@ const AddVaccine: React.FC<AddVaccineProps> = ({ onCancel, onSubmit }) => {
               type="file"
               className="hidden"
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onChange={handleFileChange}
             />
           </label>
         </Card>
@@ -92,18 +168,19 @@ const AddVaccine: React.FC<AddVaccineProps> = ({ onCancel, onSubmit }) => {
             <label className="block text-[var(--color-text)] text-sm mb-1">
               Vaccine Name
             </label>
-            <Select value={vaccine} onValueChange={setVaccine}>
-              <SelectTrigger className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2">
-                <SelectValue placeholder="Select Vaccine" />
-              </SelectTrigger>
-              <SelectContent>
-                {vaccineOptions.map((v, i) => (
-                  <SelectItem key={i} value={v}>
-                    {v}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <input
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
+              type="text"
+              value={vaccine}
+              onChange={(e) => setVaccine(e.target.value)}
+              placeholder="Enter or select vaccine name"
+              list="vaccine-options"
+            />
+            <datalist id="vaccine-options">
+              {vaccineOptions.map((v) => (
+                <option key={v.id} value={v.vaccine_name} />
+              ))}
+            </datalist>
           </div>
           <div>
             <label className="block text-[var(--color-text)] text-sm mb-1">
@@ -133,18 +210,49 @@ const AddVaccine: React.FC<AddVaccineProps> = ({ onCancel, onSubmit }) => {
             <label className="block text-[var(--color-text)] text-sm mb-1">
               Administered By
             </label>
-            <Select value={doctor} onValueChange={setDoctor}>
-              <SelectTrigger className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2">
-                <SelectValue placeholder="Select Doctor" />
-              </SelectTrigger>
-              <SelectContent>
-                {doctorOptions.map((d, i) => (
-                  <SelectItem key={i} value={d}>
-                    {d}
-                  </SelectItem>
+            <Input
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
+              type="text"
+              value={doctorSearch}
+              onChange={(e) => {
+                setDoctorSearch(e.target.value);
+                setDoctor(null);
+              }}
+              placeholder="Search doctor by name"
+              autoComplete="off"
+            />
+            {doctorLoading && (
+              <div className="text-xs text-gray-400 mt-1">Searching...</div>
+            )}
+            {doctorError && (
+              <div className="text-xs text-red-400 mt-1">{doctorError}</div>
+            )}
+            {doctorResults.length > 0 && (
+              <ul className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-md mt-1 max-h-32 overflow-y-auto">
+                {doctorResults.map((doc) => (
+                  <li
+                    key={doc.id}
+                    className={`px-3 py-2 cursor-pointer hover:bg-[var(--color-card)] ${
+                      doctor?.id === doc.id ? "bg-[var(--color-card)]" : ""
+                    }`}
+                    onClick={() => {
+                      setDoctor({ id: doc.id, name: doc.staff_name });
+                      setDoctorSearch(doc.staff_name);
+                    }}
+                  >
+                    {doc.staff_name}{" "}
+                    <span className="text-xs text-gray-400">
+                      ({doc.role_name})
+                    </span>
+                  </li>
                 ))}
-              </SelectContent>
-            </Select>
+              </ul>
+            )}
+            {doctor && (
+              <div className="text-xs text-green-500 mt-1">
+                Selected: {doctor.name}
+              </div>
+            )}
           </div>
           <div className="flex items-start gap-2 mt-2">
             <Checkbox

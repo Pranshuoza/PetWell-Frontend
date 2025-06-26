@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import { Input } from "../../Components/ui/input";
@@ -17,19 +17,55 @@ import {
   TabsContent,
 } from "../../Components/ui/tabs";
 import DocumentInfo from "../../Components/Document/DocumentInfo";
+import DeleteDocumentModal from "../../Components/Document/DeleteDocumentModal";
 
-const documents = [
-  { name: "Full Med Record_2025.pdf", size: "3.2 MB", type: "pdf" },
-  { name: "Training Plan_Syd.pdf", size: "3.2 MB", type: "pdf" },
-  { name: "Syd left jaw.png", size: "3.2 MB", type: "img" },
-  { name: "Dog Daze Report Card 2/15.pdf", size: "3.2 MB", type: "pdf" },
-  { name: "Full Med Record_2025.pdf", size: "3.2 MB", type: "pdf" },
-  { name: "Syd left jaw.png", size: "3.2 MB", type: "img" },
-  { name: "Dog Daze Report Card 2/15.pdf", size: "3.2 MB", type: "pdf" },
+const initialDocuments = [
+  {
+    name: "Full Med Record_2025.pdf",
+    size: 3200000, // 3.2 MB in bytes
+    type: "pdf",
+    uploader: "Dr. Hemant Patel, Vet Office of New York",
+    downloadUrl: "/docs/FullMedRecord_2025.pdf",
+  },
+  {
+    name: "Training Plan_Syd.pdf",
+    size: 3200000,
+    type: "pdf",
+    uploader: "You",
+    downloadUrl: "/docs/TrainingPlan_Syd.pdf",
+  },
+  {
+    name: "Syd left jaw.png",
+    size: 3200000,
+    type: "img",
+    uploader: "You",
+    downloadUrl: "/docs/SydLeftJaw.png",
+  },
+  {
+    name: "Dog Daze Report Card 2/15.pdf",
+    size: 3200000,
+    type: "pdf",
+    uploader: "Dr. Hemant Patel, Vet Office of New York",
+    downloadUrl: "/docs/DogDazeReportCard_2_15.pdf",
+  },
+  // ...add more as needed
 ];
 
 const DocumentPage: React.FC = () => {
   const navigate = useNavigate();
+  const [documents, setDocuments] = useState(initialDocuments);
+  const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
+
+  const handleDelete = (idx: number) => {
+    setDeleteIdx(idx);
+  };
+
+  const confirmDelete = () => {
+    if (deleteIdx !== null) {
+      setDocuments((docs) => docs.filter((_, i) => i !== deleteIdx));
+      setDeleteIdx(null);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
@@ -114,39 +150,63 @@ const DocumentPage: React.FC = () => {
                   key={idx}
                   name={doc.name}
                   type={doc.type as "pdf" | "img"}
+                  size={doc.size}
+                  uploader={doc.uploader}
+                  downloadUrl={doc.downloadUrl}
                   onEdit={() => {}}
-                  onDelete={() => {}}
+                  onDelete={() => handleDelete(idx)}
                 />
               ))}
             </div>
           </TabsContent>
           <TabsContent value="user" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents.map((doc, idx) => (
-                <DocumentInfo
-                  key={idx}
-                  name={doc.name}
-                  type={doc.type as "pdf" | "img"}
-                  onEdit={() => {}}
-                  onDelete={() => {}}
-                />
-              ))}
+              {documents
+                .map((doc, idx) => ({ ...doc, idx }))
+                .filter((doc) => doc.uploader === "You")
+                .map((doc) => (
+                  <DocumentInfo
+                    key={doc.idx}
+                    name={doc.name}
+                    type={doc.type as "pdf" | "img"}
+                    size={doc.size}
+                    uploader={doc.uploader}
+                    downloadUrl={doc.downloadUrl}
+                    onEdit={() => {}}
+                    onDelete={() => handleDelete(doc.idx)}
+                  />
+                ))}
             </div>
           </TabsContent>
           <TabsContent value="team" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents.map((doc, idx) => (
-                <DocumentInfo
-                  key={idx}
-                  name={doc.name}
-                  type={doc.type as "pdf" | "img"}
-                  onEdit={() => {}}
-                  onDelete={() => {}}
-                />
-              ))}
+              {documents
+                .map((doc, idx) => ({ ...doc, idx }))
+                .filter((doc) => doc.uploader !== "You")
+                .map((doc) => (
+                  <DocumentInfo
+                    key={doc.idx}
+                    name={doc.name}
+                    type={doc.type as "pdf" | "img"}
+                    size={doc.size}
+                    uploader={doc.uploader}
+                    downloadUrl={doc.downloadUrl}
+                    onEdit={() => {}}
+                    onDelete={() => handleDelete(doc.idx)}
+                  />
+                ))}
             </div>
           </TabsContent>
         </Tabs>
+        {/* Delete Modal */}
+        {deleteIdx !== null && (
+          <DeleteDocumentModal
+            open={true}
+            documentName={documents[deleteIdx].name}
+            onClose={() => setDeleteIdx(null)}
+            onDelete={confirmDelete}
+          />
+        )}
       </div>
     </div>
   );
