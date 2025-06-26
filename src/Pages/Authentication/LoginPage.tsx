@@ -36,7 +36,27 @@ const LoginPage: React.FC = () => {
         localStorage.setItem("token", res.access_token);
       }
       setLoading(false);
-      navigate("/home");
+      // Defensive: check for entity_type in both root and user object
+      let entityType = undefined;
+      if ('entity_type' in res) {
+        entityType = (res as any).entity_type;
+      } else if (res.user && 'entity_type' in res.user) {
+        entityType = (res.user as any).entity_type;
+      } else if (res.user && 'role' in res.user) {
+        // fallback: treat role as entity_type if present
+        entityType = (res.user as any).role;
+      }
+      if (entityType && typeof entityType === 'string') {
+        if (entityType.toLowerCase().includes('staff')) {
+          navigate("/business-home");
+        } else if (entityType.toLowerCase().includes('human')) {
+          navigate("/home");
+        } else {
+          setError("Unknown user type. Please contact support.");
+        }
+      } else {
+        setError("Unknown user type. Please contact support.");
+      }
     } catch (err: any) {
       setLoading(false);
       setError(err.message || "Login failed");
