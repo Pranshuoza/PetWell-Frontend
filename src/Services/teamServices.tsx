@@ -95,6 +95,7 @@ const teamServices = {
       if (!response.data) {
         throw new Error("Invalid response from server");
       }
+      console.log('Fetched team by ID:', response.data);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
@@ -161,6 +162,7 @@ const teamServices = {
           },
         }
       );
+      console.log('Business search response:', response.data);
       if (!response.data) {
         throw new Error("Invalid response from server");
       }
