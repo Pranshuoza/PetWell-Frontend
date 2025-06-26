@@ -5,36 +5,52 @@ import PetWellLogo from "../../Assets/PetWell.png";
 const SignupTypeSelectPage: React.FC = () => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#181f27] text-[var(--color-text)]">
-      <div className="absolute left-10 top-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#181F29]">
+      <div className="absolute top-8 left-8">
+        {/* Logo - replace with your logo if needed */}
         <img
           src={PetWellLogo}
           alt="PetWell Logo"
-          className="w-16 h-16 object-contain"
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+          }}
         />
       </div>
-      <div className="bg-[var(--color-card)] rounded-2xl shadow-2xl px-10 py-12 flex flex-col items-center w-[400px] max-w-full border border-[#2d3648]">
-        <h2 className="text-2xl font-serif text-[var(--color-heading)] mb-8 font-bold text-center">
-          Sign up as...
-        </h2>
-        <button
-          className="w-full py-4 mb-4 rounded-lg bg-[var(--color-primary)] text-black text-lg font-semibold hover:brightness-110 transition"
-          onClick={() => navigate("/signup/pet-parent")}
-        >
-          Pet Parent
-        </button>
-        {/* <button
-          className="w-full py-4 mb-4 rounded-lg bg-[#EBD5BD] text-[#181f27] text-lg font-semibold hover:brightness-110 transition"
-          onClick={() => navigate("/signup/staff")}
-        >
-          Staff (Veterinarian/Employee)
-        </button> */}
-        <button
-          className="w-full py-4 rounded-lg bg-[#232b3e] text-[var(--color-primary)] text-lg font-semibold border border-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-black transition"
-          onClick={() => navigate("/signup/business")}
-        >
-          Business Owner
-        </button>
+      <div className="flex flex-col items-center justify-center w-full">
+        <h1 className="text-4xl font-serif font-bold text-[#EBD5BD] mb-4 text-center">
+          Let’s get you started
+        </h1>
+        <p className="text-lg text-[#EBD5BD] opacity-80 mb-12 text-center">
+          Tell us who you are so we can tailor your experience.
+        </p>
+        <div className="flex flex-col md:flex-row gap-8 mt-2">
+          <button
+            className="flex flex-col items-start gap-2 px-10 py-7 rounded-xl bg-[#23272f] hover:bg-[#23272f]/80 transition border-none shadow-lg min-w-[320px] max-w-full text-left focus:outline-none"
+            onClick={() => navigate("/signup/pet-parent")}
+          >
+            <span className="text-4xl mb-2">🐾</span>
+            <span className="text-xl font-bold text-[#EBD5BD]">
+              I’m a Pet Parent
+            </span>
+            <span className="text-base text-[#EBD5BD] opacity-80">
+              Manage your pet’s health, records, and care team – all in one place.
+            </span>
+          </button>
+          <button
+            className="flex flex-col items-start gap-2 px-10 py-7 rounded-xl bg-[#23272f] hover:bg-[#23272f]/80 transition border-none shadow-lg min-w-[320px] max-w-full text-left focus:outline-none"
+            onClick={() => navigate("/signup/business")}
+          >
+            <span className="text-4xl mb-2">💼</span>
+            <span className="text-xl font-bold text-[#EBD5BD]">
+              I’m a Business
+            </span>
+            <span className="text-base text-[#EBD5BD] opacity-80">
+              Connect with pet parents, upload records, and manage your care team.
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
