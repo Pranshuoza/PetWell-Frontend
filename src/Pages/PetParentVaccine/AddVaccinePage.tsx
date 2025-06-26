@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import AddVaccine from "../../Components/Vaccine/AddVaccine";
-import vaccineServices from "../../Services/vaccineServices";
 import petServices from "../../Services/petServices";
+import vaccineServices from "../../Services/vaccineServices";
 
 const AddVaccinePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [petId, setPetId] = useState<string>("");
+
+  // Fetch petId from pets on mount
+  useEffect(() => {
+    const fetchPet = async () => {
+      try {
+        let petsRes = await petServices.getPetsByOwner();
+        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+        console.log("Fetched pets:", petsArr);
+        if (!petsArr) petsArr = [];
+        if (!Array.isArray(petsArr)) petsArr = [petsArr];
+        if (petsArr.length > 0) {
+          setPetId(petsArr[0].id);
+        } else {
+          setError("No pet found. Please add a pet first.");
+        }
+      } catch {
+        setError("Failed to fetch pets.");
+      }
+    };
+    fetchPet();
+  }, []);
 
   // Handles the actual vaccine creation
   const handleAddVaccine = async (data: any) => {
@@ -17,36 +39,40 @@ const AddVaccinePage: React.FC = () => {
     setError(null);
     setSuccess(null);
     try {
-      // Get the user's pets (assuming first pet for now)
-      let petsRes = await petServices.getPetsByOwner();
-      console.log("Pets Response:", petsRes);
-      let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-      if (!petsArr) petsArr = [];
-      if (!Array.isArray(petsArr)) petsArr = [petsArr];
-      if (petsArr.length === 0) {
-        setError("No pets found. Please add a pet first.");
+      if (!petId) {
+        setError("No pet found. Please add a pet first.");
         setLoading(false);
         return;
       }
-      const pet = petsArr[0];
-      // Compose payload for vaccine creation
+      if (!data.doctor || !data.doctor.id) {
+        setError("Please select a doctor.");
+        setLoading(false);
+        return;
+      }
+      const manualFieldsFilled =
+        data.vaccine && data.administered && data.expiry && data.doctor;
+      if (!data.file && !manualFieldsFilled) {
+        setError("Please upload a vaccine document OR fill all manual fields.");
+        setLoading(false);
+        return;
+      }
+
+      // Build payload for API
       const payload = {
         vaccine_name: data.vaccine,
         date_administered: data.administered,
         date_due: data.expiry,
-        staff_id: "1", // You may want to select actual staff/doctor
-        pet_id: pet.id,
-        file: data.file,
+        staff_id: data.doctor.id,
+        pet_id: petId,
+        file: data.file || undefined,
       };
-      if (!data.file) {
-        setError("A vaccine document file is required.");
-        setLoading(false);
-        return;
-      }
+      console.log("Sending payload to server:", payload);
+
       await vaccineServices.createVaccine(payload);
-      console.log("Payload:", payload);
+
       setSuccess("Vaccine added successfully!");
-      // setTimeout(() => navigate(-1), 1200);
+      // Redirect to vaccine list page after success
+      setTimeout(() => navigate("/vaccine"), 1200);
     } catch (err: any) {
       setError(err.message || "Failed to add vaccine");
     } finally {
@@ -70,7 +96,7 @@ const AddVaccinePage: React.FC = () => {
         <div className="max-w-lg mx-auto pt-8 pb-12 flex flex-col items-center">
           {error && <div className="text-red-500 mb-4">{error}</div>}
           {success && <div className="text-green-500 mb-4">{success}</div>}
-          <AddVaccine onSubmit={handleAddVaccine} />
+          <AddVaccine onSubmit={handleAddVaccine} petId={petId} />
           {loading && (
             <div className="text-center mt-4 text-lg">Adding vaccine...</div>
           )}

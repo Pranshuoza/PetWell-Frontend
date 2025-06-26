@@ -33,7 +33,6 @@ interface UpdateVaccineData {
 interface Doctor {
   id: string;
   staff_name: string;
-  role_name: string;
 }
 
 interface VaccineResponse {
@@ -52,16 +51,20 @@ const vaccineServices = {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         if (value) {
-          formData.append(key, value instanceof File ? value : value.toString());
+          formData.append(
+            key,
+            value instanceof File ? value : value.toString()
+          );
         }
       });
+      console.log("Submitting vaccine payload:", data);
       const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/vaccines/create`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -71,7 +74,10 @@ const vaccineServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Vaccine creation failed");
+        console.error("Backend error:", error.response.data);
+        throw new Error(
+          error.response.data.message || "Vaccine creation failed"
+        );
       }
       throw new Error("Vaccine creation failed");
     }
@@ -83,7 +89,7 @@ const vaccineServices = {
         `${SERVER_BASE_URL}/api/v1/vaccines/getAllPetVaccines/${petId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -93,7 +99,9 @@ const vaccineServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching pet vaccines failed");
+        throw new Error(
+          error.response.data.message || "Fetching pet vaccines failed"
+        );
       }
       throw new Error("Fetching pet vaccines failed");
     }
@@ -105,7 +113,7 @@ const vaccineServices = {
         `${SERVER_BASE_URL}/api/v1/vaccines/getPetVaccine/${vaccineId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -115,18 +123,26 @@ const vaccineServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching vaccine failed");
+        throw new Error(
+          error.response.data.message || "Fetching vaccine failed"
+        );
       }
       throw new Error("Fetching vaccine failed");
     }
   },
 
-  async updateVaccine(vaccineId: string, data: UpdateVaccineData): Promise<VaccineResponse> {
+  async updateVaccine(
+    vaccineId: string,
+    data: UpdateVaccineData
+  ): Promise<VaccineResponse> {
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         if (value) {
-          formData.append(key, value instanceof File ? value : value.toString());
+          formData.append(
+            key,
+            value instanceof File ? value : value.toString()
+          );
         }
       });
       const response = await axios.patch(
@@ -135,7 +151,7 @@ const vaccineServices = {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -157,7 +173,7 @@ const vaccineServices = {
         `${SERVER_BASE_URL}/api/v1/vaccines/delete/${vaccineId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -167,7 +183,9 @@ const vaccineServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Vaccine deletion failed");
+        throw new Error(
+          error.response.data.message || "Vaccine deletion failed"
+        );
       }
       throw new Error("Vaccine deletion failed");
     }
@@ -180,7 +198,7 @@ const vaccineServices = {
         {
           params: { petId, businessId },
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -190,7 +208,9 @@ const vaccineServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching doctors failed");
+        throw new Error(
+          error.response.data.message || "Fetching doctors failed"
+        );
       }
       throw new Error("Fetching doctors failed");
     }

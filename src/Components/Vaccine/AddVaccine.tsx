@@ -9,14 +9,18 @@ import vaccineServices from "../../Services/vaccineServices";
 interface Doctor {
   id: string;
   staff_name: string;
-  role_name: string;
+  email: string;
+  business?: {
+    id: string;
+    business_name: string;
+  };
+  // role_name?: string; // Only if your backend adds this in the future
 }
 
 interface AddVaccineProps {
   onCancel?: () => void;
   onSubmit?: (data: any) => void;
   petId: string;
-  businessId: string;
 }
 
 interface VaccineOption {
@@ -28,7 +32,6 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
   onCancel,
   onSubmit,
   petId,
-  businessId,
 }) => {
   const [vaccine, setVaccine] = useState("");
   const [administered, setAdministered] = useState("");
@@ -42,8 +45,7 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
   const [file, setFile] = useState<File | null>(null);
   const [doctorLoading, setDoctorLoading] = useState(false);
   const [doctorError, setDoctorError] = useState<string | null>(null);
-  const [vaccineOptions, setVaccineOptions] = useState<VaccineOption[]>([]);
-  const [vaccineId, setVaccineId] = useState<string>("");
+  const [manualError, setManualError] = useState<string | null>(null);
 
   // Search doctors as user types
   useEffect(() => {
@@ -55,40 +57,30 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
       setDoctorLoading(true);
       setDoctorError(null);
       try {
-        const res = await vaccineServices.getDoctors(petId, businessId);
-        console.log("Doctors Response:", res);
-        const filtered = (res.data || []).filter((doc: Doctor) =>
-          doc.staff_name.toLowerCase().includes(doctorSearch.toLowerCase())
-        );
-        setDoctorResults(filtered);
+        const res = await vaccineServices.getDoctors(petId, "");
+        const doctors = Array.isArray(res) ? res : [];
+        console.log("Fetched doctors:", doctors);
+        const results = doctors
+          .filter((d: any) =>
+            d.staff_name?.toLowerCase().includes(doctorSearch.toLowerCase())
+          )
+          .map((d: any) => ({
+            id: d.id,
+            staff_name: d.staff_name || d.email || "Doctor",
+            email: d.email || "",
+            business: d.business,
+          }));
+        console.log("Doctor search results:", results);
+        setDoctorResults(results);
       } catch (err: any) {
         setDoctorError("Failed to fetch doctors");
       } finally {
         setDoctorLoading(false);
       }
     };
-    if (doctorSearch.length > 1) fetchDoctors();
+    if (doctorSearch.length > 0) fetchDoctors();
     else setDoctorResults([]);
-  }, [doctorSearch, petId, businessId]);
-
-  // Fetch vaccine options from backend (all vaccines, no petId/businessId needed)
-  useEffect(() => {
-    const fetchVaccines = async () => {
-      try {
-        const res = await vaccineServices.getAllPetVaccines(""); // Pass empty string to get all
-        setVaccineOptions(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        setVaccineOptions([]);
-      }
-    };
-    fetchVaccines();
-  }, []);
-
-  // Update vaccineId when vaccine name changes
-  useEffect(() => {
-    const found = vaccineOptions.find((v) => v.vaccine_name === vaccine);
-    setVaccineId(found ? found.id : "");
-  }, [vaccine, vaccineOptions]);
+  }, [doctorSearch, petId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -100,15 +92,33 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setManualError(null);
     if (onSubmit) {
+      // If no file, require all manual fields and show caution for missing fields
+      if (!file) {
+        if (!vaccine || !administered || !expiry || !doctor) {
+          setManualError(
+            "Please fill all manual fields: Vaccine Name, Date Administered, Expiry Date, and Doctor."
+          );
+          return;
+        }
+      }
+      // Debug logs for submission
+      // console.log("Submitting vaccine form with:", {
+      //   vaccine,
+      //   administered,
+      //   expiry,
+      //   doctor,
+      //   verified,
+      //   file,
+      // });
       onSubmit({
         vaccine,
-        vaccine_id: vaccineId,
         administered,
         expiry,
         doctor: doctor ? { id: doctor.id, name: doctor.name } : null,
         verified,
-        file,
+        file: file || undefined, // Ensure file is undefined if not provided
       });
     }
   };
@@ -174,20 +184,14 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               value={vaccine}
               onChange={(e) => setVaccine(e.target.value)}
               placeholder="Enter or select vaccine name"
-              list="vaccine-options"
             />
-            <datalist id="vaccine-options">
-              {vaccineOptions.map((v) => (
-                <option key={v.id} value={v.vaccine_name} />
-              ))}
-            </datalist>
           </div>
           <div>
             <label className="block text-[var(--color-text)] text-sm mb-1">
               Date Administered
             </label>
             <Input
-              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var,--color-text)] border border-[var(--color-border)] mb-2"
               type="date"
               value={administered}
               onChange={(e) => setAdministered(e.target.value)}
@@ -199,7 +203,7 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               Expiry Date
             </label>
             <Input
-              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var,--color-text)] border border-[var(--color-border)] mb-2"
               type="date"
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
@@ -210,47 +214,95 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
             <label className="block text-[var(--color-text)] text-sm mb-1">
               Administered By
             </label>
-            <Input
-              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
-              type="text"
-              value={doctorSearch}
-              onChange={(e) => {
-                setDoctorSearch(e.target.value);
-                setDoctor(null);
-              }}
-              placeholder="Search doctor by name"
-              autoComplete="off"
-            />
+            <div className="w-full flex flex-col relative">
+              <Input
+                className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var,--color-text)] border border-[var(--color-border)] mb-2"
+                type="text"
+                value={doctorSearch}
+                onChange={(e) => {
+                  setDoctorSearch(e.target.value);
+                  setDoctor(null);
+                }}
+                placeholder="Search doctor by name"
+                autoComplete="off"
+              />
+              {doctorResults.length > 0 &&
+                doctorSearch &&
+                !doctor &&
+                ((() => {
+                  console.log("Rendering doctor dropdown", doctorResults);
+                  return null;
+                })(),
+                (
+                  <div
+                    className="absolute left-0 right-0 mt-1 bg-white rounded-xl shadow-lg z-10 border border-[#ececec] overflow-hidden"
+                    style={{ width: "100%" }}
+                  >
+                    {doctorResults.map((doc, idx) => {
+                      const name = doc.staff_name || "";
+                      const searchIndex = name
+                        .toLowerCase()
+                        .indexOf(doctorSearch.toLowerCase());
+                      let displayName;
+                      if (doctorSearch && searchIndex !== -1) {
+                        displayName = (
+                          <>
+                            {name.substring(0, searchIndex)}
+                            <b>
+                              {name.substring(
+                                searchIndex,
+                                searchIndex + doctorSearch.length
+                              )}
+                            </b>
+                            {name.substring(searchIndex + doctorSearch.length)}
+                          </>
+                        );
+                      } else {
+                        displayName = name;
+                      }
+                      return (
+                        <div
+                          key={doc.id}
+                          className={`flex flex-col px-4 py-3 cursor-pointer hover:bg-[var(--color-card)] border-b ${
+                            idx === doctorResults.length - 1
+                              ? "border-b-0"
+                              : "border-[#ececec]"
+                          }`}
+                          onClick={() => {
+                            setDoctor({ id: doc.id, name: doc.staff_name });
+                            setDoctorSearch(doc.staff_name);
+                          }}
+                        >
+                          <span className="font-semibold text-base text-[#232b3e]">
+                            {displayName}
+                          </span>
+                          <span className="text-xs text-[#232b3e] opacity-70">
+                            {doc.email}
+                            {doc.business && doc.business.business_name
+                              ? ` ${doc.business.business_name}`
+                              : ""}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+            </div>
             {doctorLoading && (
               <div className="text-xs text-gray-400 mt-1">Searching...</div>
             )}
             {doctorError && (
               <div className="text-xs text-red-400 mt-1">{doctorError}</div>
             )}
-            {doctorResults.length > 0 && (
-              <ul className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-md mt-1 max-h-32 overflow-y-auto">
-                {doctorResults.map((doc) => (
-                  <li
-                    key={doc.id}
-                    className={`px-3 py-2 cursor-pointer hover:bg-[var(--color-card)] ${
-                      doctor?.id === doc.id ? "bg-[var(--color-card)]" : ""
-                    }`}
-                    onClick={() => {
-                      setDoctor({ id: doc.id, name: doc.staff_name });
-                      setDoctorSearch(doc.staff_name);
-                    }}
-                  >
-                    {doc.staff_name}{" "}
-                    <span className="text-xs text-gray-400">
-                      ({doc.role_name})
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
             {doctor && (
               <div className="text-xs text-green-500 mt-1">
                 Selected: {doctor.name}
+                {(() => {
+                  const found = doctorResults.find((d) => d.id === doctor.id);
+                  return found && found.business && found.business.business_name
+                    ? ` (${found.business.business_name})`
+                    : "";
+                })()}
               </div>
             )}
           </div>
@@ -269,6 +321,9 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               correct and verifiable by a third party if needed.
             </label>
           </div>
+          {manualError && (
+            <div className="text-xs text-red-500 mb-2">{manualError}</div>
+          )}
           <div className="flex justify-between gap-4 mt-6">
             <Button
               type="button"
