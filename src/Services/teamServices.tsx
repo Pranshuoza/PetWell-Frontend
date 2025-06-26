@@ -71,6 +71,8 @@ const teamServices = {
       if (!response.data) {
         throw new Error("Invalid response from server");
       }
+      // Debug log: print all teams fetched from backend
+      console.log('Fetched teams from backend:', response.data);
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {

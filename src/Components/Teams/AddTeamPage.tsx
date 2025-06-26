@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../Layout/Navbar";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,6 +10,8 @@ import {
   DialogClose,
 } from "../ui/dialog";
 import TeamAddedModal from "./TeamAddedModal";
+import teamServices from "../../Services/teamServices";
+import petServices from "../../Services/petServices";
 
 const randomAvatars = [
   "https://randomuser.me/api/portraits/men/32.jpg",
@@ -24,38 +26,86 @@ function getRandomAvatar(idx: number) {
   return randomAvatars[idx % randomAvatars.length];
 }
 
-const TEAM_DATA = [
-  {
-    name: "Daily Day Care",
-    address: "245 Lexington Ave, New York",
-    avatar: getRandomAvatar(0),
-  },
-  {
-    name: "Groomers Daily",
-    address: "310 E 86th St, New York",
-    avatar: getRandomAvatar(1),
-  },
-  {
-    name: "Deely Daily Doctor",
-    address: "9021 Melrose Ave, Los Angeles",
-    avatar: getRandomAvatar(2),
-  },
-  // Add more as needed
-];
-
 const AddTeamPage: React.FC = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [showTeamAdded, setShowTeamAdded] = useState(false);
   const [addedTeamName, setAddedTeamName] = useState("");
-  const filteredTeams = search
-    ? TEAM_DATA.filter(team =>
-        team.name.toLowerCase().includes(search.toLowerCase()) ||
-        team.address.toLowerCase().includes(search.toLowerCase())
-      )
-    : [];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pets, setPets] = useState<any[]>([]);
+  const [selectedPetId, setSelectedPetId] = useState<string>("");
+
+  useEffect(() => {
+    // Fetch pets for the owner
+    petServices.getPetsByOwner().then(res => {
+      let petsArr = Array.isArray(res.data) ? res.data : res.data ? [res.data] : [];
+      setPets(petsArr);
+      if (petsArr.length > 0) setSelectedPetId(petsArr[0].id);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (search.trim().length === 0) {
+      setSearchResults([]);
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    teamServices.searchBusinesses(search)
+      .then(async res => {
+        if (!active) return;
+        // For each business, fetch the team by business id if needed
+        const businesses = res.data || [];
+        const resultsWithTeam = await Promise.all(
+          businesses.map(async (b: any, idx: number) => {
+            let teamInfo = null;
+            try {
+              // Try to fetch team by business id (if such mapping exists)
+              const teamRes = await teamServices.getTeamById(b.id);
+              teamInfo = teamRes.data || null;
+            } catch (e) {
+              // If not found, ignore
+            }
+            return {
+              ...b,
+              avatar: getRandomAvatar(idx),
+              address: b.address || "",
+              name: b.business_name || b.name || "Business",
+              teamInfo,
+            };
+          })
+        );
+        setSearchResults(resultsWithTeam);
+        setError(null);
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+    return () => { active = false; };
+  }, [search]);
+
+  // After creating a team, redirect to TeamsPage and refresh the list
+  const handleAddTeam = async () => {
+    if (!selectedTeam || !selectedPetId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await teamServices.createTeam({
+        pet_id: selectedPetId,
+        business_id: selectedTeam.id,
+      });
+      setShowTeamAdded(true);
+      setModalOpen(false);
+      setAddedTeamName(selectedTeam.name || "");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)]">
@@ -79,6 +129,21 @@ const AddTeamPage: React.FC = () => {
           <h1 className="text-3xl font-serif font-bold text-[var(--color-text)] mb-2">Add A Team</h1>
           <p className="text-base text-[var(--color-text)] mb-8 opacity-80">Search and add vets, groomers, or other care providers.</p>
           <div className="w-full max-w-md mt-2 flex flex-col items-center">
+            {pets.length > 1 && (
+              <div className="w-full mb-4">
+                <label className="block text-[var(--color-text)] opacity-60 font-semibold mb-2 ml-1 self-start" htmlFor="pet-select">Select Pet</label>
+                <select
+                  id="pet-select"
+                  className="w-full h-11 px-5 rounded-md bg-white bg-opacity-[0.04] border border-[#232b41] text-[var(--color-text)] text-base font-normal focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all duration-150 shadow-none"
+                  value={selectedPetId}
+                  onChange={e => setSelectedPetId(e.target.value)}
+                >
+                  {pets.map(pet => (
+                    <option key={pet.id} value={pet.id}>{pet.pet_name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <label className="block text-[var(--color-text)] opacity-60 font-semibold mb-2 ml-1 self-start" htmlFor="search">Search for a care provider</label>
             <div className="w-full flex justify-center relative">
               <div className="relative w-full">
@@ -96,10 +161,10 @@ const AddTeamPage: React.FC = () => {
                   <svg width="20" height="20" fill="none" stroke="#000000" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-2-2"/></svg>
                 </span>
                 {/* Results dropdown */}
-                {search && filteredTeams.length > 0 && (
+                {search && searchResults.length > 0 && (
                   <div className="absolute left-0 right-0 mt-1 bg-white rounded-md shadow-lg z-10 border border-[#ececec] overflow-hidden" style={{width: '100%'}}>
-                    {filteredTeams.map((team) => (
-                      <div key={team.name} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[var(--color-card)] border-b last:border-b-0 border-[#ececec]"
+                    {searchResults.map((team) => (
+                      <div key={team.id} className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[var(--color-card)] border-b last:border-b-0 border-[#ececec]"
                         onClick={() => { setSelectedTeam(team); setModalOpen(true); }}>
                         <img src={team.avatar} alt={team.name} className="w-9 h-9 rounded-full object-cover" />
                         <div>
@@ -125,19 +190,17 @@ const AddTeamPage: React.FC = () => {
                         </div>
                       </div>
                     )}
+                    {error && <div className="text-red-500 mb-4">{error}</div>}
                     <div className="flex gap-4 justify-end mt-2">
                       <DialogClose asChild>
                         <button className="px-8 py-2 rounded-lg border border-[var(--color-primary)] text-[var(--color-primary)] bg-transparent font-medium text-lg hover:bg-[var(--color-primary)] hover:text-black transition-all duration-150">Cancel</button>
                       </DialogClose>
                       <button
                         className="px-8 py-2 rounded-lg bg-[var(--color-primary)] text-[var(--color-primary-foreground)] font-medium text-lg hover:opacity-90 transition-all duration-150"
-                        onClick={() => {
-                          setShowTeamAdded(true);
-                          setModalOpen(false);
-                          setAddedTeamName(selectedTeam?.name || "");
-                        }}
+                        onClick={handleAddTeam}
+                        disabled={loading}
                       >
-                        Yes, Add to Team
+                        {loading ? 'Adding...' : 'Yes, Add to Team'}
                       </button>
                     </div>
                   </DialogContent>

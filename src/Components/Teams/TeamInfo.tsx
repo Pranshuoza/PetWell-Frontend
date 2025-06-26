@@ -1,16 +1,31 @@
 import React from "react";
 
 interface TeamBoxProps {
-  name: string;
-  type: string;
-  phone: string;
-  email: string;
-  address: string;
-  avatar: string;
+  team: any; // Accepts raw backend team object
   onDelete?: () => void;
 }
 
-const TeamBox: React.FC<TeamBoxProps> = ({ name, type, phone, email, address, avatar, onDelete }) => {
+const TeamBox: React.FC<TeamBoxProps> = ({ team, onDelete }) => {
+  // Debug: log the team object to see what is being passed
+  console.log('TeamInfo received team:', team);
+
+  if (!team || !team.business) {
+    return (
+      <div className="bg-[var(--color-card)] rounded-2xl px-7 py-5 border border-[var(--color-border)] flex flex-col gap-2 relative min-w-[340px] max-w-full text-center text-red-400">
+        No business info found for this team.
+      </div>
+    );
+  }
+  const business = team.business;
+  const name = business.business_name || 'N/A';
+  const type = business.description || 'Care Provider';
+  const phone = business.phone || '';
+  const email = business.email || '';
+  const address = business.address || '';
+  const avatar = business.profile_picture_document_id
+    ? `/api/v1/documents/${business.profile_picture_document_id}`
+    : `https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100) + 1}.jpg`;
+
   return (
     <div className="bg-[var(--color-card)] rounded-2xl px-7 py-5 border border-[var(--color-border)] flex flex-col gap-2 relative min-w-[340px] max-w-full" style={{minHeight: 200}}>
       <div className="flex items-center gap-3 mb-2">
