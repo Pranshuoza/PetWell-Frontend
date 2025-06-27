@@ -83,8 +83,6 @@ const AddVaccinePage: React.FC = () => {
   return (
     <div className="min-h-screen w-screen bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar
-        userName="Syd"
-        userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
       <div className="max-w-8xl mx-auto px-12 pt-4 pb-12">
         <button

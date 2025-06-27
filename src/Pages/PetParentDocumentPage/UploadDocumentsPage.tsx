@@ -16,7 +16,7 @@ const UploadDocuments: React.FC = () => {
       try {
         let petsRes = await petServices.getPetsByOwner();
         let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        console.log(petsArr)
+        console.log("petsArr:",petsArr)
         if (!petsArr) petsArr = [];
         if (!Array.isArray(petsArr)) petsArr = [petsArr];
         if (petsArr.length > 0) {
@@ -58,8 +58,6 @@ const UploadDocuments: React.FC = () => {
   return (
     <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
       <Navbar
-        userName="Syd"
-        userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
       {/* Profile Image and Back Button */}
       <div className="mt-16 flex flex-col items-center w-full relative">

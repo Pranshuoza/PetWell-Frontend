@@ -80,8 +80,6 @@ const AddTeamPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)]">
       <Navbar
-        userName="Syd"
-        userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
       <div className="container pt-8 pb-12 pr-8 pl-8 mx-auto max-w-8xl flex flex-col items-center">
         <button

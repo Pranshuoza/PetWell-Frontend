@@ -1,24 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PetWellLogo from "../../Assets/PetWell.png";
+import humanOwnerServices from "../../Services/humanOwnerServices";
 
 interface NavbarProps {
-  userName?: string;
-  userImage?: string;
   onEditProfile?: () => void;
   onSwitchProfile?: () => void;
   onSettings?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({
-  userName = "Syd",
-  userImage = "",
-  onSwitchProfile
-}) => {
+const Navbar: React.FC<NavbarProps> = ({ onSwitchProfile }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [userName, setUserName] = useState<string>("User");
+  const [userImage, setUserImage] = useState<string>(
+    "https://randomuser.me/api/portraits/men/32.jpg"
+  );
 
   const handleDropdownToggle = () => setIsDropdownOpen((open) => !open);
 
@@ -33,6 +32,24 @@ const Navbar: React.FC<NavbarProps> = ({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await humanOwnerServices.getProfile();
+        if (res) {
+          setUserName(res.human_owner_name || "User");
+          setUserImage(
+            res.profile_picture ||
+              "https://randomuser.me/api/portraits/men/32.jpg"
+          );
+        }
+      } catch {
+        setUserName("User");
+        setUserImage("https://randomuser.me/api/portraits/men/32.jpg");
+      }
+    })();
   }, []);
 
   return (
@@ -117,33 +134,70 @@ const Navbar: React.FC<NavbarProps> = ({
             </svg>
           </button>
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl border border-[#EBD5BD]/30 z-50" style={{background: 'rgba(44, 44, 44, 0.98)'}}>
+            <div
+              className="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl border border-[#EBD5BD]/30 z-50"
+              style={{ background: "rgba(44, 44, 44, 0.98)" }}
+            >
               <div className="px-4 pt-4 pb-2 border-b border-[#EBD5BD]/30">
-                <div className="text-xs text-[#EBD5BD] font-semibold mb-2 tracking-wide text-center">Syd's Code</div>
+                <div className="text-xs text-[#EBD5BD] font-semibold mb-2 tracking-wide text-center">
+                  Syd's Code
+                </div>
                 <div className="flex gap-2 mb-2 justify-center items-center">
-                  <span className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center" style={{boxShadow: '0 2px 8px 0 rgba(44, 44, 44, 0.10)'}}>X</span>
-                  <span className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center" style={{boxShadow: '0 2px 8px 0 rgba(44, 44, 44, 0.10)'}}>8</span>
-                  <span className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center" style={{boxShadow: '0 2px 8px 0 rgba(44, 44, 44, 0.10)'}}>T</span>
-                  <span className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center" style={{boxShadow: '0 2px 8px 0 rgba(44, 44, 44, 0.10)'}}>V</span>
-                  <span className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center" style={{boxShadow: '0 2px 8px 0 rgba(44, 44, 44, 0.10)'}}>4</span>
+                  <span
+                    className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center"
+                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
+                  >
+                    X
+                  </span>
+                  <span
+                    className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center"
+                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
+                  >
+                    8
+                  </span>
+                  <span
+                    className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center"
+                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
+                  >
+                    T
+                  </span>
+                  <span
+                    className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center"
+                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
+                  >
+                    V
+                  </span>
+                  <span
+                    className="inline-flex w-8 h-8 bg-[#fff] bg-opacity-80 text-[#23272f] text-lg font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all transition-all duration-150 hover:scale-105 text-center"
+                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
+                  >
+                    4
+                  </span>
                 </div>
                 <div className="text-xs text-[#EBD5BD] text-opacity-70 mb-1 text-center">
                   Share with care providers to give access to the profile.
                 </div>
               </div>
               <div className="flex flex-col py-1">
-                <button className="text-left px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#EBD5BD]/10 transition font-medium" onClick={() => navigate('/pet-profile')}>
+                <button
+                  className="text-left px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#EBD5BD]/10 transition font-medium"
+                  onClick={() => navigate("/pet-profile")}
+                >
                   View Profile
                 </button>
-                <button className="text-left px-4 py-2 text-sm text-[#EBD5BD] font-semibold hover:bg-[#EBD5BD]/10 transition" onClick={() => {
-                  if (typeof onSwitchProfile === 'function') {
-                    onSwitchProfile();
-                    setIsDropdownOpen(false);
-                  } else {
-                    navigate('/switch-profile');
-                  }
-                }}>
-                  Not Syd? <span className="text-[#FFB23E]">Switch Profile</span>
+                <button
+                  className="text-left px-4 py-2 text-sm text-[#EBD5BD] font-semibold hover:bg-[#EBD5BD]/10 transition"
+                  onClick={() => {
+                    if (typeof onSwitchProfile === "function") {
+                      onSwitchProfile();
+                      setIsDropdownOpen(false);
+                    } else {
+                      navigate("/switch-profile");
+                    }
+                  }}
+                >
+                  Not Syd?{" "}
+                  <span className="text-[#FFB23E]">Switch Profile</span>
                 </button>
                 <button className="text-left px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#EBD5BD]/10 transition font-medium">
                   Help Center

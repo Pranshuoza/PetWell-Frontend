@@ -19,40 +19,85 @@ import {
 import DeleteDocumentModal from "../../Components/Document/DeleteDocumentModal";
 import RenameDocumentModal from "../../Components/Document/RenameDocumentModal";
 import petServices from "../../Services/petServices";
+import humanOwnerServices from "../../Services/humanOwnerServices";
+
+// Helper to format file size
+function formatSize(bytes: number | undefined) {
+  if (!bytes && bytes !== 0) return "Unknown size";
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${bytes} B`;
+}
+
+// Helper to fetch file size from URL using HEAD request
+async function fetchFileSize(url: string): Promise<number | undefined> {
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    if (!response.ok) return undefined;
+    const size = response.headers.get("Content-Length");
+    return size ? parseInt(size, 10) : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 const DocumentCard: React.FC<{
   document: any;
+  fileSize?: number;
   onEdit?: () => void;
   onDelete?: () => void;
-}> = ({ document, onEdit, onDelete }) => {
-  const type =
-    document.file_type && document.file_type.toLowerCase() === "pdf"
-      ? "pdf"
-      : "img";
+}> = ({ document, fileSize, onEdit, onDelete }) => {
+  // Determine type for badge
+  let type = "other";
+  let ext = "";
+  if (document.document_name) {
+    const match = document.document_name.match(/\.([a-zA-Z0-9]+)$/);
+    ext = match ? match[1].toLowerCase() : "";
+  }
+  if (document.file_type && document.file_type.toLowerCase() === "pdf") {
+    type = "pdf";
+  } else if (
+    ["jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "svg"].includes(ext)
+  ) {
+    type = "img";
+  } else if (ext) {
+    type = ext;
+  }
+
   const uploader =
     document.human_owner && document.human_owner.human_owner_name
       ? document.human_owner.human_owner_name
       : "You";
+
+  // Use the passed fileSize prop instead of document.size
+  const displaySize = fileSize ?? document.size;
+
   return (
     <div className="flex flex-col sm:flex-row items-center bg-[var(--color-card)] rounded-2xl px-5 py-4 border border-[var(--color-border)] shadow-md gap-3 sm:gap-0">
       <div
         className={`w-10 h-10 flex items-center justify-center rounded-xl mr-4 font-bold text-xs shrink-0 ${
           type === "pdf"
             ? "bg-[var(--color-danger)]"
-            : "bg-[var(--color-success)]"
+            : type === "img"
+            ? "bg-[var(--color-success)]"
+            : "bg-[var(--color-primary)]"
         }`}
       >
         {type === "pdf" ? (
           <span className="text-[var(--color-white)] text-base">PDF</span>
+        ) : type === "img" ? (
+          <span className="text-[var(--color-white)] text-base">IMG</span>
         ) : (
-          <span className="text-[var(--color-white)] text-base">PNG</span>
+          <span className="text-[var(--color-white)] text-base">
+            {ext ? ext.toUpperCase() : "FILE"}
+          </span>
         )}
       </div>
       <div className="flex-1 min-w-0 flex flex-col gap-0.5">
         <span className="truncate text-lg font-semibold text-[var(--color-white)]">
           {document.document_name}
           <span className="ml-2 text-xs text-gray-300 font-normal align-middle">
-            3.2 MB
+            {formatSize(displaySize)}
           </span>
         </span>
         <span className="text-xs text-gray-400 font-normal truncate max-w-xs mt-0.5">
@@ -136,6 +181,30 @@ const DocumentPage: React.FC = () => {
   const [docName, setDocName] = useState<string>("");
   const [petId, setPetId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("recent");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [userName, setUserName] = useState<string>("");
+  const [userImage, setUserImage] = useState<string>("");
+  const [docSizes, setDocSizes] = useState<{ [id: string]: number }>({});
+  const [sizesLoading, setSizesLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await humanOwnerServices.getProfile();
+        if (res && res.data) {
+          setUserName(res.data.human_owner_name || "");
+          setUserImage(res.data.profile_picture || "");
+        }
+      } catch (err) {
+        setUserName("");
+        setUserImage("");
+      }
+    };
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     const fetchPetAndDocuments = async () => {
@@ -165,21 +234,120 @@ const DocumentPage: React.FC = () => {
     fetchPetAndDocuments();
   }, []);
 
+  // Fetch file sizes after documents are loaded
+  useEffect(() => {
+    async function getSizes() {
+      if (!documents.length) return;
+
+      setSizesLoading(true);
+      const sizes: { [id: string]: number } = {};
+
+      await Promise.all(
+        documents.map(async (doc) => {
+          if (doc.document_url && doc.id) {
+            const size = await fetchFileSize(doc.document_url);
+            if (size !== undefined) {
+              sizes[doc.id] = size;
+            }
+          }
+        })
+      );
+
+      setDocSizes(sizes);
+      setSizesLoading(false);
+    }
+
+    getSizes();
+  }, [documents]);
+
+  useEffect(() => {
+    if (search.trim()) {
+      const s = search.trim().toLowerCase();
+      let filtered = documents.filter(
+        (d) =>
+          d.document_name?.toLowerCase().includes(s) ||
+          d.human_owner?.human_owner_name?.toLowerCase().includes(s)
+      );
+      if (sortBy === "name") {
+        filtered = [...filtered].sort((a, b) =>
+          (a.document_name || "").localeCompare(b.document_name || "")
+        );
+      } else if (sortBy === "size") {
+        // Use fetched sizes for sorting
+        filtered = [...filtered].sort((a, b) => {
+          const sizeA = docSizes[a.id] || a.size || 0;
+          const sizeB = docSizes[b.id] || b.size || 0;
+          return sizeB - sizeA;
+        });
+      } else if (sortBy === "recent") {
+        filtered = [...filtered].sort(
+          (a, b) =>
+            new Date(b.created_at || b.uploaded_at || 0).getTime() -
+            new Date(a.created_at || a.uploaded_at || 0).getTime()
+        );
+      }
+      setSearchResults(filtered.slice(0, 5));
+      setShowSuggestions(true);
+    } else {
+      setSearchResults([]);
+      setShowSuggestions(false);
+    }
+  }, [search, documents, sortBy, docSizes]);
+
+  function filterAndSort(docs: any[]) {
+    let filtered = docs;
+    if (search.trim()) {
+      const s = search.trim().toLowerCase();
+      filtered = filtered.filter(
+        (d) =>
+          d.document_name?.toLowerCase().includes(s) ||
+          d.human_owner?.human_owner_name?.toLowerCase().includes(s)
+      );
+    }
+    if (sortBy === "name") {
+      filtered = [...filtered].sort((a, b) =>
+        (a.document_name || "").localeCompare(b.document_name || "")
+      );
+    } else if (sortBy === "size") {
+      // Use fetched sizes for sorting
+      filtered = [...filtered].sort((a, b) => {
+        const sizeA = docSizes[a.id] || a.size || 0;
+        const sizeB = docSizes[b.id] || b.size || 0;
+        return sizeB - sizeA;
+      });
+    } else if (sortBy === "recent") {
+      filtered = [...filtered].sort(
+        (a, b) =>
+          new Date(b.created_at || b.uploaded_at || 0).getTime() -
+          new Date(a.created_at || a.uploaded_at || 0).getTime()
+      );
+    }
+    return filtered;
+  }
+
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar
-        userName="Syd"
-        userImage="https://randomuser.me/api/portraits/men/32.jpg"
       />
       <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-4xl font-serif font-bold">Syd's Documents</h1>
+          <h1 className="text-4xl font-serif font-bold">
+            {userName ? `${userName}'s Documents` : "Documents"}
+          </h1>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto justify-end">
             <div className="relative w-full sm:w-72">
               <Input
                 type="search"
                 placeholder="Search document"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setShowSuggestions(true);
+                }}
                 className="bg-[var(--color-card)] border-[var(--color-border)] rounded-lg w-full pl-10"
+                autoComplete="off"
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onFocus={() => search && setShowSuggestions(true)}
               />
               <svg
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -194,6 +362,22 @@ const DocumentPage: React.FC = () => {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
+              {showSuggestions && searchResults.length > 0 && (
+                <div className="absolute z-20 left-0 right-0 mt-2 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg shadow-lg max-h-60 overflow-auto">
+                  {searchResults.map((doc, idx) => (
+                    <div
+                      key={doc.id}
+                      className="px-4 py-2 cursor-pointer hover:bg-[var(--color-accent-hover)] text-[var(--color-text)]"
+                      onMouseDown={() => {
+                        setSearch(doc.document_name);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      {doc.document_name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <Button
               className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition px-6 py-2 font-semibold rounded-lg w-full sm:w-auto"
@@ -228,7 +412,7 @@ const DocumentPage: React.FC = () => {
               </TabsList>
             </div>
             <div className="flex justify-end w-full sm:w-auto">
-              <Select defaultValue="recent">
+              <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[180px] bg-[var(--color-card)] border-[var(--color-border)]">
                   <span className="mr-2 text-gray-400">Sort by:</span>
                   <SelectValue />
@@ -248,60 +432,65 @@ const DocumentPage: React.FC = () => {
                   Loading documents...
                 </div>
               ) : (
-                documents.map((doc, idx) => (
-                  <DocumentCard
-                    key={doc.id}
-                    document={doc}
-                    onEdit={() => {
-                      setRenameIdx(idx);
-                      setDocName(doc.document_name);
-                    }}
-                    onDelete={() => setDeleteIdx(idx)}
-                  />
-                ))
+                <>
+                  {filterAndSort(documents).map((doc, idx) => (
+                    <DocumentCard
+                      key={doc.id}
+                      document={doc}
+                      fileSize={docSizes[doc.id]}
+                      onEdit={() => {
+                        setRenameIdx(idx);
+                        setDocName(doc.document_name);
+                      }}
+                      onDelete={() => setDeleteIdx(idx)}
+                    />
+                  ))}
+                </>
               )}
             </div>
           </TabsContent>
           <TabsContent value="user" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents
-                .filter(
+              {filterAndSort(
+                documents.filter(
                   (doc) =>
                     doc.human_owner &&
-                    doc.human_owner.human_owner_name === "You"
+                    doc.human_owner.human_owner_name === userName
                 )
-                .map((doc, idx) => (
-                  <DocumentCard
-                    key={doc.id}
-                    document={doc}
-                    onEdit={() => {
-                      setRenameIdx(idx);
-                      setDocName(doc.document_name);
-                    }}
-                    onDelete={() => setDeleteIdx(idx)}
-                  />
-                ))}
+              ).map((doc, idx) => (
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  fileSize={docSizes[doc.id]}
+                  onEdit={() => {
+                    setRenameIdx(idx);
+                    setDocName(doc.document_name);
+                  }}
+                  onDelete={() => setDeleteIdx(idx)}
+                />
+              ))}
             </div>
           </TabsContent>
           <TabsContent value="team" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents
-                .filter(
+              {filterAndSort(
+                documents.filter(
                   (doc) =>
                     doc.human_owner &&
-                    doc.human_owner.human_owner_name !== "You"
+                    doc.human_owner.human_owner_name !== userName
                 )
-                .map((doc, idx) => (
-                  <DocumentCard
-                    key={doc.id}
-                    document={doc}
-                    onEdit={() => {
-                      setRenameIdx(idx);
-                      setDocName(doc.document_name);
-                    }}
-                    onDelete={() => setDeleteIdx(idx)}
-                  />
-                ))}
+              ).map((doc, idx) => (
+                <DocumentCard
+                  key={doc.id}
+                  document={doc}
+                  fileSize={docSizes[doc.id]}
+                  onEdit={() => {
+                    setRenameIdx(idx);
+                    setDocName(doc.document_name);
+                  }}
+                  onDelete={() => setDeleteIdx(idx)}
+                />
+              ))}
             </div>
           </TabsContent>
         </Tabs>

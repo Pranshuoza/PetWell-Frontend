@@ -30,11 +30,7 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
     const ext = file.name.split(".").pop()?.toLowerCase();
-    let fileType: string;
-    if (ext === "pdf") fileType = "PDF";
-    else if (["jpg", "jpeg", "png"].includes(ext || "")) fileType = "IMAGE";
-    else if (["doc", "docx"].includes(ext || "")) fileType = "DOC";
-    else fileType = "OTHER";
+    let fileType: string = ext ? ext.toUpperCase() : "OTHER";
     const newUpload = {
       name: file.name,
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
