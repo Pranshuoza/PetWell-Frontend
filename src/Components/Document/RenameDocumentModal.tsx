@@ -54,6 +54,7 @@ const RenameDocumentModal: React.FC<RenameDocumentModalProps> = ({
           <button
             className="flex-1 bg-[var(--color-primary)] text-[var(--color-background)] px-6 py-2 rounded-lg font-semibold hover:bg-[var(--color-primary-foreground)] hover:text-[var(--color-primary)] transition"
             onClick={() => onSave(name)}
+            disabled={!name.trim()}
           >
             Save Changes
           </button>

@@ -4,9 +4,16 @@ import UploadList from "./UploadList";
 
 interface UploadDocumentProps {
   onNext?: () => void;
+  onUpload?: (
+    file: File,
+    meta: { name: string; type: string }
+  ) => Promise<void>;
 }
 
-const UploadDocument: React.FC<UploadDocumentProps> = ({ onNext }) => {
+const UploadDocument: React.FC<UploadDocumentProps> = ({
+  onNext,
+  onUpload,
+}) => {
   const [uploads, setUploads] = useState<
     { name: string; size: string; type: string; progress: number }[]
   >([]);
@@ -19,35 +26,57 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({ onNext }) => {
     setUploads(uploads.filter((_, i) => i !== index));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const ext = file.name.split(".").pop()?.toLowerCase();
+    let fileType: string;
+    if (ext === "pdf") fileType = "PDF";
+    else if (["jpg", "jpeg", "png"].includes(ext || "")) fileType = "IMAGE";
+    else if (["doc", "docx"].includes(ext || "")) fileType = "DOC";
+    else fileType = "OTHER";
     const newUpload = {
       name: file.name,
       size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      type:
-        ext === "pdf"
-          ? "pdf"
-          : ext === "jpg" || ext === "jpeg" || ext === "png"
-          ? "img"
-          : "other",
+      type: fileType,
       progress: 0,
     };
     setUploads((prev) => [...prev, newUpload]);
     const uploadIndex = uploads.length;
-    let prog = 0;
-    const interval = setInterval(() => {
-      prog += 10;
-      setUploads((prev) =>
-        prev.map((item, idx) =>
-          idx === uploadIndex
-            ? { ...item, progress: Math.min(prog, 100) }
-            : item
-        )
-      );
-      if (prog >= 100) clearInterval(interval);
-    }, 200);
+    console.debug("[Upload] File selected:", file);
+    if (onUpload) {
+      try {
+        console.debug("[Upload] Starting API call for:", file.name);
+        await onUpload(file, { name: file.name, type: fileType });
+        setUploads((prev) =>
+          prev.map((item, idx) =>
+            idx === uploadIndex ? { ...item, progress: 100 } : item
+          )
+        );
+        console.debug("[Upload] API call success for:", file.name);
+      } catch (err) {
+        setUploads((prev) =>
+          prev.map((item, idx) =>
+            idx === uploadIndex ? { ...item, progress: 0 } : item
+          )
+        );
+        console.error("[Upload] API call error for:", file.name, err);
+      }
+    } else {
+      // fallback: simulate progress
+      let prog = 0;
+      const interval = setInterval(() => {
+        prog += 10;
+        setUploads((prev) =>
+          prev.map((item, idx) =>
+            idx === uploadIndex
+              ? { ...item, progress: Math.min(prog, 100) }
+              : item
+          )
+        );
+        if (prog >= 100) clearInterval(interval);
+      }, 200);
+    }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 

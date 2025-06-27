@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UploadCloud } from "lucide-react";
-import UploadList from "../../Components/UploadDocument/UploadList";
-import Loader from "../../Components/ui/Loader";
-import PetWellLogo from "../../Assets/PetWell.png";
+import UploadList from "../../../Components/UploadDocument/UploadList";
+import Loader from "../../../Components/ui/Loader";
+import PetWellLogo from "../../../Assets/PetWell.png";
 
 interface Upload {
   name: string;

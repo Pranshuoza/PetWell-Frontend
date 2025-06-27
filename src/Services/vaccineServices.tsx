@@ -45,6 +45,15 @@ interface DoctorResponse {
   data?: Doctor[];
 }
 
+interface GetVaccineDetailsResponse {
+  document_id: string;
+  vaccine_name: string;
+  date_administered: string;
+  expiry_date: string;
+  administered_by: string;
+  staff_id: string | null;
+}
+
 const vaccineServices = {
   async createVaccine(data: CreateVaccineData): Promise<VaccineResponse> {
     try {
@@ -213,6 +222,43 @@ const vaccineServices = {
         );
       }
       throw new Error("Fetching doctors failed");
+    }
+  },
+
+  /**
+   * Fetch vaccine details from a file and petId (POST /api/v1/vaccines/getVaccinesDetails)
+   * @param file The file to upload (PDF, image, etc.)
+   * @param petId The pet's ID
+   */
+  async getVaccinesDetails(
+    file: File,
+    petId: string
+  ): Promise<GetVaccineDetailsResponse> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("petId", petId);
+      const response = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/vaccines/getVaccinesDetails`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          },
+        }
+      );
+      if (!response.data) {
+        throw new Error("Invalid response from server");
+      }
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Fetching vaccine details failed"
+        );
+      }
+      throw new Error("Fetching vaccine details failed");
     }
   },
 };

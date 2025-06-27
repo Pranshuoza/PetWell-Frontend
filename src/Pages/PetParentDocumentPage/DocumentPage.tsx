@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import { Input } from "../../Components/ui/input";
@@ -16,56 +16,154 @@ import {
   TabsTrigger,
   TabsContent,
 } from "../../Components/ui/tabs";
-import DocumentInfo from "../../Components/Document/DocumentInfo";
 import DeleteDocumentModal from "../../Components/Document/DeleteDocumentModal";
+import RenameDocumentModal from "../../Components/Document/RenameDocumentModal";
+import petServices from "../../Services/petServices";
 
-const initialDocuments = [
-  {
-    name: "Full Med Record_2025.pdf",
-    size: 3200000, // 3.2 MB in bytes
-    type: "pdf",
-    uploader: "Dr. Hemant Patel, Vet Office of New York",
-    downloadUrl: "/docs/FullMedRecord_2025.pdf",
-  },
-  {
-    name: "Training Plan_Syd.pdf",
-    size: 3200000,
-    type: "pdf",
-    uploader: "You",
-    downloadUrl: "/docs/TrainingPlan_Syd.pdf",
-  },
-  {
-    name: "Syd left jaw.png",
-    size: 3200000,
-    type: "img",
-    uploader: "You",
-    downloadUrl: "/docs/SydLeftJaw.png",
-  },
-  {
-    name: "Dog Daze Report Card 2/15.pdf",
-    size: 3200000,
-    type: "pdf",
-    uploader: "Dr. Hemant Patel, Vet Office of New York",
-    downloadUrl: "/docs/DogDazeReportCard_2_15.pdf",
-  },
-  // ...add more as needed
-];
+const DocumentCard: React.FC<{
+  document: any;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}> = ({ document, onEdit, onDelete }) => {
+  const type =
+    document.file_type && document.file_type.toLowerCase() === "pdf"
+      ? "pdf"
+      : "img";
+  const uploader =
+    document.human_owner && document.human_owner.human_owner_name
+      ? document.human_owner.human_owner_name
+      : "You";
+  return (
+    <div className="flex flex-col sm:flex-row items-center bg-[var(--color-card)] rounded-2xl px-5 py-4 border border-[var(--color-border)] shadow-md gap-3 sm:gap-0">
+      <div
+        className={`w-10 h-10 flex items-center justify-center rounded-xl mr-4 font-bold text-xs shrink-0 ${
+          type === "pdf"
+            ? "bg-[var(--color-danger)]"
+            : "bg-[var(--color-success)]"
+        }`}
+      >
+        {type === "pdf" ? (
+          <span className="text-[var(--color-white)] text-base">PDF</span>
+        ) : (
+          <span className="text-[var(--color-white)] text-base">PNG</span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className="truncate text-lg font-semibold text-[var(--color-white)]">
+          {document.document_name}
+          <span className="ml-2 text-xs text-gray-300 font-normal align-middle">
+            3.2 MB
+          </span>
+        </span>
+        <span className="text-xs text-gray-400 font-normal truncate max-w-xs mt-0.5">
+          Uploaded By:{" "}
+          <span className="font-semibold text-white">{uploader}</span>
+        </span>
+      </div>
+      <div className="flex items-center gap-1 ml-2">
+        <a
+          href={document.document_url}
+          download
+          className="text-[var(--color-primary)] hover:text-[var(--color-accent-hover)] p-2 rounded-lg"
+          aria-label="Download Document"
+          title="Download"
+        >
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+        </a>
+        <button
+          className="text-[var(--color-primary)] hover:text-[var(--color-accent-hover)] p-2 rounded-lg"
+          aria-label="Edit Document"
+          title="Rename"
+          onClick={onEdit}
+        >
+          <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z" />
+          </svg>
+        </button>
+        <button
+          className="text-gray-400 hover:text-[var(--color-danger)] p-2 rounded-lg"
+          aria-label="Delete Document"
+          title="Delete"
+          onClick={onDelete}
+        >
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            viewBox="0 0 24 24"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const DocumentPage: React.FC = () => {
   const navigate = useNavigate();
-  const [documents, setDocuments] = useState(initialDocuments);
+  const [documents, setDocuments] = useState<any[]>([]);
   const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
+  const [renameIdx, setRenameIdx] = useState<number | null>(null);
+  const [docName, setDocName] = useState<string>("");
+  const [petId, setPetId] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const handleDelete = (idx: number) => {
-    setDeleteIdx(idx);
-  };
-
-  const confirmDelete = () => {
-    if (deleteIdx !== null) {
-      setDocuments((docs) => docs.filter((_, i) => i !== deleteIdx));
-      setDeleteIdx(null);
-    }
-  };
+  useEffect(() => {
+    const fetchPetAndDocuments = async () => {
+      try {
+        let petsRes = await petServices.getPetsByOwner();
+        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+        if (!petsArr) petsArr = [];
+        if (!Array.isArray(petsArr)) petsArr = [petsArr];
+        if (petsArr.length > 0) {
+          setPetId(petsArr[0].id);
+          // Fetch documents for the first pet
+          const docsRes = await petServices.getPetDocuments(petsArr[0].id);
+          let docsArr = Array.isArray(docsRes)
+            ? docsRes
+            : docsRes
+            ? [docsRes]
+            : [];
+          setDocuments(docsArr);
+          console.log("docArr:", docsArr);
+        }
+      } catch (err) {
+        setDocuments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPetAndDocuments();
+  }, []);
 
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
@@ -145,35 +243,42 @@ const DocumentPage: React.FC = () => {
           </div>
           <TabsContent value="all" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents.map((doc, idx) => (
-                <DocumentInfo
-                  key={idx}
-                  name={doc.name}
-                  type={doc.type as "pdf" | "img"}
-                  size={doc.size}
-                  uploader={doc.uploader}
-                  downloadUrl={doc.downloadUrl}
-                  onEdit={() => {}}
-                  onDelete={() => handleDelete(idx)}
-                />
-              ))}
+              {loading ? (
+                <div className="col-span-2 flex justify-center items-center h-40">
+                  Loading documents...
+                </div>
+              ) : (
+                documents.map((doc, idx) => (
+                  <DocumentCard
+                    key={doc.id}
+                    document={doc}
+                    onEdit={() => {
+                      setRenameIdx(idx);
+                      setDocName(doc.document_name);
+                    }}
+                    onDelete={() => setDeleteIdx(idx)}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
           <TabsContent value="user" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {documents
-                .map((doc, idx) => ({ ...doc, idx }))
-                .filter((doc) => doc.uploader === "You")
-                .map((doc) => (
-                  <DocumentInfo
-                    key={doc.idx}
-                    name={doc.name}
-                    type={doc.type as "pdf" | "img"}
-                    size={doc.size}
-                    uploader={doc.uploader}
-                    downloadUrl={doc.downloadUrl}
-                    onEdit={() => {}}
-                    onDelete={() => handleDelete(doc.idx)}
+                .filter(
+                  (doc) =>
+                    doc.human_owner &&
+                    doc.human_owner.human_owner_name === "You"
+                )
+                .map((doc, idx) => (
+                  <DocumentCard
+                    key={doc.id}
+                    document={doc}
+                    onEdit={() => {
+                      setRenameIdx(idx);
+                      setDocName(doc.document_name);
+                    }}
+                    onDelete={() => setDeleteIdx(idx)}
                   />
                 ))}
             </div>
@@ -181,18 +286,20 @@ const DocumentPage: React.FC = () => {
           <TabsContent value="team" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {documents
-                .map((doc, idx) => ({ ...doc, idx }))
-                .filter((doc) => doc.uploader !== "You")
-                .map((doc) => (
-                  <DocumentInfo
-                    key={doc.idx}
-                    name={doc.name}
-                    type={doc.type as "pdf" | "img"}
-                    size={doc.size}
-                    uploader={doc.uploader}
-                    downloadUrl={doc.downloadUrl}
-                    onEdit={() => {}}
-                    onDelete={() => handleDelete(doc.idx)}
+                .filter(
+                  (doc) =>
+                    doc.human_owner &&
+                    doc.human_owner.human_owner_name !== "You"
+                )
+                .map((doc, idx) => (
+                  <DocumentCard
+                    key={doc.id}
+                    document={doc}
+                    onEdit={() => {
+                      setRenameIdx(idx);
+                      setDocName(doc.document_name);
+                    }}
+                    onDelete={() => setDeleteIdx(idx)}
                   />
                 ))}
             </div>
@@ -202,9 +309,33 @@ const DocumentPage: React.FC = () => {
         {deleteIdx !== null && (
           <DeleteDocumentModal
             open={true}
-            documentName={documents[deleteIdx].name}
+            documentName={documents[deleteIdx]?.document_name}
             onClose={() => setDeleteIdx(null)}
-            onDelete={confirmDelete}
+            onDelete={() => setDeleteIdx(null)}
+          />
+        )}
+        {/* Rename Modal */}
+        {renameIdx !== null && (
+          <RenameDocumentModal
+            open={true}
+            initialName={docName}
+            onClose={() => setRenameIdx(null)}
+            onSave={async (newName: string) => {
+              if (renameIdx === null) return;
+              const doc = documents[renameIdx];
+              try {
+                await petServices.updateDocumentName(doc.id, newName);
+                setDocuments((prevDocs) =>
+                  prevDocs.map((d, i) =>
+                    i === renameIdx ? { ...d, document_name: newName } : d
+                  )
+                );
+              } catch (err) {
+                // Optionally show error to user
+                console.error("Failed to rename document", err);
+              }
+              setRenameIdx(null);
+            }}
           />
         )}
       </div>

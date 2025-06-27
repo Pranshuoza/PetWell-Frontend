@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
-import PetWellLogo from "../../Assets/PetWell.png";
-import DetailSection from "../../Components/Verification/DetailSection";
-import VaccineSection from "../../Components/Vaccine/VaccineSection";
-import DocumentSection from "../../Components/Document/DocumentSection";
+import PetWellLogo from "../../../Assets/PetWell.png";
+import DetailSection from "../../../Components/Verification/DetailSection";
+import VaccineSection from "../../../Components/Vaccine/VaccineSection";
+import DocumentSection from "../../../Components/Document/DocumentSection";
 import { useNavigate } from "react-router-dom";
 
 const pet = {

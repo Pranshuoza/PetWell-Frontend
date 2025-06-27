@@ -35,7 +35,7 @@ interface Document {
   document_name: string;
   document_type: string;
   file_type: string;
-  description: string;
+  description?: string;
   pet_id: string;
   file?: File;
 }
@@ -126,7 +126,7 @@ const petServices = {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -144,14 +144,11 @@ const petServices = {
 
   async getPetsByOwner(): Promise<PetResponse> {
     try {
-      const response = await axios.get(
-        `${SERVER_BASE_URL}/api/v1/pets/owner`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-          },
-        }
-      );
+      const response = await axios.get(`${SERVER_BASE_URL}/api/v1/pets/owner`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      });
       if (!response.data) {
         throw new Error("Invalid response from server");
       }
@@ -170,7 +167,7 @@ const petServices = {
         `${SERVER_BASE_URL}/api/v1/pets/get/${petId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -190,8 +187,8 @@ const petServices = {
     try {
       const formData = Object.entries(data).map(([key, value]) => ({
         key,
-        value: value instanceof File ? value : value?.toString() || '',
-        type: value instanceof File ? 'file' : 'text',
+        value: value instanceof File ? value : value?.toString() || "",
+        type: value instanceof File ? "file" : "text",
         description: `Optional: ${key}`,
       }));
       const response = await axios.patch(
@@ -200,7 +197,7 @@ const petServices = {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -224,7 +221,7 @@ const petServices = {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -248,7 +245,7 @@ const petServices = {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -270,7 +267,7 @@ const petServices = {
         `${SERVER_BASE_URL}/api/v1/pets/breeds-species`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -280,7 +277,9 @@ const petServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching breed species failed");
+        throw new Error(
+          error.response.data.message || "Fetching breed species failed"
+        );
       }
       throw new Error("Fetching breed species failed");
     }
@@ -292,7 +291,7 @@ const petServices = {
         `${SERVER_BASE_URL}/api/v1/pets/documents/${petId}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -302,13 +301,18 @@ const petServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Fetching documents failed");
+        throw new Error(
+          error.response.data.message || "Fetching documents failed"
+        );
       }
       throw new Error("Fetching documents failed");
     }
   },
 
-  async createDocument(petId: string, data: CreateDocumentData): Promise<DocumentResponse> {
+  async createDocument(
+    petId: string,
+    data: CreateDocumentData
+  ): Promise<DocumentResponse> {
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
@@ -320,7 +324,7 @@ const petServices = {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -330,13 +334,18 @@ const petServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Document creation failed");
+        throw new Error(
+          error.response.data.message || "Document creation failed"
+        );
       }
       throw new Error("Document creation failed");
     }
   },
 
-  async updateDocument(documentId: string, data: UpdateDocumentData): Promise<DocumentResponse> {
+  async updateDocument(
+    documentId: string,
+    data: UpdateDocumentData
+  ): Promise<DocumentResponse> {
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
@@ -348,7 +357,7 @@ const petServices = {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
           },
         }
       );
@@ -358,9 +367,40 @@ const petServices = {
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
-        throw new Error(error.response.data.message || "Document update failed");
+        throw new Error(
+          error.response.data.message || "Document update failed"
+        );
       }
       throw new Error("Document update failed");
+    }
+  },
+
+  async updateDocumentName(
+    documentId: string,
+    document_name: string
+  ): Promise<DocumentResponse> {
+    try {
+      const response = await axios.patch(
+        `${SERVER_BASE_URL}/api/v1/pets/documents/name/${documentId}`,
+        { document_name },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          },
+        }
+      );
+      if (!response.data) {
+        throw new Error("Invalid response from server");
+      }
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Document name update failed"
+        );
+      }
+      throw new Error("Document name update failed");
     }
   },
 };

@@ -23,11 +23,6 @@ interface AddVaccineProps {
   petId: string;
 }
 
-interface VaccineOption {
-  id: string;
-  vaccine_name: string;
-}
-
 const AddVaccine: React.FC<AddVaccineProps> = ({
   onCancel,
   onSubmit,
