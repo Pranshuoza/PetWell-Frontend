@@ -38,12 +38,7 @@ const TeamSection: React.FC<TeamSectionProps> = ({
         {teams.map((team, idx) => (
           <TeamBox
             key={idx}
-            name={team.name}
-            type={team.type}
-            phone={team.phone}
-            email={team.email}
-            address={team.address}
-            avatar={team.avatar}
+            team={team}
             onDelete={onDeleteTeam ? () => onDeleteTeam(idx) : undefined}
           />
         ))}
