@@ -301,14 +301,7 @@ const TeamsPage: React.FC = () => {
         {teams.length === 0 && !error && (
           <div className="text-center py-12">
             <div className="text-gray-400 text-lg mb-4">No teams found</div>
-            <button
-              onClick={() =>
-                navigate(`/petowner/pet/${actualPetId || petId}/add-team`)
-              }
-              className="bg-[var(--color-primary)] text-[var(--color-background)] px-6 py-3 rounded-lg font-semibold hover:bg-[var(--color-accent-hover)] transition"
-            >
-              Add Your First Team
-            </button>
+            
           </div>
         )}
 

@@ -69,21 +69,29 @@ const VaccineInfo: React.FC<VaccineInfoProps> = ({
       </div>
       <div>
         <div className="font-semibold">Expires</div>
-        <div>{expires}</div>
+        <div className="flex items-center">
+          {expires}
+          {soon && (
+            <span
+              className="ml-1 text-[var(--color-warning)]"
+              title="Expiring soon"
+            >
+              ❗
+            </span>
+          )}
+        </div>
       </div>
       <div className="hidden sm:block">
         <div className="font-semibold"></div>
         <div></div>
       </div>
     </div>
-    <div className="mt-4 text-sm text-[var(--color-warning)] flex items-center min-h-[24px]">
-      {soon && warning ? (
-        <>
-          <span className="mr-2">❗</span>
-          <span>{warning}</span>
-        </>
-      ) : null}
-    </div>
+    {soon && warning && (
+      <div className="mt-4 text-sm text-[var(--color-warning)] flex items-center min-h-[24px]">
+        <span className="mr-2">❗</span>
+        <span>{warning}</span>
+      </div>
+    )}
   </div>
 );
 

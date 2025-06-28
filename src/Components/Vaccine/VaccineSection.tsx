@@ -12,11 +12,13 @@ interface Vaccine {
 interface VaccineBoxProps {
   vaccines: Vaccine[];
   onEditVaccine?: (idx: number) => void;
+  onViewAll?: () => void;
 }
 
 const VaccineSection: React.FC<VaccineBoxProps> = ({
   vaccines,
   onEditVaccine,
+  onViewAll,
 }) => {
   return (
     <section className="mb-8">
@@ -39,6 +41,10 @@ const VaccineSection: React.FC<VaccineBoxProps> = ({
         <a
           href="#"
           className="text-[var(--color-primary)] font-medium hover:underline text-base"
+          onClick={(e) => {
+            e.preventDefault();
+            onViewAll && onViewAll();
+          }}
         >
           View All Vaccines &gt;
         </a>

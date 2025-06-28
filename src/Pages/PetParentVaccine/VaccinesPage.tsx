@@ -29,6 +29,54 @@ const VaccinesPage: React.FC = () => {
     });
   };
 
+  // Helper function to calculate vaccine expiration warning and relative expiry string
+  const calculateExpirationWarning = (
+    expiryDate: string,
+    petName?: string
+  ): { soon: boolean; warning: string; relativeExpiry: string } => {
+    if (!expiryDate)
+      return { soon: false, warning: "", relativeExpiry: "Unknown" };
+    try {
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      expiry.setHours(0, 0, 0, 0);
+      const diffTime = expiry.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) {
+        // Already expired
+        return {
+          soon: true,
+          warning: `${
+            petName || "Your pet"
+          }'s vaccine has expired. Please renew as soon as possible!`,
+          relativeExpiry: `Expired ${Math.abs(diffDays)} day${
+            Math.abs(diffDays) === 1 ? "" : "s"
+          } ago`,
+        };
+      } else if (diffDays <= 7) {
+        // Expiring within 7 days
+        return {
+          soon: true,
+          warning: `${
+            petName || "Your pet"
+          } is due for the vaccine soon. Schedule now!`,
+          relativeExpiry: `In ${diffDays} day${diffDays === 1 ? "" : "s"}`,
+        };
+      } else {
+        // Not soon, show date
+        return {
+          soon: false,
+          warning: "",
+          relativeExpiry: expiry.toLocaleDateString(),
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing expiry date:", error);
+      return { soon: false, warning: "", relativeExpiry: "Unknown" };
+    }
+  };
+
   // Function to refetch vaccines data
   const refetchVaccines = async () => {
     if (!actualPetId) return;
@@ -71,10 +119,16 @@ const VaccinesPage: React.FC = () => {
       const uniqueVaccines = removeDuplicateVaccines(matchingVaccines);
       console.log("matchingVaccines:", matchingVaccines);
       setVaccines(uniqueVaccines);
-      setError(uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null);
+      setError(
+        uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null
+      );
     } catch (err) {
       console.error("Failed to fetch vaccines:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch vaccines. Please check the server connection.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch vaccines. Please check the server connection."
+      );
       setVaccines([]);
     }
   };
@@ -139,7 +193,9 @@ const VaccinesPage: React.FC = () => {
         }
 
         // Fetch vaccines for the pet
-        const vaccinesRes = await vaccineServices.getAllPetVaccines(currentPetId);
+        const vaccinesRes = await vaccineServices.getAllPetVaccines(
+          currentPetId
+        );
         console.log("vaccinesRes (pet-specific):", vaccinesRes);
         let vaccinesArr: any[] = [];
 
@@ -175,10 +231,16 @@ const VaccinesPage: React.FC = () => {
         // Remove duplicates before setting state
         const uniqueVaccines = removeDuplicateVaccines(matchingVaccines);
         setVaccines(uniqueVaccines);
-        setError(uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null);
+        setError(
+          uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null
+        );
       } catch (err) {
         console.error("Failed to fetch vaccines:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch vaccines. Please check the server connection.");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to fetch vaccines. Please check the server connection."
+        );
         setVaccines([]);
       } finally {
         setLoading(false);
@@ -247,28 +309,29 @@ const VaccinesPage: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {vaccines.map((vaccine, index) => (
-            <VaccineInfo
-              key={vaccine.id}
-              name={vaccine.vaccine_name || vaccine.name || "Unknown Vaccine"}
-              administered={
-                vaccine.date_administered ||
-                vaccine.administered_date ||
-                vaccine.administered ||
-                "Unknown"
-              }
-              expires={
-                vaccine.date_due ||
-                vaccine.expiry_date ||
-                vaccine.expires ||
-                "Unknown"
-              }
-              soon={vaccine.soon || false}
-              warning={vaccine.warning || ""}
-              showEdit={true}
-              onEdit={() => setEditIdx(index)}
-            />
-          ))}
+          {vaccines.map((vaccine, index) => {
+            const expiryDate =
+              vaccine.date_due || vaccine.expiry_date || vaccine.expires || "";
+            const { soon, warning, relativeExpiry } =
+              calculateExpirationWarning(expiryDate, pet?.pet_name);
+            return (
+              <VaccineInfo
+                key={vaccine.id}
+                name={vaccine.vaccine_name || vaccine.name || "Unknown Vaccine"}
+                administered={
+                  vaccine.date_administered ||
+                  vaccine.administered_date ||
+                  vaccine.administered ||
+                  "Unknown"
+                }
+                expires={relativeExpiry}
+                soon={soon}
+                warning={warning}
+                showEdit={true}
+                onEdit={() => setEditIdx(index)}
+              />
+            );
+          })}
         </div>
 
         {vaccines.length === 0 && !error && (

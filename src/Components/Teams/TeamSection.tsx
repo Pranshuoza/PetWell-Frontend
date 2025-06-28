@@ -21,12 +21,14 @@ interface TeamSectionProps {
   teams: Team[];
   onAddTeam?: () => void;
   onDeleteTeam?: (index: number) => void;
+  onViewAll?: () => void;
 }
 
 const TeamSection: React.FC<TeamSectionProps> = ({
   teams,
   onAddTeam,
   onDeleteTeam,
+  onViewAll,
 }) => {
   return (
     <section className="mb-8">
@@ -43,6 +45,10 @@ const TeamSection: React.FC<TeamSectionProps> = ({
         <a
           href="#"
           className="text-[var(--color-primary)] font-medium hover:underline text-base"
+          onClick={(e) => {
+            e.preventDefault();
+            onViewAll && onViewAll();
+          }}
         >
           View All Teams &gt;
         </a>
