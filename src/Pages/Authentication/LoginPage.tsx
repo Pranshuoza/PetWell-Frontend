@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PetWellLogo from "../../Assets/PetWell.png";
 import authServices from "../../Services/authServices";
+import { getLastOrFirstPetId } from "../../utils/petNavigation";
 
 interface LocationState {
   message?: string;
@@ -50,11 +51,9 @@ const LoginPage: React.FC = () => {
         if (entityType.toLowerCase().includes("staff")) {
           navigate("/business-home");
         } else if (entityType.toLowerCase().includes("human")) {
-          // Get last used petId from localStorage or backend
-          const lastPetId = localStorage.getItem("lastPetId");
-          // Fallback to 'default' if not found
-          const petId = lastPetId || "default";
-          navigate(`/switch-profile`, { replace: true });
+          // Get last used petId and redirect to that pet's home page
+          const petId = await getLastOrFirstPetId();
+          navigate(`/petowner/pet/${petId}/home`, { replace: true });
         } else {
           setError("Unknown user type. Please contact support.");
         }

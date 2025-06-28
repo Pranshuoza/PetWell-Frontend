@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../Components/Layout/Navbar";
 import SwitchProfileModal from "../../Components/Profile/SwitchProfileModal";
-import type { PetProfileType } from "../../Components/Profile/SwitchProfileModal";
+// import type { PetProfileType } from "../../Components/Profile/SwitchProfileModal";
 import { useNavigate, useLocation } from "react-router-dom";
 import petServices from "../../Services/petServices";
+import { getLastOrFirstPetId } from "../../utils/petNavigation";
 
 const SwitchProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,17 +13,25 @@ const SwitchProfilePage: React.FC = () => {
   const [pets, setPets] = useState<PetProfileType[]>([]);
   const [loading, setLoading] = useState(true);
 
+  interface PetProfileType {
+    id: string;
+    name: string;
+    age: string;
+    breed: string;
+    avatar: string;
+  }
   // Get the intended destination from the location state or default to home
   const getIntendedDestination = () => {
     const pathname = location.pathname;
-    if (pathname === "/vaccine") return "vaccine";
-    if (pathname === "/documents") return "documents";
-    if (pathname === "/team") return "team";
-    if (pathname === "/add-vaccine") return "add-vaccine";
-    if (pathname === "/upload") return "upload";
-    if (pathname === "/add-team") return "add-team";
-    if (pathname === "/pet-profile") return "profile";
-    if (pathname === "/download-select") return "download-select";
+    if (pathname === "/petowner/pet/:petId/vaccine") return "vaccine";
+    if (pathname === "/petowner/pet/:petId/documents") return "documents";
+    if (pathname === "/petowner/pet/:petId/team") return "team";
+    if (pathname === "/petowner/pet/:petId/add-vaccine") return "add-vaccine";
+    if (pathname === "/petowner/pet/:petId/upload") return "upload";
+    if (pathname === "/petowner/pet/:petId/add-team") return "add-team";
+    if (pathname === "/petowner/pet/:petId/pet-profile") return "profile";
+    if (pathname === "/petowner/pet/:petId/download-select")
+      return "download-select";
     return "home"; // default
   };
 
@@ -67,7 +76,14 @@ const SwitchProfilePage: React.FC = () => {
 
   const handleAddNew = () => {
     setShowModal(false);
-    navigate("/create-pet-profile");
+    navigate("/add-pet-profile");
+  };
+
+  const handleClose = async () => {
+    setShowModal(false);
+    // Redirect to the last used pet's home page
+    const petId = await getLastOrFirstPetId();
+    navigate(`/petowner/pet/${petId}/home`);
   };
 
   return (
@@ -75,14 +91,12 @@ const SwitchProfilePage: React.FC = () => {
       <Navbar />
       <SwitchProfileModal
         isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-          navigate("/home");
-        }}
+        onClose={handleClose}
         onSwitch={handleSwitch}
         onAddNew={handleAddNew}
         pets={pets}
         loading={loading}
+        destination={getIntendedDestination()}
       />
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PetWellLogo from "../../Assets/PetWell.png";
 import petServices from "../../Services/petServices";
+import { logout } from "../../utils/petNavigation";
 
 interface NavbarProps {
   onEditProfile?: () => void;
@@ -21,6 +22,12 @@ const Navbar: React.FC<NavbarProps> = ({ onSwitchProfile }) => {
   );
 
   const handleDropdownToggle = () => setIsDropdownOpen((open) => !open);
+
+  const handleLogout = () => {
+    logout();
+    setIsDropdownOpen(false);
+    navigate("/login");
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -227,6 +234,12 @@ const Navbar: React.FC<NavbarProps> = ({ onSwitchProfile }) => {
                 </button>
                 <button className="text-left px-4 py-2 text-sm text-[#EBD5BD] hover:bg-[#EBD5BD]/10 transition font-medium">
                   Settings
+                </button>
+                <button
+                  className="text-left px-4 py-2 text-sm text-red-400 hover:bg-red-400/10 transition font-medium border-t border-[#EBD5BD]/20"
+                  onClick={handleLogout}
+                >
+                  Logout
                 </button>
               </div>
             </div>

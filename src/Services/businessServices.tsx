@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 
 import { SERVER_BASE_URL } from "../utils/config";
 
@@ -11,6 +10,7 @@ interface BusinessProfile {
   website?: string;
   socials?: { [key: string]: string };
   description?: string;
+  address?: string;
   profile_picture?: string;
 }
 
