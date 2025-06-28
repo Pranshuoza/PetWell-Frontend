@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../../Components/Layout/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import SwitchProfileModal from "../../Components/Profile/SwitchProfileModal";
-import type { PetProfileType } from "../../Components/Profile/SwitchProfileModal";
 import petServices from "../../Services/petServices";
+import humanOwnerServices from "../../Services/humanOwnerServices";
+import { storeLastPetId } from "../../utils/petNavigation";
 
 const PetProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +13,16 @@ const PetProfile: React.FC = () => {
   const [pets, setPets] = useState<PetProfileType[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPet, setCurrentPet] = useState<any>(null);
+  const [humanProfile, setHumanProfile] = useState<any>(null);
 
+  interface PetProfileType {
+    id: string;
+    name: string;
+    age: string;
+    breed: string;
+    avatar: string;
+  }
+  // Fetch all pets for switch modal
   useEffect(() => {
     const fetchPets = async () => {
       try {
@@ -58,7 +68,13 @@ const PetProfile: React.FC = () => {
         if (petRes && petRes.data) petData = petRes.data;
         if (Array.isArray(petData)) petData = petData[0];
 
+        console.log("Current pet data:", petData);
         setCurrentPet(petData);
+
+        // Store this pet ID as the last used pet ID
+        if (petData && petData.id) {
+          storeLastPetId(petData.id);
+        }
       } catch (error) {
         console.error("Failed to fetch current pet:", error);
         setCurrentPet(null);
@@ -67,6 +83,28 @@ const PetProfile: React.FC = () => {
 
     fetchCurrentPet();
   }, [petId]);
+
+  // Fetch human profile data
+  useEffect(() => {
+    const fetchHumanProfile = async () => {
+      try {
+        const humanRes = await humanOwnerServices.getProfile();
+        let humanData: any = humanRes;
+
+        // Handle different response structures
+        if (humanRes && humanRes.data) humanData = humanRes.data;
+        if (Array.isArray(humanData)) humanData = humanData[0];
+
+        console.log("Human profile data:", humanData);
+        setHumanProfile(humanData);
+      } catch (error) {
+        console.error("Failed to fetch human profile:", error);
+        setHumanProfile(null);
+      }
+    };
+
+    fetchHumanProfile();
+  }, []);
 
   // Navigation handlers
   const handleEditProfile = () =>
@@ -79,7 +117,7 @@ const PetProfile: React.FC = () => {
   };
   const handleAddNewPet = () => {
     setShowSwitchModal(false);
-    navigate("/create-pet-profile");
+    navigate("/add-pet-profile");
   };
 
   return (
@@ -92,6 +130,7 @@ const PetProfile: React.FC = () => {
         onAddNew={handleAddNewPet}
         pets={pets}
         loading={loading}
+        destination="profile"
       />
       <div className="pt-8 px-4 sm:px-0 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
@@ -145,13 +184,17 @@ const PetProfile: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Gender</span>
-                  <div className="font-bold">Male</div>
+                  <div className="font-bold">
+                    {currentPet?.gender || "Unknown"}
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mb-2">
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Breed</span>
-                  <div className="font-bold">Mixed Breed</div>
+                  <div className="font-bold">
+                    {currentPet?.breed_name || "Mixed Breed"}
+                  </div>
                 </div>
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Colour</span>
@@ -188,39 +231,33 @@ const PetProfile: React.FC = () => {
               <div className="flex flex-wrap gap-x-8 gap-y-2 text-base mb-2">
                 <div>
                   <span className="opacity-70">Spay/Neuter Status</span>
-                  <span className="font-bold ml-2">Neutered</span>
+                  <span className="font-bold ml-2">
+                    {currentPet?.spay_neuter
+                      ? "Spayed/Neutered"
+                      : "Not Spayed/Neutered"}
+                  </span>
                 </div>
                 <div>
                   <span className="opacity-70">Weight</span>
-                  <span className="font-bold ml-2">12lbs</span>
+                  <span className="font-bold ml-2">
+                    {currentPet?.weight
+                      ? `${currentPet.weight} lbs`
+                      : "Unknown"}
+                  </span>
                 </div>
                 <div>
                   <span className="opacity-70">Special Notes</span>
                   <span className="font-bold ml-2">
-                    Allergic to chicken. Anxious during grooming.
+                    {currentPet?.notes || "No special notes"}
                   </span>
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-8 gap-y-2 text-base mb-2">
                 <div>
-                  <span className="opacity-70">Last Vet Visit</span>
-                  <span className="font-bold ml-2">3/4/24</span>
-                  <span className="ml-2">
-                    | Dr. Patel, Central Bark Vet Clinic
-                  </span>
-                  <span className="ml-2 text-[#FFB23E] cursor-pointer hover:underline">
-                    View Document
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-x-8 gap-y-2 text-base">
-                <div>
-                  <span className="opacity-70">Next Vaccine Due</span>
+                  <span className="opacity-70">Location</span>
                   <span className="font-bold ml-2">
-                    K9 DA2PPV 3 Year (VANGUARD)
+                    {currentPet?.location || "Unknown"}
                   </span>
-                  <span className="ml-2">| In 3 days</span>
-                  <span className="ml-2 text-[#FF4B4B]">&#x26A0;</span>
                 </div>
               </div>
             </div>
@@ -275,19 +312,27 @@ const PetProfile: React.FC = () => {
                 <div className="flex flex-col gap-2 text-base">
                   <div>
                     <span className="opacity-70">Name</span>
-                    <span className="font-bold ml-2">Monica Lee</span>
+                    <span className="font-bold ml-2">
+                      {humanProfile?.human_owner_name || "Unknown"}
+                    </span>
                   </div>
                   <div>
                     <span className="opacity-70">Location</span>
-                    <span className="font-bold ml-2">Dallas, Texas</span>
+                    <span className="font-bold ml-2">
+                      {humanProfile?.location || "Unknown"}
+                    </span>
                   </div>
                   <div>
                     <span className="opacity-70">Phone number</span>
-                    <span className="font-bold ml-2">565-555-5562</span>
+                    <span className="font-bold ml-2">
+                      {humanProfile?.phone || "Unknown"}
+                    </span>
                   </div>
                   <div>
                     <span className="opacity-70">Email</span>
-                    <span className="font-bold ml-2">email@website.com</span>
+                    <span className="font-bold ml-2">
+                      {humanProfile?.email || "Unknown"}
+                    </span>
                   </div>
                 </div>
               </div>

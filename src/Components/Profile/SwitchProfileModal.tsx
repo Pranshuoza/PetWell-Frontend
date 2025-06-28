@@ -1,14 +1,15 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import petServices from "../../Services/petServices";
+import { storeLastPetId } from "../../utils/petNavigation";
 
-export interface PetProfileType {
+interface PetProfileType {
   id: string;
   name: string;
   age: string;
   breed: string;
   avatar: string;
 }
-
 interface SwitchProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +17,7 @@ interface SwitchProfileModalProps {
   onAddNew: () => void;
   pets: PetProfileType[];
   loading?: boolean;
+  destination?: string;
 }
 
 const SwitchProfileModal: React.FC<SwitchProfileModalProps> = ({
@@ -25,13 +27,50 @@ const SwitchProfileModal: React.FC<SwitchProfileModalProps> = ({
   onAddNew,
   pets,
   loading = false,
+  destination = "profile",
 }) => {
+  const { petId } = useParams();
+  const [pet, setPet] = useState<PetProfileType | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!petId) return;
+    petServices
+      .getPetById(petId)
+      .then((res) => {
+        if (res.data && !Array.isArray(res.data)) {
+          const petData = res.data;
+          // Map the pet data to match PetProfileType interface
+          const mappedPet: PetProfileType = {
+            id: petData.id,
+            name: petData.pet_name,
+            age: `${petData.age} years`,
+            breed: "Mixed Breed", // Default value since breed info might not be available
+            avatar:
+              (typeof petData.profile_picture === "string"
+                ? petData.profile_picture
+                : null) ||
+              "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=400&h=400&q=80",
+          };
+          setPet(mappedPet);
+        } else {
+          setPet(null);
+        }
+      })
+      .catch(() => setPet(null));
+  }, [petId]);
+
   if (!isOpen) return null;
 
   const handleClose = () => {
     onClose();
-    navigate("/petowner/pet/:petId/profile");
+    navigate(`/petowner/pet/${petId}/${destination}`);
+  };
+
+  const handleSwitch = (selectedPetId: string) => {
+    // Store the selected pet ID as the last used pet ID
+    storeLastPetId(selectedPetId);
+    onSwitch(selectedPetId);
   };
 
   return (
@@ -68,7 +107,7 @@ const SwitchProfileModal: React.FC<SwitchProfileModalProps> = ({
               <button
                 key={pet.id}
                 className="flex items-center justify-between w-full bg-[#181A20] hover:bg-[#23272f] border border-[#EBD5BD]/20 rounded-xl px-4 py-3 transition group"
-                onClick={() => onSwitch(pet.id)}
+                onClick={() => handleSwitch(pet.id)}
               >
                 <div className="flex items-center gap-3">
                   <img

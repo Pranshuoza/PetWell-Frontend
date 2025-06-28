@@ -437,6 +437,12 @@ const authServices = {
       throw new Error("Password reset failed");
     }
   },
+
+  logout(): void {
+    // Clear token from localStorage but keep lastPetId for next login
+    localStorage.removeItem("token");
+    // Note: We don't clear lastPetId here so users return to their last used pet on next login
+  },
 };
 
 export default authServices;

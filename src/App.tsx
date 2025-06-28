@@ -17,6 +17,7 @@ import SwitchProfilePage from "./Pages/Profile/SwitchProfilePage";
 import ForgotPasswordPage from "./Pages/Authentication/ForgotPasswordPage";
 import SignupTypeSelectPage from "./Pages/Authentication/SignupTypeSelectPage";
 import PetParentSignupPage from "./Pages/Authentication/ProfileCreation/PetParentSignupPage";
+import AddPetProfile from "./Pages/Authentication/ProfileCreation/AddPetProfile";
 // import StaffSignupPage from "./Pages/Authentication/StaffSignupPage";
 // import BusinessSignupPage from "./Pages/Authentication/BusinessSignupPage";
 
@@ -32,29 +33,18 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify" element={<VerificationPage />} />
+        <Route path="/add-pet-profile" element={<AddPetProfile />} />
 
         {/* Pet Owner Routes with new format */}
         <Route path="/petowner/pet/:petId/home" element={<HomePage />} />
         <Route path="/petowner/pet/:petId/vaccine" element={<VaccinesPage />} />
-        <Route
-          path="/petowner/pet/:petId/documents"
-          element={<DocumentPage />}
-        />
+        <Route path="/petowner/pet/:petId/documents" element={<DocumentPage />}/>
         <Route path="/petowner/pet/:petId/team" element={<TeamsPage />} />
-        <Route
-          path="/petowner/pet/:petId/add-vaccine"
-          element={<AddVaccinePage />}
-        />
-        <Route
-          path="/petowner/pet/:petId/upload"
-          element={<UploadDocuments />}
-        />
+        <Route path="/petowner/pet/:petId/add-vaccine" element={<AddVaccinePage />}/>
+        <Route path="/petowner/pet/:petId/upload" element={<UploadDocuments />}/>
         <Route path="/petowner/pet/:petId/add-team" element={<AddTeamPage />} />
         <Route path="/petowner/pet/:petId/profile" element={<PetProfile />} />
-        <Route
-          path="/petowner/pet/:petId/download-select"
-          element={<DownloadSelectPage />}
-        />
+        <Route path="/petowner/pet/:petId/download-select" element={<DownloadSelectPage />}/>
 
         {/* Profile Management Routes */}
         <Route path="/switch-profile" element={<SwitchProfilePage />} />
