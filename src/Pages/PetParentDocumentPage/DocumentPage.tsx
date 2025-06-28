@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import { Input } from "../../Components/ui/input";
 import { Button } from "../../Components/ui/button";
@@ -19,7 +19,6 @@ import {
 import DeleteDocumentModal from "../../Components/Document/DeleteDocumentModal";
 import RenameDocumentModal from "../../Components/Document/RenameDocumentModal";
 import petServices from "../../Services/petServices";
-import humanOwnerServices from "../../Services/humanOwnerServices";
 
 // Helper to format file size
 function formatSize(bytes: number | undefined) {
@@ -175,64 +174,95 @@ const DocumentCard: React.FC<{
 
 const DocumentPage: React.FC = () => {
   const navigate = useNavigate();
+  const { petId } = useParams<{ petId: string }>();
   const [documents, setDocuments] = useState<any[]>([]);
   const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
   const [renameIdx, setRenameIdx] = useState<number | null>(null);
   const [docName, setDocName] = useState<string>("");
-  const [petId, setPetId] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [userName, setUserName] = useState<string>("");
-  const [userImage, setUserImage] = useState<string>("");
   const [docSizes, setDocSizes] = useState<{ [id: string]: number }>({});
   const [sizesLoading, setSizesLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await humanOwnerServices.getProfile();
-        if (res && res.data) {
-          setUserName(res.data.human_owner_name || "");
-          setUserImage(res.data.profile_picture || "");
-        }
-      } catch (err) {
-        setUserName("");
-        setUserImage("");
-      }
-    };
-    fetchProfile();
-  }, []);
+  const [pet, setPet] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [actualPetId, setActualPetId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPetAndDocuments = async () => {
+      console.log(petId);
       try {
-        let petsRes = await petServices.getPetsByOwner();
-        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        if (!petsArr) petsArr = [];
-        if (!Array.isArray(petsArr)) petsArr = [petsArr];
-        if (petsArr.length > 0) {
-          setPetId(petsArr[0].id);
-          // Fetch documents for the first pet
-          const docsRes = await petServices.getPetDocuments(petsArr[0].id);
-          let docsArr = Array.isArray(docsRes)
-            ? docsRes
-            : docsRes
-            ? [docsRes]
-            : [];
-          setDocuments(docsArr);
-          console.log("docArr:", docsArr);
+        if (!petId) {
+          setError("No pet ID provided");
+          setLoading(false);
+          return;
         }
+
+        let currentPetId = petId;
+
+        // If petId is "default", fetch the first available pet
+        if (petId === "default") {
+          const petsRes = await petServices.getPetsByOwner();
+          let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+          if (!petsArr) petsArr = [];
+          if (!Array.isArray(petsArr)) petsArr = [petsArr];
+
+          if (petsArr.length === 0) {
+            setError("No pets found. Please create a pet profile first.");
+            setLoading(false);
+            return;
+          }
+
+          // Use the first pet's ID (since "default" means single pet)
+          currentPetId = petsArr[0].id;
+          setActualPetId(currentPetId);
+        } else {
+          setActualPetId(currentPetId);
+        }
+
+        // Fetch pet details by ID
+        const petDetailRes = await petServices.getPetById(currentPetId);
+        let petDetail = null;
+
+        // Handle different response structures
+        if (petDetailRes) {
+          if (petDetailRes.data) {
+            petDetail = petDetailRes.data;
+          } else if (Array.isArray(petDetailRes)) {
+            petDetail = petDetailRes[0];
+          } else if (typeof petDetailRes === "object" && "id" in petDetailRes) {
+            petDetail = petDetailRes;
+          }
+        }
+
+        setPet(petDetail);
+        if (!petDetail) {
+          setError("Pet not found");
+          setLoading(false);
+          return;
+        }
+
+        // Fetch documents for this pet
+        const docsRes = await petServices.getPetDocuments(currentPetId);
+        let docsArr = Array.isArray(docsRes)
+          ? docsRes
+          : docsRes
+          ? [docsRes]
+          : [];
+        setDocuments(docsArr);
+        console.log("docArr:", docsArr);
       } catch (err) {
+        console.error("Failed to fetch pet and documents:", err);
+        setError("Failed to fetch pet and documents");
         setDocuments([]);
       } finally {
         setLoading(false);
       }
     };
     fetchPetAndDocuments();
-  }, []);
+  }, [petId]);
 
   // Fetch file sizes after documents are loaded
   useEffect(() => {
@@ -327,12 +357,11 @@ const DocumentPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
-      <Navbar
-      />
+      <Navbar />
       <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <h1 className="text-4xl font-serif font-bold">
-            {userName ? `${userName}'s Documents` : "Documents"}
+            {pet ? `${pet.pet_name}'s Documents` : "Pet Documents"}
           </h1>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto justify-end">
             <div className="relative w-full sm:w-72">
@@ -381,7 +410,9 @@ const DocumentPage: React.FC = () => {
             </div>
             <Button
               className="border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition px-6 py-2 font-semibold rounded-lg w-full sm:w-auto"
-              onClick={() => navigate("/upload")}
+              onClick={() =>
+                navigate(`/petowner/pet/${actualPetId || petId}/upload`)
+              }
             >
               <span className="mr-2">↑</span> Upload New Document
             </Button>
@@ -453,9 +484,7 @@ const DocumentPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filterAndSort(
                 documents.filter(
-                  (doc) =>
-                    doc.human_owner &&
-                    doc.human_owner.human_owner_name === userName
+                  (doc) => doc.staff == null && doc.business == null
                 )
               ).map((doc, idx) => (
                 <DocumentCard
@@ -475,9 +504,7 @@ const DocumentPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filterAndSort(
                 documents.filter(
-                  (doc) =>
-                    doc.human_owner &&
-                    doc.human_owner.human_owner_name !== userName
+                  (doc) => doc.staff != null || doc.business != null
                 )
               ).map((doc, idx) => (
                 <DocumentCard

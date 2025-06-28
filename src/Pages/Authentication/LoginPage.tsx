@@ -38,19 +38,23 @@ const LoginPage: React.FC = () => {
       setLoading(false);
       // Defensive: check for entity_type in both root and user object
       let entityType = undefined;
-      if ('entity_type' in res) {
+      if ("entity_type" in res) {
         entityType = (res as any).entity_type;
-      } else if (res.user && 'entity_type' in res.user) {
+      } else if (res.user && "entity_type" in res.user) {
         entityType = (res.user as any).entity_type;
-      } else if (res.user && 'role' in res.user) {
+      } else if (res.user && "role" in res.user) {
         // fallback: treat role as entity_type if present
         entityType = (res.user as any).role;
       }
-      if (entityType && typeof entityType === 'string') {
-        if (entityType.toLowerCase().includes('staff')) {
+      if (entityType && typeof entityType === "string") {
+        if (entityType.toLowerCase().includes("staff")) {
           navigate("/business-home");
-        } else if (entityType.toLowerCase().includes('human')) {
-          navigate("/home");
+        } else if (entityType.toLowerCase().includes("human")) {
+          // Get last used petId from localStorage or backend
+          const lastPetId = localStorage.getItem("lastPetId");
+          // Fallback to 'default' if not found
+          const petId = lastPetId || "default";
+          navigate(`/switch-profile`, { replace: true });
         } else {
           setError("Unknown user type. Please contact support.");
         }

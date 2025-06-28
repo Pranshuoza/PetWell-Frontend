@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import UploadDocument from "../../Components/UploadDocument/UploadDocuments";
 import Loader from "../../Components/ui/Loader";
 import Navbar from "../../Components/Layout/Navbar";
@@ -7,34 +7,81 @@ import petServices from "../../Services/petServices";
 
 const UploadDocuments: React.FC = () => {
   const navigate = useNavigate();
+  const { petId } = useParams<{ petId: string }>();
   const [showLoader, setShowLoader] = React.useState(false);
-  const [petId, setPetId] = useState<string>("");
+  const [pet, setPet] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actualPetId, setActualPetId] = useState<string | null>(null);
 
-  // Fetch petId (like in AddVaccinePage)
+  // Fetch pet details
   useEffect(() => {
     const fetchPet = async () => {
       try {
-        let petsRes = await petServices.getPetsByOwner();
-        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        console.log("petsArr:",petsArr)
-        if (!petsArr) petsArr = [];
-        if (!Array.isArray(petsArr)) petsArr = [petsArr];
-        if (petsArr.length > 0) {
-          setPetId(petsArr[0].id);
+        if (!petId) {
+          setError("No pet ID provided");
+          setLoading(false);
+          return;
         }
-      } catch {
-        // handle error
+
+        let currentPetId = petId;
+
+        // If petId is "default", fetch the first available pet
+        if (petId === "default") {
+          const petsRes = await petServices.getPetsByOwner();
+          let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+          if (!petsArr) petsArr = [];
+          if (!Array.isArray(petsArr)) petsArr = [petsArr];
+
+          if (petsArr.length === 0) {
+            setError("No pets found. Please create a pet profile first.");
+            setLoading(false);
+            return;
+          }
+
+          // Use the first pet's ID (since "default" means single pet)
+          currentPetId = petsArr[0].id;
+          setActualPetId(currentPetId);
+        } else {
+          setActualPetId(currentPetId);
+        }
+
+        // Fetch pet details
+        const petRes = await petServices.getPetById(currentPetId);
+        let petData = null;
+
+        // Handle different response structures
+        if (petRes) {
+          if (petRes.data) {
+            petData = petRes.data;
+          } else if (Array.isArray(petRes)) {
+            petData = petRes[0];
+          } else if (typeof petRes === "object" && "id" in petRes) {
+            petData = petRes;
+          }
+        }
+
+        setPet(petData);
+        if (!petData) {
+          setError("Pet not found");
+        }
+      } catch (error) {
+        console.error("Failed to fetch pet:", error);
+        setError("Failed to fetch pet details");
+        setPet(null);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPet();
-  }, []);
+  }, [petId]);
 
   // Handler to upload a document
   const handleUpload = async (
     file: File,
     meta: { name: string; type: string }
   ) => {
-    if (!petId) {
+    if (!actualPetId) {
       console.warn("[Upload] No petId available, skipping upload.");
       return;
     }
@@ -46,8 +93,11 @@ const UploadDocuments: React.FC = () => {
       file,
     };
     try {
-      console.debug("[Upload] Calling createDocument API", { petId, payload });
-      await petServices.createDocument(petId, payload);
+      console.debug("[Upload] Calling createDocument API", {
+        actualPetId,
+        payload,
+      });
+      await petServices.createDocument(actualPetId, payload);
       console.debug("[Upload] Document uploaded successfully", meta.name);
     } catch (err) {
       console.error("[Upload] Error uploading document", err);
@@ -55,27 +105,50 @@ const UploadDocuments: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
+        <Navbar />
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!pet) {
+    return (
+      <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
+        <Navbar />
+        <div className="text-center">{error || "Pet not found"}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
-      <Navbar
-      />
+      <Navbar />
       {/* Profile Image and Back Button */}
       <div className="mt-16 flex flex-col items-center w-full relative">
         <button
           className="absolute left-0 top-0 flex items-center gap-1 text-[#EBD5BD] hover:text-[#FFA500] text-base font-semibold px-2 py-1 rounded transition border border-transparent hover:border-[#FFA500] z-10"
           style={{ marginLeft: 32 }}
-          onClick={() => navigate(-1)}
+          onClick={() =>
+            navigate(`/petowner/pet/${actualPetId || petId}/documents`)
+          }
           aria-label="Back"
         >
           <span className="text-xl">&#8592;</span> Back
         </button>
         <img
-          src="https://randomuser.me/api/portraits/men/32.jpg"
+          src={
+            pet.profile_picture && typeof pet.profile_picture === "string"
+              ? pet.profile_picture
+              : "https://randomuser.me/api/portraits/men/32.jpg"
+          }
           alt="Profile"
           className="w-28 h-28 rounded-full object-cover border-4 border-[#EBD5BD] shadow-lg mt-4"
         />
         <h1 className="mt-6 text-4xl font-bold text-[#EBD5BD]">
-          Upload documents for Syd
+          Upload documents for {pet.pet_name}
         </h1>
         <p className="mt-2 text-lg text-[#EBD5BD] opacity-80 max-w-xl text-center">
           Keep your pet's records safe and accessible — from vaccine
@@ -90,7 +163,7 @@ const UploadDocuments: React.FC = () => {
           setShowLoader(true);
           setTimeout(() => {
             setShowLoader(false);
-            navigate("/documents");
+            navigate(`/petowner/pet/${actualPetId || petId}/documents`);
           }, 2000);
         }}
       />

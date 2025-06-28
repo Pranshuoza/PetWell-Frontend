@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import AddVaccine from "../../Components/Vaccine/AddVaccine";
 import petServices from "../../Services/petServices";
@@ -7,98 +7,139 @@ import vaccineServices from "../../Services/vaccineServices";
 
 const AddVaccinePage: React.FC = () => {
   const navigate = useNavigate();
+  const { petId } = useParams<{ petId: string }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [petId, setPetId] = useState<string>("");
+  const [pet, setPet] = useState<any>(null);
+  const [actualPetId, setActualPetId] = useState<string | null>(null);
 
-  // Fetch petId from pets on mount
+  // Fetch pet details
   useEffect(() => {
     const fetchPet = async () => {
       try {
-        let petsRes = await petServices.getPetsByOwner();
-        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        console.log("Fetched pets:", petsArr);
-        if (!petsArr) petsArr = [];
-        if (!Array.isArray(petsArr)) petsArr = [petsArr];
-        if (petsArr.length > 0) {
-          setPetId(petsArr[0].id);
-        } else {
-          setError("No pet found. Please add a pet first.");
+        if (!petId) {
+          setError("No pet ID provided");
+          return;
         }
-      } catch {
-        setError("Failed to fetch pets.");
+
+        let currentPetId = petId;
+
+        // If petId is "default", fetch the first available pet
+        if (petId === "default") {
+          const petsRes = await petServices.getPetsByOwner();
+          let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+          if (!petsArr) petsArr = [];
+          if (!Array.isArray(petsArr)) petsArr = [petsArr];
+
+          if (petsArr.length === 0) {
+            setError("No pets found. Please create a pet profile first.");
+            return;
+          }
+
+          // Use the first pet's ID (since "default" means single pet)
+          currentPetId = petsArr[0].id;
+          setActualPetId(currentPetId);
+        } else {
+          setActualPetId(currentPetId);
+        }
+
+        // Fetch pet details
+        const petRes = await petServices.getPetById(currentPetId);
+        let petData: any = petRes;
+        if (petRes && petRes.data) petData = petRes.data;
+        if (Array.isArray(petData)) petData = petData[0];
+        if (
+          !petData ||
+          typeof petData !== "object" ||
+          !("id" in petData) ||
+          !("pet_name" in petData)
+        ) {
+          setPet(null);
+          setError("Pet not found. Please add a pet first.");
+        } else {
+          setPet(petData);
+        }
+      } catch (err) {
+        setError("Failed to fetch pet.");
       }
     };
     fetchPet();
-  }, []);
+  }, [petId]);
 
-  // Handles the actual vaccine creation
-  const handleAddVaccine = async (data: any) => {
+  const handleSubmit = async (data: any) => {
+    if (!actualPetId) {
+      setError("No pet ID available");
+      return;
+    }
     setLoading(true);
     setError(null);
-    setSuccess(null);
     try {
-      if (!petId) {
-        setError("No pet found. Please add a pet first.");
-        setLoading(false);
-        return;
-      }
-      if (!data.doctor || !data.doctor.id) {
-        setError("Please select a doctor.");
-        setLoading(false);
-        return;
-      }
-      const manualFieldsFilled =
-        data.vaccine && data.administered && data.expiry && data.doctor;
-      if (!data.file && !manualFieldsFilled) {
-        setError("Please upload a vaccine document OR fill all manual fields.");
-        setLoading(false);
-        return;
-      }
-
-      // Build payload for API
-      const payload = {
+      // Map form data to expected API format
+      const apiData = {
         vaccine_name: data.vaccine,
         date_administered: data.administered,
         date_due: data.expiry,
-        staff_id: data.doctor.id,
-        pet_id: petId,
-        file: data.file || undefined,
+        administered_by: data.staffName,
+        staff_id: "", // Empty string as required by backend
+        pet_id: actualPetId,
+        file: data.file,
       };
-      console.log("Sending payload to server:", payload);
 
-      await vaccineServices.createVaccine(payload);
-
+      await vaccineServices.createVaccine(apiData);
       setSuccess("Vaccine added successfully!");
-      // Redirect to vaccine list page after success
-      setTimeout(() => navigate("/vaccine"), 1200);
-    } catch (err: any) {
-      setError(err.message || "Failed to add vaccine");
+      setTimeout(() => {
+        navigate(`/petowner/pet/${actualPetId}/vaccine`);
+      }, 1500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add vaccine");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen w-screen bg-[var(--color-background)] text-[var(--color-text)] font-sans">
-      <Navbar
-      />
-      <div className="max-w-8xl mx-auto px-12 pt-4 pb-12">
-        <button
-          className="text-[#FFA500] text-md mb-4 flex items-center hover:underline bg-transparent"
-          onClick={() => navigate(-1)}
-        >
-          <span className="mr-2">&lt; Go Back</span>
-        </button>
-        <div className="max-w-lg mx-auto pt-8 pb-12 flex flex-col items-center">
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          {success && <div className="text-green-500 mb-4">{success}</div>}
-          <AddVaccine onSubmit={handleAddVaccine} petId={petId} />
-          {loading && (
-            <div className="text-center mt-4 text-lg">Adding vaccine...</div>
-          )}
+  const handleCancel = () => {
+    navigate(`/petowner/pet/${actualPetId || petId}/vaccine`);
+  };
+
+  if (!pet) {
+    return (
+      <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
+        <Navbar />
+        <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+          <div className="text-center">{error || "Pet not found"}</div>
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
+      <Navbar />
+      <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <h1 className="text-4xl font-serif font-bold">
+            Add Vaccine for {pet.pet_name}
+          </h1>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-500/10 border border-green-500/20 text-green-500 px-4 py-3 rounded-lg mb-6">
+            {success}
+          </div>
+        )}
+
+        <AddVaccine
+          petId={actualPetId || petId || ""}
+          onCancel={handleCancel}
+          onSubmit={handleSubmit}
+        />
       </div>
     </div>
   );

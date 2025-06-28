@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../Components/Layout/Navbar";
 import VaccineInfo from "../../Components/Vaccine/VaccineInfo";
 import EditVaccineModal from "../../Components/Vaccine/EditVaccineModal";
@@ -7,103 +7,253 @@ import vaccineServices from "../../Services/vaccineServices";
 import petServices from "../../Services/petServices";
 
 const VaccinesPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { petId } = useParams<{ petId: string }>();
   const [vaccines, setVaccines] = useState<any[]>([]);
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [petName, setPetName] = useState<string>("My Pet");
-  const navigate = useNavigate();
+  const [pet, setPet] = useState<any>(null);
+  const [actualPetId, setActualPetId] = useState<string | null>(null);
+
+  // Helper function to remove duplicate vaccines based on ID
+  const removeDuplicateVaccines = (vaccinesArr: any[]): any[] => {
+    const seen = new Set();
+    return vaccinesArr.filter((vaccine) => {
+      const id = vaccine.id;
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
+  };
+
+  // Function to refetch vaccines data
+  const refetchVaccines = async () => {
+    if (!actualPetId) return;
+
+    try {
+      const vaccinesRes = await vaccineServices.getAllPetVaccines(actualPetId);
+      let vaccinesArr: any[] = [];
+
+      // Handle different response structures for vaccines
+      if (vaccinesRes) {
+        if (vaccinesRes.data) {
+          vaccinesArr = Array.isArray(vaccinesRes.data)
+            ? vaccinesRes.data
+            : [vaccinesRes.data];
+        } else if (Array.isArray(vaccinesRes)) {
+          vaccinesArr = vaccinesRes;
+        } else if (typeof vaccinesRes === "object" && "id" in vaccinesRes) {
+          vaccinesArr = [vaccinesRes];
+        }
+      }
+
+      // Remove duplicates before setting state
+      const uniqueVaccines = removeDuplicateVaccines(vaccinesArr);
+      setVaccines(uniqueVaccines);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch vaccines");
+      setVaccines([]);
+    }
+  };
 
   useEffect(() => {
     const fetchVaccines = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        // Get the user's pets (assuming first pet for now)
-        const petsRes = await petServices.getPetsByOwner();
-        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        if (!petsArr) petsArr = [];
-        if (!Array.isArray(petsArr)) petsArr = [petsArr];
-        if (petsArr.length === 0) {
-          setError("No pets found. Please add a pet first.");
+        console.log("petId:", petId);
+        if (!petId) {
+          setError("No pet ID provided");
           setLoading(false);
           return;
         }
-        const pet = petsArr[0];
-        setPetName(pet.pet_name || "My Pet");
-        // Fetch vaccines for the first pet
-        const vaccinesRes = await vaccineServices.getAllPetVaccines(pet.id);
-        let vaccinesArr = Array.isArray(vaccinesRes) ? vaccinesRes : vaccinesRes.data;
-        if (!vaccinesArr) vaccinesArr = [];
-        if (!Array.isArray(vaccinesArr)) vaccinesArr = [vaccinesArr];
-        setVaccines(
-          vaccinesArr.map((v: any) => ({
-            name: v.vaccine_name,
-            administered: v.date_administered,
-            expires: v.date_due,
-            soon: false, // You can add logic to determine if soon
-            warning: undefined, // You can add logic for warning
-            ...v,
-          }))
+
+        let currentPetId = petId;
+
+        // If petId is "default", fetch the first available pet
+        if (petId === "default") {
+          const petsRes = await petServices.getPetsByOwner();
+          let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+          console.log("petsArr:", petsArr);
+          if (!petsArr) petsArr = [];
+          if (!Array.isArray(petsArr)) petsArr = [petsArr];
+
+          if (petsArr.length === 0) {
+            setError("No pets found. Please create a pet profile first.");
+            setLoading(false);
+            return;
+          }
+
+          // Use the first pet's ID (since "default" means single pet)
+          currentPetId = petsArr[0].id;
+          setActualPetId(currentPetId);
+
+          // Don't redirect - just use this pet's data
+        } else {
+          setActualPetId(currentPetId);
+        }
+
+        // Fetch pet details
+        const petRes = await petServices.getPetById(currentPetId);
+        console.log("petRes:", petRes);
+        let petData = null;
+
+        // Handle different response structures
+        if (petRes) {
+          if (petRes.data) {
+            petData = petRes.data;
+          } else if (Array.isArray(petRes)) {
+            petData = petRes[0];
+          } else if (typeof petRes === "object" && "id" in petRes) {
+            petData = petRes;
+          }
+        }
+
+        console.log("petData:", petData);
+        setPet(petData);
+
+        if (!petData) {
+          console.error("Pet data not found for ID:", currentPetId);
+          setError("Pet not found");
+          setLoading(false);
+          return;
+        }
+
+        // Fetch vaccines for this pet
+        const vaccinesRes = await vaccineServices.getAllPetVaccines(
+          currentPetId
         );
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch vaccines");
+        console.log("vaccineRes:", vaccinesRes);
+        let vaccinesArr: any[] = [];
+
+        // Handle different response structures for vaccines
+        if (vaccinesRes) {
+          if (vaccinesRes.data) {
+            vaccinesArr = Array.isArray(vaccinesRes.data)
+              ? vaccinesRes.data
+              : [vaccinesRes.data];
+          } else if (Array.isArray(vaccinesRes)) {
+            vaccinesArr = vaccinesRes;
+          } else if (typeof vaccinesRes === "object" && "id" in vaccinesRes) {
+            vaccinesArr = [vaccinesRes];
+          }
+        }
+
+        console.log("vaccineArr:", vaccinesArr);
+        // Remove duplicates before setting state
+        const uniqueVaccines = removeDuplicateVaccines(vaccinesArr);
+        setVaccines(uniqueVaccines);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch vaccines"
+        );
+        setVaccines([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchVaccines();
-  }, []);
+  }, [petId, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
+        <Navbar />
+        <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+          <div className="text-center">Loading vaccines...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!pet && !actualPetId) {
+    return (
+      <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
+        <Navbar />
+        <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+          <div className="text-center">
+            {error || "No pets found. Please create a pet profile first."}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
-      <Navbar
-        userName={petName}
-        userImage="https://randomuser.me/api/portraits/men/32.jpg"
-      />
-      <div className="container max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h1 className="text-2xl font-serif font-bold mt-2">{petName}'s Vaccines</h1>
+      <Navbar />
+      <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <h1 className="text-4xl font-serif font-bold">
+            {pet?.pet_name || "Pet"}'s Vaccines
+          </h1>
           <div className="flex gap-4">
             <button
-              className="py-2 px-4 rounded-lg border border-[var(--color-primary)] text-[var(--color-primary)] font-semibold text-lg hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition flex items-center justify-center bg-transparent"
-              onClick={() => navigate("/download-select")}
+              onClick={() =>
+                navigate(`/petowner/pet/${actualPetId}/add-vaccine`)
+              }
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
             >
-              <span className="mr-2">↓</span> Download Vaccine Records
-            </button>
-            <button
-              className="py-2 px-4 rounded-lg border border-[var(--color-primary)] text-[var(--color-primary)] font-semibold text-lg hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition flex items-center justify-center bg-transparent"
-              onClick={() => navigate("/add-vaccine")}
-            >
-              <span className="mr-2">+</span> Add New Vaccine
+              <span className="text-lg">+</span> Add New Vaccine
             </button>
           </div>
         </div>
-        {loading ? (
-          <div className="text-center text-lg py-12">Loading vaccines...</div>
-        ) : error ? (
-          <div className="text-center text-red-500 py-12">{error}</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {vaccines.map((vaccine, idx) => (
-              <VaccineInfo
-                key={vaccine.id || idx}
-                name={vaccine.name}
-                administered={vaccine.administered}
-                expires={vaccine.expires}
-                soon={vaccine.soon}
-                warning={vaccine.warning}
-                showEdit={true}
-                onEdit={() => setEditIdx(idx)}
-              />
-            ))}
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
+            {error}
           </div>
         )}
-        {editIdx !== null && vaccines[editIdx] && (
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {vaccines.map((vaccine, index) => (
+            <VaccineInfo
+              key={vaccine.id}
+              name={vaccine.vaccine_name || vaccine.name || "Unknown Vaccine"}
+              administered={
+                vaccine.date_administered ||
+                vaccine.administered_date ||
+                vaccine.administered ||
+                "Unknown"
+              }
+              expires={
+                vaccine.date_due ||
+                vaccine.expiry_date ||
+                vaccine.expires ||
+                "Unknown"
+              }
+              soon={vaccine.soon || false}
+              warning={vaccine.warning || ""}
+              showEdit={true}
+              onEdit={() => setEditIdx(index)}
+            />
+          ))}
+        </div>
+
+        {vaccines.length === 0 && !error && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-lg mb-4">No vaccines found</div>
+            <button
+              onClick={() =>
+                navigate(`/petowner/pet/${actualPetId}/add-vaccine`)
+              }
+              className="bg-[var(--color-primary)] text-[var(--color-background)] px-6 py-3 rounded-lg font-semibold hover:bg-[var(--color-accent-hover)] transition"
+            >
+              Add Your First Vaccine
+            </button>
+          </div>
+        )}
+
+        {editIdx !== null && (
           <EditVaccineModal
-            open={editIdx !== null}
-            onClose={() => setEditIdx(null)}
+            open={true}
             vaccine={vaccines[editIdx]}
+            onClose={() => setEditIdx(null)}
+            onSuccess={refetchVaccines}
           />
         )}
       </div>

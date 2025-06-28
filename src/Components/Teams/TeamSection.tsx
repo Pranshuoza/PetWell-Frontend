@@ -23,17 +23,6 @@ const TeamSection: React.FC<TeamSectionProps> = ({
 }) => {
   return (
     <section className="mb-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
-        <h2 className="text-xl font-serif font-semibold mb-2 md:mb-0">
-          Your Teams
-        </h2>
-        <button
-          className="border border-[var(--color-primary)] text-[var(--color-primary)] px-5 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
-          onClick={onAddTeam}
-        >
-          <span className="text-lg">+</span> Add New Team
-        </button>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-2">
         {teams.map((team, idx) => (
           <TeamBox

@@ -6,17 +6,6 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import vaccineServices from "../../Services/vaccineServices";
 
-interface Doctor {
-  id: string;
-  staff_name: string;
-  email: string;
-  business?: {
-    id: string;
-    business_name: string;
-  };
-  // role_name?: string; // Only if your backend adds this in the future
-}
-
 interface AddVaccineProps {
   onCancel?: () => void;
   onSubmit?: (data: any) => void;
@@ -31,59 +20,60 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
   const [vaccine, setVaccine] = useState("");
   const [administered, setAdministered] = useState("");
   const [expiry, setExpiry] = useState("");
-  const [doctor, setDoctor] = useState<{ id: string; name: string } | null>(
-    null
-  );
-  const [doctorSearch, setDoctorSearch] = useState("");
-  const [doctorResults, setDoctorResults] = useState<Doctor[]>([]);
+  const [staffName, setStaffName] = useState("");
   const [verified, setVerified] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [doctorLoading, setDoctorLoading] = useState(false);
-  const [doctorError, setDoctorError] = useState<string | null>(null);
   const [manualError, setManualError] = useState<string | null>(null);
+  const [fileLoading, setFileLoading] = useState(false);
 
-  // Search doctors as user types
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      if (!doctorSearch.trim()) {
-        setDoctorResults([]);
-        return;
-      }
-      setDoctorLoading(true);
-      setDoctorError(null);
-      try {
-        const res = await vaccineServices.getDoctors(petId, "");
-        const doctors = Array.isArray(res) ? res : [];
-        console.log("Fetched doctors:", doctors);
-        const results = doctors
-          .filter((d: any) =>
-            d.staff_name?.toLowerCase().includes(doctorSearch.toLowerCase())
-          )
-          .map((d: any) => ({
-            id: d.id,
-            staff_name: d.staff_name || d.email || "Doctor",
-            email: d.email || "",
-            business: d.business,
-          }));
-        console.log("Doctor search results:", results);
-        setDoctorResults(results);
-      } catch (err: any) {
-        setDoctorError("Failed to fetch doctors");
-      } finally {
-        setDoctorLoading(false);
-      }
-    };
-    if (doctorSearch.length > 0) fetchDoctors();
-    else setDoctorResults([]);
-  }, [doctorSearch, petId]);
+  // Helper: check if any manual field is filled
+  const isManualFilled = Boolean(
+    vaccine || administered || expiry || staffName
+  );
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // When a file is uploaded, fetch vaccine details and auto-fill
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      setFileLoading(true);
+      setManualError(null);
+      try {
+        const details = await vaccineServices.getVaccinesDetails(
+          selectedFile,
+          petId
+        );
+        setVaccine(details.vaccine_name || "");
+        setAdministered(details.date_administered || "");
+        setExpiry(details.expiry_date || "");
+        // Optionally set staff name if details.administered_by is available
+        if (details.administered_by) {
+          setStaffName(details.administered_by);
+        }
+      } catch (err: any) {
+        setManualError(
+          "Could not extract vaccine details from file. Please enter manually."
+        );
+        setVaccine("");
+        setAdministered("");
+        setExpiry("");
+        setStaffName("");
+        setFile(null);
+      } finally {
+        setFileLoading(false);
+      }
     } else {
       setFile(null);
     }
   };
+
+  // If any manual field is filled, clear file
+  useEffect(() => {
+    if (isManualFilled && file) {
+      setFile(null);
+    }
+    // eslint-disable-next-line
+  }, [vaccine, administered, expiry, staffName]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,27 +81,27 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
     if (onSubmit) {
       // If no file, require all manual fields and show caution for missing fields
       if (!file) {
-        if (!vaccine || !administered || !expiry || !doctor) {
+        if (!vaccine || !administered || !expiry || !staffName) {
           setManualError(
-            "Please fill all manual fields: Vaccine Name, Date Administered, Expiry Date, and Doctor."
+            "Please fill all manual fields: Vaccine Name, Date Administered, Expiry Date, and Staff Name."
           );
           return;
         }
       }
-      // Debug logs for submission
-      // console.log("Submitting vaccine form with:", {
-      //   vaccine,
-      //   administered,
-      //   expiry,
-      //   doctor,
-      //   verified,
-      //   file,
-      // });
+
+      // Validate verification checkbox
+      if (!verified) {
+        setManualError(
+          "Please check the verification box to confirm the information is correct"
+        );
+        return;
+      }
+
       onSubmit({
         vaccine,
         administered,
         expiry,
-        doctor: doctor ? { id: doctor.id, name: doctor.name } : null,
+        staffName,
         verified,
         file: file || undefined, // Ensure file is undefined if not provided
       });
@@ -132,7 +122,9 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
         <Card className="w-full max-w-md bg-[var(--color-card)] rounded-2xl shadow-xl p-8 flex flex-col items-center mb-4">
           <label
             htmlFor="vaccine-upload"
-            className="flex flex-col items-center cursor-pointer w-full"
+            className={`flex flex-col items-center cursor-pointer w-full ${
+              isManualFilled ? "opacity-50 pointer-events-none" : ""
+            }`}
           >
             <svg
               className="w-8 h-8 mb-2 text-[var(--color-text)]"
@@ -159,7 +151,13 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               className="hidden"
               accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
               onChange={handleFileChange}
+              disabled={isManualFilled}
             />
+            {fileLoading && (
+              <span className="text-xs text-[var(--color-primary)] mt-2">
+                Extracting details...
+              </span>
+            )}
           </label>
         </Card>
         <div className="w-full flex items-center my-4">
@@ -179,6 +177,7 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               value={vaccine}
               onChange={(e) => setVaccine(e.target.value)}
               placeholder="Enter or select vaccine name"
+              disabled={!!file}
             />
           </div>
           <div>
@@ -186,11 +185,12 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               Date Administered
             </label>
             <Input
-              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var,--color-text)] border border-[var(--color-border)] mb-2"
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
               type="date"
               value={administered}
               onChange={(e) => setAdministered(e.target.value)}
               placeholder="Select Date"
+              disabled={!!file}
             />
           </div>
           <div>
@@ -198,108 +198,26 @@ const AddVaccine: React.FC<AddVaccineProps> = ({
               Expiry Date
             </label>
             <Input
-              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var,--color-text)] border border-[var(--color-border)] mb-2"
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
               type="date"
               value={expiry}
               onChange={(e) => setExpiry(e.target.value)}
               placeholder="Select Date"
+              disabled={!!file}
             />
           </div>
           <div>
             <label className="block text-[var(--color-text)] text-sm mb-1">
               Administered By
             </label>
-            <div className="w-full flex flex-col relative">
-              <Input
-                className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var,--color-text)] border border-[var(--color-border)] mb-2"
-                type="text"
-                value={doctorSearch}
-                onChange={(e) => {
-                  setDoctorSearch(e.target.value);
-                  setDoctor(null);
-                }}
-                placeholder="Search doctor by name"
-                autoComplete="off"
-              />
-              {doctorResults.length > 0 &&
-                doctorSearch &&
-                !doctor &&
-                ((() => {
-                  console.log("Rendering doctor dropdown", doctorResults);
-                  return null;
-                })(),
-                (
-                  <div
-                    className="absolute left-0 right-0 mt-1 bg-white rounded-xl shadow-lg z-10 border border-[#ececec] overflow-hidden"
-                    style={{ width: "100%" }}
-                  >
-                    {doctorResults.map((doc, idx) => {
-                      const name = doc.staff_name || "";
-                      const searchIndex = name
-                        .toLowerCase()
-                        .indexOf(doctorSearch.toLowerCase());
-                      let displayName;
-                      if (doctorSearch && searchIndex !== -1) {
-                        displayName = (
-                          <>
-                            {name.substring(0, searchIndex)}
-                            <b>
-                              {name.substring(
-                                searchIndex,
-                                searchIndex + doctorSearch.length
-                              )}
-                            </b>
-                            {name.substring(searchIndex + doctorSearch.length)}
-                          </>
-                        );
-                      } else {
-                        displayName = name;
-                      }
-                      return (
-                        <div
-                          key={doc.id}
-                          className={`flex flex-col px-4 py-3 cursor-pointer hover:bg-[var(--color-card)] border-b ${
-                            idx === doctorResults.length - 1
-                              ? "border-b-0"
-                              : "border-[#ececec]"
-                          }`}
-                          onClick={() => {
-                            setDoctor({ id: doc.id, name: doc.staff_name });
-                            setDoctorSearch(doc.staff_name);
-                          }}
-                        >
-                          <span className="font-semibold text-base text-[#232b3e]">
-                            {displayName}
-                          </span>
-                          <span className="text-xs text-[#232b3e] opacity-70">
-                            {doc.email}
-                            {doc.business && doc.business.business_name
-                              ? ` ${doc.business.business_name}`
-                              : ""}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-            </div>
-            {doctorLoading && (
-              <div className="text-xs text-gray-400 mt-1">Searching...</div>
-            )}
-            {doctorError && (
-              <div className="text-xs text-red-400 mt-1">{doctorError}</div>
-            )}
-            {doctor && (
-              <div className="text-xs text-green-500 mt-1">
-                Selected: {doctor.name}
-                {(() => {
-                  const found = doctorResults.find((d) => d.id === doctor.id);
-                  return found && found.business && found.business.business_name
-                    ? ` (${found.business.business_name})`
-                    : "";
-                })()}
-              </div>
-            )}
+            <Input
+              className="w-full rounded-lg px-4 py-2 bg-[var(--color-background)] text-[var(--color-text)] border border-[var(--color-border)] mb-2"
+              type="text"
+              value={staffName}
+              onChange={(e) => setStaffName(e.target.value)}
+              placeholder="Enter staff name"
+              disabled={!!file}
+            />
           </div>
           <div className="flex items-start gap-2 mt-2">
             <Checkbox

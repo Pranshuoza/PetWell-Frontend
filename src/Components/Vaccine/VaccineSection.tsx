@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import VaccineInfo from "./VaccineInfo";
-import EditVaccineModal from "./EditVaccineModal";
 
 interface Vaccine {
   name: string;
@@ -12,11 +11,13 @@ interface Vaccine {
 
 interface VaccineBoxProps {
   vaccines: Vaccine[];
+  onEditVaccine?: (idx: number) => void;
 }
 
-const VaccineSection: React.FC<VaccineBoxProps> = ({ vaccines }) => {
-  const [editIdx, setEditIdx] = useState<number | null>(null);
-
+const VaccineSection: React.FC<VaccineBoxProps> = ({
+  vaccines,
+  onEditVaccine,
+}) => {
   return (
     <section className="mb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-2">
@@ -29,7 +30,7 @@ const VaccineSection: React.FC<VaccineBoxProps> = ({ vaccines }) => {
               soon={vaccine.soon}
               warning={vaccine.warning}
               showEdit={true}
-              onEdit={() => setEditIdx(idx)}
+              onEdit={onEditVaccine ? () => onEditVaccine(idx) : undefined}
             />
           </div>
         ))}
@@ -42,13 +43,6 @@ const VaccineSection: React.FC<VaccineBoxProps> = ({ vaccines }) => {
           View All Vaccines &gt;
         </a>
       </div>
-      {editIdx !== null && (
-        <EditVaccineModal
-          open={editIdx !== null}
-          onClose={() => setEditIdx(null)}
-          vaccine={vaccines[editIdx]}
-        />
-      )}
     </section>
   );
 };

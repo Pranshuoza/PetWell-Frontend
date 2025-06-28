@@ -17,13 +17,24 @@ const ForgotPasswordPage: React.FC = () => {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Timer effect for resend OTP
+  React.useEffect(() => {
+    if (resendTimer > 0) {
+      const interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [resendTimer]);
 
   const handleRequestOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await authServices.forgotPassword(email);
+      await authServices.forgotPassword({ identifier: email });
       setCurrentStep("verify");
     } catch (err: any) {
       setError(err.message);
@@ -40,8 +51,8 @@ const ForgotPasswordPage: React.FC = () => {
         email,
         otp_type: "ForgotPassword",
       });
-      // Show success message
       setError("OTP resent successfully");
+      setResendTimer(10); // 60 seconds timer
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -144,9 +155,9 @@ const ForgotPasswordPage: React.FC = () => {
         variant="ghost"
         className="w-full"
         onClick={handleResendOTP}
-        disabled={loading}
+        disabled={loading || resendTimer > 0}
       >
-        Resend OTP
+        {resendTimer > 0 ? `Resend OTP (${resendTimer}s)` : "Resend OTP"}
       </Button>
     </form>
   );
