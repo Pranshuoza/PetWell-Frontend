@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Landing from "./Pages/Landing/Landing";
 import ProfileCreation from "./Pages/Authentication/ProfileCreation/ProfileCreation";
 import "./App.css";
