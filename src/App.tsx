@@ -23,7 +23,7 @@ import AddPetProfile from "./Pages/Authentication/ProfileCreation/AddPetProfile"
 
 function App() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-gray-50">
       <Routes>
         {/* Authentication Routes */}
         <Route path="/" element={<Landing />} />

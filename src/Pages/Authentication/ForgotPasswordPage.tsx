@@ -195,14 +195,14 @@ const ForgotPasswordPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#1C232E] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#1C232E] flex flex-col items-center justify-center p-4 sm:p-6">
       {/* Logo */}
-      <div className="absolute left-10 top-8">
-        <img src={PetWellLogo} alt="PetWell Logo" className="w-16 h-16" />
+      <div className="absolute left-4 sm:left-8 top-4 sm:top-8">
+        <img src={PetWellLogo} alt="PetWell Logo" className="w-12 h-12 sm:w-16 sm:h-16" />
       </div>
 
       {/* Main Content */}
-      <Card className="w-full max-w-md p-8 bg-[#23272f] border-[#3a4152]">
+      <Card className="w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-[#23272f] border-[#3a4152]">
         {error && (
           <div
             className={`mb-4 p-3 rounded-md text-sm ${
@@ -219,11 +219,11 @@ const ForgotPasswordPage: React.FC = () => {
         {currentStep === "verify" && renderVerifyOTP()}
         {currentStep === "reset" && renderResetPassword()}
 
-        <div className="mt-6 text-center text-sm text-[#EBD5BD]/60">
+        <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-[#EBD5BD]/60">
           Remember your password?{" "}
           <Button
             variant="link"
-            className="text-[#FFB23E] hover:text-[#ffb733]"
+            className="text-[#FFB23E] hover:text-[#ffb733] text-xs sm:text-sm"
             onClick={() => navigate("/login")}
           >
             Sign in

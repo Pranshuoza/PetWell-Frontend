@@ -79,21 +79,21 @@ const AddTeamPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)]">
-      <Navbar
-      />
-      <div className="container pt-8 pb-12 pr-8 pl-8 mx-auto max-w-8xl flex flex-col items-center">
+      <Navbar />
+      <div className="container pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 pr-4 sm:pr-6 md:pr-8 pl-4 sm:pl-6 md:pl-8 mx-auto max-w-8xl flex flex-col items-center">
         <button
-          className="text-[var(--color-primary)] text-base font-medium mb-8 self-start flex items-center gap-2 hover:underline"
+          className="text-[var(--color-primary)] text-sm sm:text-base font-medium mb-6 sm:mb-8 self-start flex items-center gap-2 hover:underline"
           onClick={() => navigate(-1)}
         >
-          <span className="text-xl">&lt;</span> Go Back
+          <span className="text-lg sm:text-xl">&lt;</span> Go Back
         </button>
         <div className="flex flex-col items-center w-full">
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             {/* Team SVG Icon */}
             <svg
-              width="80"
-              height="80"
+              width="60"
+              height="60"
+              className="sm:w-20 sm:h-20"
               viewBox="0 0 80 80"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -115,10 +115,10 @@ const AddTeamPage: React.FC = () => {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-serif font-bold text-[var(--color-text)] mb-2">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[var(--color-text)] mb-2 text-center">
             Add A Team
           </h1>
-          <p className="text-base text-[var(--color-text)] mb-8 opacity-80">
+          <p className="text-sm sm:text-base text-[var(--color-text)] mb-6 sm:mb-8 opacity-80 text-center px-4">
             Search and add vets, groomers, or other care providers.
           </p>
           <div className="w-full max-w-md mt-2 flex flex-col items-center">

@@ -358,12 +358,12 @@ const DocumentPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar />
-      <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-4xl font-serif font-bold">
+      <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 md:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold">
             {pet ? `${pet.pet_name}'s Documents` : "Pet Documents"}
           </h1>
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto justify-end">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto justify-end">
             <div className="relative w-full sm:w-72">
               <Input
                 type="search"
@@ -373,13 +373,13 @@ const DocumentPage: React.FC = () => {
                   setSearch(e.target.value);
                   setShowSuggestions(true);
                 }}
-                className="bg-[var(--color-card)] border-[var(--color-border)] rounded-lg w-full pl-10"
+                className="bg-[var(--color-card)] border-[var(--color-border)] rounded-lg w-full pl-10 text-sm sm:text-base"
                 autoComplete="off"
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                 onFocus={() => search && setShowSuggestions(true)}
               />
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

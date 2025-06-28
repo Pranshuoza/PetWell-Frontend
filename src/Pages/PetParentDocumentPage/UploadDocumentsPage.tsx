@@ -124,19 +124,18 @@ const UploadDocuments: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-screen font-sans flex flex-col items-center bg-[#101624] text-[#EBD5BD]">
+    <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar />
       {/* Profile Image and Back Button */}
-      <div className="mt-16 flex flex-col items-center w-full relative">
+      <div className="mt-16 flex flex-col items-center w-full relative px-4 sm:px-6 md:px-8">
         <button
-          className="absolute left-0 top-0 flex items-center gap-1 text-[#EBD5BD] hover:text-[#FFA500] text-base font-semibold px-2 py-1 rounded transition border border-transparent hover:border-[#FFA500] z-10"
-          style={{ marginLeft: 32 }}
+          className="absolute left-4 sm:left-6 md:left-8 top-0 flex items-center gap-1 text-[#EBD5BD] hover:text-[#FFA500] text-sm sm:text-base font-semibold px-2 py-1 rounded transition border border-transparent hover:border-[#FFA500] z-10"
           onClick={() =>
             navigate(`/petowner/pet/${actualPetId || petId}/documents`)
           }
           aria-label="Back"
         >
-          <span className="text-xl">&#8592;</span> Back
+          <span className="text-lg sm:text-xl">&#8592;</span> Back
         </button>
         <img
           src={
@@ -145,12 +144,12 @@ const UploadDocuments: React.FC = () => {
               : "https://randomuser.me/api/portraits/men/32.jpg"
           }
           alt="Profile"
-          className="w-28 h-28 rounded-full object-cover border-4 border-[#EBD5BD] shadow-lg mt-4"
+          className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-[#EBD5BD] shadow-lg mt-4"
         />
-        <h1 className="mt-6 text-4xl font-bold text-[#EBD5BD]">
+        <h1 className="mt-4 sm:mt-6 text-2xl sm:text-3xl md:text-4xl font-bold text-[#EBD5BD] text-center">
           Upload documents for {pet.pet_name}
         </h1>
-        <p className="mt-2 text-lg text-[#EBD5BD] opacity-80 max-w-xl text-center">
+        <p className="mt-2 sm:mt-3 text-sm sm:text-base md:text-lg text-[#EBD5BD] opacity-80 max-w-sm sm:max-w-md md:max-w-xl text-center px-4">
           Keep your pet's records safe and accessible — from vaccine
           certificates to vet bills.
         </p>

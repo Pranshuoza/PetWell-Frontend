@@ -67,22 +67,22 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1C232E] via-[#23272f] to-[#23272f] w-full">
-      <div className="flex flex-col items-center mb-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1C232E] via-[#23272f] to-[#23272f] w-full px-4 sm:px-6">
+      <div className="flex flex-col items-center mb-6 sm:mb-8">
         <img
           src={PetWellLogo}
           alt="PetWell Logo"
-          className="w-20 h-20 object-contain mb-2 drop-shadow-lg"
+          className="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-2 drop-shadow-lg"
         />
-        <h1 className="text-4xl font-[Alike,serif] text-[#EBD5BD] font-bold tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-[Alike,serif] text-[#EBD5BD] font-bold tracking-tight">
           PetWell
         </h1>
-        <p className="text-[#EBD5BD] text-opacity-70 text-base mt-1 font-[Cabin,sans-serif]">
+        <p className="text-[#EBD5BD] text-opacity-70 text-sm sm:text-base mt-1 font-[Cabin,sans-serif]">
           We love you for loving your pets
         </p>
       </div>
-      <div className="bg-[#23272f] rounded-2xl shadow-2xl px-10 py-10 flex flex-col items-center w-[400px] max-w-full border border-[#2d3648]">
-        <h2 className="text-2xl font-[Alike,serif] text-[#EBD5BD] mb-6 text-center font-semibold">
+      <div className="bg-[#23272f] rounded-2xl shadow-2xl px-6 sm:px-8 md:px-10 py-8 sm:py-10 flex flex-col items-center w-full max-w-sm sm:max-w-md border border-[#2d3648]">
+        <h2 className="text-xl sm:text-2xl font-[Alike,serif] text-[#EBD5BD] mb-4 sm:mb-6 text-center font-semibold">
           Sign in to your account
         </h2>
         {successMessage && (
@@ -96,13 +96,13 @@ const LoginPage: React.FC = () => {
           </div>
         )}
         <form
-          className="w-full flex flex-col gap-5"
+          className="w-full flex flex-col gap-4 sm:gap-5"
           onSubmit={handleSubmit}
           autoComplete="on"
         >
           <div>
             <label
-              className="block text-[#EBD5BD] text-base mb-2 font-medium"
+              className="block text-[#EBD5BD] text-sm sm:text-base mb-2 font-medium"
               htmlFor="email"
             >
               Email
@@ -112,7 +112,7 @@ const LoginPage: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md px-4 py-3 text-base bg-[#23272f] border border-[#3a4152] text-[#EBD5BD] placeholder-[#EBD5BD]/60 focus:outline-none focus:ring-2 focus:ring-[#FFB23E] transition"
+              className="w-full rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-[#23272f] border border-[#3a4152] text-[#EBD5BD] placeholder-[#EBD5BD]/60 focus:outline-none focus:ring-2 focus:ring-[#FFB23E] transition"
               placeholder="Enter your email"
               required
               autoFocus
@@ -120,7 +120,7 @@ const LoginPage: React.FC = () => {
           </div>
           <div className="relative">
             <label
-              className="block text-[#EBD5BD] text-base mb-2 font-medium"
+              className="block text-[#EBD5BD] text-sm sm:text-base mb-2 font-medium"
               htmlFor="password"
             >
               Password
@@ -130,21 +130,22 @@ const LoginPage: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md px-4 py-3 text-base bg-[#23272f] border border-[#3a4152] text-[#EBD5BD] placeholder-[#EBD5BD]/60 focus:outline-none focus:ring-2 focus:ring-[#FFB23E] transition"
+              className="w-full rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-[#23272f] border border-[#3a4152] text-[#EBD5BD] placeholder-[#EBD5BD]/60 focus:outline-none focus:ring-2 focus:ring-[#FFB23E] transition"
               placeholder="Enter your password"
               required
             />
           </div>
           <button
             type="submit"
-            className="w-full mt-2 py-3 rounded-md bg-[#FFB23E] text-black text-lg font-semibold font-[Cabin,sans-serif] hover:bg-[#ffb733] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full mt-2 py-2 sm:py-3 rounded-md bg-[#FFB23E] text-black text-base sm:text-lg font-semibold font-[Cabin,sans-serif] hover:bg-[#ffb733] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             disabled={loading}
           >
             {loading && (
               <svg
                 className="animate-spin mr-2"
-                width="20"
-                height="20"
+                width="18"
+                height="18"
+                className="sm:w-5 sm:h-5"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -167,16 +168,16 @@ const LoginPage: React.FC = () => {
             {loading ? "Signing in..." : "Login"}
           </button>
         </form>
-        <div className="w-full flex justify-between mt-6 text-sm text-[#EBD5BD] text-opacity-70">
+        <div className="w-full flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-0 mt-4 sm:mt-6 text-xs sm:text-sm text-[#EBD5BD] text-opacity-70">
           <button
-            className="hover:text-[#FFB23E] transition-colors"
+            className="hover:text-[#FFB23E] transition-colors text-center"
             type="button"
             onClick={() => navigate("/forgot-password")}
           >
             Forgot password?
           </button>
           <button
-            className="hover:text-[#FFB23E] transition-colors"
+            className="hover:text-[#FFB23E] transition-colors text-center"
             type="button"
             onClick={() => navigate("/signup-type")}
           >

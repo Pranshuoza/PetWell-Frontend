@@ -205,69 +205,36 @@ const DownloadSelectPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar />
-      <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
-        <button
-          className="text-[#FFA500] text-md mb-4 flex items-center hover:underline bg-transparent"
-          onClick={() => navigate(-1)}
-        >
-          <span className="mr-2">&lt; Go Back</span>
-        </button>
-        
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-4xl font-serif font-bold">
-            Select the records you want to download
+      <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 md:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold">
+            Download Vaccine Records
           </h1>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
-              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={selected.length === 0}
               onClick={handleDownload}
+              disabled={selected.length === 0}
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="text-lg">↓</span> Download Summary
+              Download Summary
             </button>
             <button
-              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-4 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={selected.length === 0}
               onClick={handleDownloadDetailed}
+              disabled={selected.length === 0}
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="text-lg">📄</span> Download Detailed
+              Download Detailed
             </button>
           </div>
-        </div>
-
-        <div className="mb-6 p-4 bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 rounded-lg">
-          <div className="text-sm text-[var(--color-text)]">
-            <strong>Download Options:</strong>
-            <ul className="mt-2 space-y-1">
-              <li>• <strong>Summary:</strong> Compact table format with all selected vaccines</li>
-              <li>• <strong>Detailed:</strong> Full report with individual vaccine details and warnings</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="mb-4 flex items-center">
-          <input
-            type="checkbox"
-            checked={allSelected}
-            onChange={selectAll}
-            className="accent-[var(--color-primary)] w-4 h-4 mr-2"
-            id="selectAll"
-          />
-          <label
-            htmlFor="selectAll"
-            className="text-[var(--color-primary)] font-semibold cursor-pointer"
-          >
-            Select All Records
-          </label>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {vaccines.map((vaccine, idx) => (
             <VaccineInfo
               key={vaccine.id || idx}
@@ -294,11 +261,11 @@ const DownloadSelectPage: React.FC = () => {
         </div>
 
         {vaccines.length === 0 && !error && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-lg mb-4">No vaccines found</div>
+          <div className="text-center py-8 sm:py-12">
+            <div className="text-gray-400 text-base sm:text-lg mb-4">No vaccines found</div>
             <button
               onClick={() => navigate(-1)}
-              className="bg-[var(--color-primary)] text-[var(--color-background)] px-6 py-3 rounded-lg font-semibold hover:bg-[var(--color-accent-hover)] transition"
+              className="bg-[var(--color-primary)] text-[var(--color-background)] px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-[var(--color-accent-hover)] transition text-sm sm:text-base"
             >
               Go Back
             </button>

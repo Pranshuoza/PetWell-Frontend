@@ -244,7 +244,7 @@ const TeamsPage: React.FC = () => {
     return (
       <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
         <Navbar />
-        <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+        <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 md:px-8">
           <div className="text-center">Loading teams...</div>
         </div>
       </div>
@@ -255,7 +255,7 @@ const TeamsPage: React.FC = () => {
     return (
       <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
         <Navbar />
-        <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
+        <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 md:px-8">
           <div className="text-center">{error || "Pet not found"}</div>
         </div>
       </div>
@@ -265,17 +265,17 @@ const TeamsPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
       <Navbar />
-      <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-4xl font-serif font-bold">
+      <div className="container mx-auto max-w-7xl pt-4 sm:pt-6 md:pt-8 pb-8 sm:pb-10 md:pb-12 px-4 sm:px-6 md:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold">
             {pet.pet_name}'s Team
           </h1>
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
             <button
               onClick={() =>
                 navigate(`/petowner/pet/${actualPetId || petId}/add-team`)
               }
-              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition text-sm sm:text-base"
             >
               <span className="text-lg">+</span> Add New Team
             </button>
@@ -283,12 +283,12 @@ const TeamsPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg mb-6">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {teams.map((team, index) => (
             <TeamBox
               key={team.id}
@@ -299,9 +299,8 @@ const TeamsPage: React.FC = () => {
         </div>
 
         {teams.length === 0 && !error && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-lg mb-4">No teams found</div>
-            
+          <div className="text-center py-8 sm:py-12">
+            <div className="text-gray-400 text-base sm:text-lg mb-4">No teams found</div>
           </div>
         )}
 

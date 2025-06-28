@@ -2,10 +2,10 @@ import React from "react";
 
 const Loader: React.FC = () => {
   return (
-    <div className="fixed inset-0 z-50  flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#232b3e] rounded-2xl shadow-2xl px-20 py-16 flex flex-col items-center">
-        <div className="mb-8 flex items-center justify-center">
-          <div className="relative w-20 h-20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-[#232b3e] rounded-2xl shadow-2xl px-8 sm:px-12 md:px-20 py-8 sm:py-12 md:py-16 flex flex-col items-center max-w-sm sm:max-w-md">
+        <div className="mb-6 sm:mb-8 flex items-center justify-center">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20">
             {[...Array(8)].map((_, i) => {
               const size = 0.25 + i * 0.125;
               const opacity = 0.3 + (i / 7) * 0.7;
@@ -28,7 +28,7 @@ const Loader: React.FC = () => {
             })}
           </div>
         </div>
-        <div className="text-2xl text-[#EBD5BD] text-center font-serif font-medium">
+        <div className="text-lg sm:text-xl md:text-2xl text-[#EBD5BD] text-center font-serif font-medium">
           Give us a moment while we
           <br />
           read your documents!
