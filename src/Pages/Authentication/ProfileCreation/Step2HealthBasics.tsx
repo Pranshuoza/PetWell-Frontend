@@ -9,6 +9,7 @@ interface Step2HealthBasicsProps {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   onNext: () => void;
+  steps?: string[];
 }
 
 const Step2HealthBasics: React.FC<Step2HealthBasicsProps> = ({
@@ -17,6 +18,7 @@ const Step2HealthBasics: React.FC<Step2HealthBasicsProps> = ({
   error,
   setError,
   onNext,
+  steps,
 }) => {
   const validateStep2 = () => {
     if (
@@ -27,7 +29,7 @@ const Step2HealthBasics: React.FC<Step2HealthBasicsProps> = ({
       return "Pet weight must be a positive number";
     if (!form.pet_spay_neuter) return "Spay/neuter status is required";
     if (!form.pet_color.trim()) return "Pet color is required";
-    if (!form.pet_dob) return "Date of birth is required";
+    // Date of birth is optional since there's a "Skip For Now" button
     return null;
   };
 
@@ -56,7 +58,7 @@ const Step2HealthBasics: React.FC<Step2HealthBasicsProps> = ({
         </h1>
       </div>
       <div className="flex flex-col items-center flex-1 w-full max-w-5xl mx-auto">
-        <Stepper currentStep={2} />
+        <Stepper currentStep={2} steps={steps} />
         <h2 className="text-2xl font-[Cabin,sans-serif] text-[#EBD5BD] font-normal mb-8 mt-2">
           Now a few quick health details...
         </h2>
@@ -127,7 +129,6 @@ const Step2HealthBasics: React.FC<Step2HealthBasicsProps> = ({
                 setForm((f) => ({ ...f, pet_dob: e.target.value }));
                 setError(null);
               }}
-              required
             />
           </div>
           {error && <div className="text-red-400 text-sm mb-2">{error}</div>}

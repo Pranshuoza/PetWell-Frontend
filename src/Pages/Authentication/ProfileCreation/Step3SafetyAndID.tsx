@@ -9,6 +9,8 @@ interface Step3SafetyAndIDProps {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   onNext: () => void;
+  steps?: string[];
+  loading?: boolean;
 }
 
 const Step3SafetyAndID: React.FC<Step3SafetyAndIDProps> = ({
@@ -17,6 +19,8 @@ const Step3SafetyAndID: React.FC<Step3SafetyAndIDProps> = ({
   error,
   setError,
   onNext,
+  steps,
+  loading = false,
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +42,7 @@ const Step3SafetyAndID: React.FC<Step3SafetyAndIDProps> = ({
         </h1>
       </div>
       <div className="flex flex-col items-center flex-1 w-full max-w-5xl mx-auto">
-        <Stepper currentStep={3} />
+        <Stepper currentStep={3} steps={steps} />
         <h2 className="text-2xl font-[Cabin,sans-serif] text-[#EBD5BD] font-normal mb-8 mt-2">
           Next, a quick check for safety & ID
         </h2>
@@ -86,9 +90,10 @@ const Step3SafetyAndID: React.FC<Step3SafetyAndIDProps> = ({
             </button>
             <button
               type="submit"
-              className="w-1/2 py-3 rounded-md bg-[#FFB23E] text-black text-lg font-semibold font-[Cabin,sans-serif] hover:bg-[#ffb733] transition-colors"
+              className="w-1/2 py-3 rounded-md bg-[#FFB23E] text-black text-lg font-semibold font-[Cabin,sans-serif] hover:bg-[#ffb733] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
             >
-              Next
+              {loading ? "Creating..." : "Create Pet Profile"}
             </button>
           </div>
         </form>

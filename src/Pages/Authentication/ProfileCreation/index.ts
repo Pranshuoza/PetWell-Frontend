@@ -1,4 +1,5 @@
 export { default as ProfileCreation } from "./ProfileCreation";
+export { default as AddPetProfile } from "./AddPetProfile";
 export { default as Step1BasicPetInfo } from "./Step1BasicPetInfo";
 export { default as Step2HealthBasics } from "./Step2HealthBasics";
 export { default as Step3SafetyAndID } from "./Step3SafetyAndID";

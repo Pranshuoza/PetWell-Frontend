@@ -9,6 +9,7 @@ interface Step1BasicPetInfoProps {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   onNext: () => void;
+  steps?: string[];
 }
 
 const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
@@ -17,6 +18,7 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
   error,
   setError,
   onNext,
+  steps,
 }) => {
   const validateStep1 = () => {
     if (!form.pet_name.trim()) return "Pet name is required";
@@ -72,7 +74,7 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
         </h1>
       </div>
       <div className="flex flex-col items-center flex-1 w-full max-w-5xl mx-auto">
-        <Stepper currentStep={1} />
+        <Stepper currentStep={1} steps={steps} />
         <h2 className="text-2xl font-[Cabin,sans-serif] text-[#EBD5BD] font-normal mb-8 mt-2">
           Let's start with your pet's details
         </h2>
