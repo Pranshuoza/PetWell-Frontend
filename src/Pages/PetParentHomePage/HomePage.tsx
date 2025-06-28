@@ -52,6 +52,54 @@ const HomePage: React.FC = () => {
     });
   };
 
+  // Helper function to calculate vaccine expiration warning and relative expiry string
+  const calculateExpirationWarning = (
+    expiryDate: string,
+    petName?: string
+  ): { soon: boolean; warning: string; relativeExpiry: string } => {
+    if (!expiryDate)
+      return { soon: false, warning: "", relativeExpiry: "Unknown" };
+    try {
+      const expiry = new Date(expiryDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      expiry.setHours(0, 0, 0, 0);
+      const diffTime = expiry.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) {
+        // Already expired
+        return {
+          soon: true,
+          warning: `${
+            petName || "Your pet"
+          }'s vaccine has expired. Please renew as soon as possible!`,
+          relativeExpiry: `Expired ${Math.abs(diffDays)} day${
+            Math.abs(diffDays) === 1 ? "" : "s"
+          } ago`,
+        };
+      } else if (diffDays <= 7) {
+        // Expiring within 7 days
+        return {
+          soon: true,
+          warning: `${
+            petName || "Your pet"
+          } is due for the vaccine soon. Schedule now!`,
+          relativeExpiry: `In ${diffDays} day${diffDays === 1 ? "" : "s"}`,
+        };
+      } else {
+        // Not soon, show date
+        return {
+          soon: false,
+          warning: "",
+          relativeExpiry: expiry.toLocaleDateString(),
+        };
+      }
+    } catch (error) {
+      console.error("Error parsing expiry date:", error);
+      return { soon: false, warning: "", relativeExpiry: "Unknown" };
+    }
+  };
+
   // Function to fetch individual vaccine details using vaccine IDs
   const fetchVaccineDetails = async (vaccineIds: string[]) => {
     const vaccinePromises = vaccineIds.map(async (vaccineId) => {
@@ -205,13 +253,18 @@ const HomePage: React.FC = () => {
           setRawVaccines(uniqueVaccines);
 
           // Map to VaccineSection shape for display
-          const mappedVaccines = uniqueVaccines.map((v: any) => ({
-            name: v.vaccine_name || v.name || "",
-            administered: v.date_administered || v.administered || "",
-            expires: v.date_due || v.expiry_date || v.expires || "",
-            soon: v.soon,
-            warning: v.warning,
-          }));
+          const mappedVaccines = uniqueVaccines.map((v: any) => {
+            const expiryDate = v.date_due || v.expiry_date || v.expires || "";
+            const { soon, warning, relativeExpiry } =
+              calculateExpirationWarning(expiryDate, petData?.pet_name);
+            return {
+              name: v.vaccine_name || v.name || "",
+              administered: v.date_administered || v.administered || "",
+              expires: relativeExpiry,
+              soon,
+              warning,
+            };
+          });
           console.log("[HomePage] mappedVaccines", mappedVaccines);
           setVaccines(mappedVaccines);
         }
@@ -410,13 +463,19 @@ const HomePage: React.FC = () => {
           const uniqueVaccines = removeDuplicateVaccines(detailedVaccines);
           setRawVaccines(uniqueVaccines);
 
-          const mappedVaccines = uniqueVaccines.map((v: any) => ({
-            name: v.vaccine_name || v.name || "",
-            administered: v.date_administered || v.administered || "",
-            expires: v.date_due || v.expiry_date || v.expires || "",
-            soon: v.soon,
-            warning: v.warning,
-          }));
+          const mappedVaccines = uniqueVaccines.map((v: any) => {
+            const expiryDate = v.date_due || v.expiry_date || v.expires || "";
+            const { soon, warning, relativeExpiry } =
+              calculateExpirationWarning(expiryDate, pet.pet_name);
+
+            return {
+              name: v.vaccine_name || v.name || "",
+              administered: v.date_administered || v.administered || "",
+              expires: relativeExpiry,
+              soon,
+              warning,
+            };
+          });
           setVaccines(mappedVaccines);
         }
       } catch (err) {
@@ -476,6 +535,7 @@ const HomePage: React.FC = () => {
           <VaccineSection
             vaccines={vaccines}
             onEditVaccine={handleEditVaccine}
+            onViewAll={() => navigate(`/petowner/pet/${petId}/vaccine`)}
           />
         </div>
 
@@ -492,6 +552,7 @@ const HomePage: React.FC = () => {
           <DocumentSection
             documents={rawDocuments}
             onEditDocument={handleEditDocument}
+            onViewAll={() => navigate(`/petowner/pet/${petId}/documents`)}
           />
         </div>
 
@@ -505,7 +566,10 @@ const HomePage: React.FC = () => {
               <span className="text-lg">+</span> Add New Team
             </button>
           </div>
-          <TeamSection teams={rawTeams} />
+          <TeamSection
+            teams={rawTeams}
+            onViewAll={() => navigate(`/petowner/pet/${petId}/team`)}
+          />
         </div>
       </div>
 

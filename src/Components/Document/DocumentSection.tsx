@@ -12,12 +12,14 @@ interface DocumentSectionProps {
   onAddDocument?: () => void;
   onEditDocument?: (index: number) => void;
   onDeleteDocument?: (index: number) => void;
+  onViewAll?: () => void;
 }
 
 const DocumentSection: React.FC<DocumentSectionProps> = ({
   documents,
   onEditDocument,
   onDeleteDocument,
+  onViewAll,
 }) => {
   return (
     <section className="mb-8">
@@ -38,6 +40,10 @@ const DocumentSection: React.FC<DocumentSectionProps> = ({
         <a
           href="#"
           className="text-[var(--color-primary)] font-medium hover:underline text-base"
+          onClick={(e) => {
+            e.preventDefault();
+            onViewAll && onViewAll();
+          }}
         >
           View All Documents &gt;
         </a>
