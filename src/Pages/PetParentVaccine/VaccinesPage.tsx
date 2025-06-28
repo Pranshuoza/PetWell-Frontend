@@ -34,10 +34,12 @@ const VaccinesPage: React.FC = () => {
     if (!actualPetId) return;
 
     try {
+      // Fetch vaccines for the pet
       const vaccinesRes = await vaccineServices.getAllPetVaccines(actualPetId);
+      console.log("vaccinesRes (pet-specific):", vaccinesRes);
       let vaccinesArr: any[] = [];
 
-      // Handle different response structures for vaccines
+      // Handle different response structures
       if (vaccinesRes) {
         if (vaccinesRes.data) {
           vaccinesArr = Array.isArray(vaccinesRes.data)
@@ -50,12 +52,29 @@ const VaccinesPage: React.FC = () => {
         }
       }
 
+      // Log full vaccine objects to debug structure
+      console.log("Raw vaccine objects:", vaccinesArr);
+
+      // Filter vaccines by pet.id
+      const matchingVaccines: any[] = vaccinesArr.filter((vaccine) => {
+        const petIdMatch = vaccine.pet && vaccine.pet.id === actualPetId;
+        console.log("Filtering vaccine:", {
+          vaccineId: vaccine.id,
+          petId: vaccine.pet?.id,
+          actualPetId,
+          matches: petIdMatch,
+        });
+        return petIdMatch;
+      });
+
       // Remove duplicates before setting state
-      const uniqueVaccines = removeDuplicateVaccines(vaccinesArr);
+      const uniqueVaccines = removeDuplicateVaccines(matchingVaccines);
+      console.log("matchingVaccines:", matchingVaccines);
       setVaccines(uniqueVaccines);
-      setError(null);
+      setError(uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch vaccines");
+      console.error("Failed to fetch vaccines:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch vaccines. Please check the server connection.");
       setVaccines([]);
     }
   };
@@ -86,11 +105,9 @@ const VaccinesPage: React.FC = () => {
             return;
           }
 
-          // Use the first pet's ID (since "default" means single pet)
+          // Use the first pet's ID
           currentPetId = petsArr[0].id;
           setActualPetId(currentPetId);
-
-          // Don't redirect - just use this pet's data
         } else {
           setActualPetId(currentPetId);
         }
@@ -121,14 +138,12 @@ const VaccinesPage: React.FC = () => {
           return;
         }
 
-        // Fetch vaccines for this pet
-        const vaccinesRes = await vaccineServices.getAllPetVaccines(
-          currentPetId
-        );
-        console.log("vaccineRes:", vaccinesRes);
+        // Fetch vaccines for the pet
+        const vaccinesRes = await vaccineServices.getAllPetVaccines(currentPetId);
+        console.log("vaccinesRes (pet-specific):", vaccinesRes);
         let vaccinesArr: any[] = [];
 
-        // Handle different response structures for vaccines
+        // Handle different response structures
         if (vaccinesRes) {
           if (vaccinesRes.data) {
             vaccinesArr = Array.isArray(vaccinesRes.data)
@@ -141,15 +156,29 @@ const VaccinesPage: React.FC = () => {
           }
         }
 
-        console.log("vaccineArr:", vaccinesArr);
+        // Log full vaccine objects to debug structure
+        console.log("Raw vaccine objects:", vaccinesArr);
+
+        // Filter vaccines by pet.id
+        const matchingVaccines: any[] = vaccinesArr.filter((vaccine) => {
+          const petIdMatch = vaccine.pet && vaccine.pet.id === currentPetId;
+          console.log("Filtering vaccine:", {
+            vaccineId: vaccine.id,
+            petId: vaccine.pet?.id,
+            actualPetId: currentPetId,
+            matches: petIdMatch,
+          });
+          return petIdMatch;
+        });
+
+        console.log("matchingVaccines:", matchingVaccines);
         // Remove duplicates before setting state
-        const uniqueVaccines = removeDuplicateVaccines(vaccinesArr);
+        const uniqueVaccines = removeDuplicateVaccines(matchingVaccines);
         setVaccines(uniqueVaccines);
-        setError(null);
+        setError(uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to fetch vaccines"
-        );
+        console.error("Failed to fetch vaccines:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch vaccines. Please check the server connection.");
         setVaccines([]);
       } finally {
         setLoading(false);
@@ -157,7 +186,7 @@ const VaccinesPage: React.FC = () => {
     };
 
     fetchVaccines();
-  }, [petId, navigate]);
+  }, [petId]);
 
   if (loading) {
     return (
@@ -192,6 +221,14 @@ const VaccinesPage: React.FC = () => {
             {pet?.pet_name || "Pet"}'s Vaccines
           </h1>
           <div className="flex gap-4">
+            <button
+              onClick={() =>
+                navigate(`/petowner/pet/${actualPetId}/download-select`)
+              }
+              className="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
+            >
+              <span className="text-lg">+</span> Download Vaccine records
+            </button>
             <button
               onClick={() =>
                 navigate(`/petowner/pet/${actualPetId}/add-vaccine`)

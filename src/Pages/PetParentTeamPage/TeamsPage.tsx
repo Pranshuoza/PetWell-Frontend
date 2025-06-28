@@ -25,9 +25,52 @@ const TeamsPage: React.FC = () => {
   const [pet, setPet] = useState<any>(null);
   const [actualPetId, setActualPetId] = useState<string | null>(null);
 
+  // Helper function to remove duplicate teams based on ID
+  const removeDuplicateTeams = (teamsArr: any[]): any[] => {
+    const seen = new Set();
+    return teamsArr.filter((team) => {
+      const id = team.id;
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
+  };
+
+  // Function to fetch individual team details using team IDs
+  const fetchTeamDetails = async (teamIds: string[]) => {
+    const teamPromises = teamIds.map(async (teamId) => {
+      try {
+        const teamRes = await teamServices.getTeamById(teamId);
+
+        // Handle different response structures
+        if (teamRes) {
+          if (teamRes.data) {
+            return Array.isArray(teamRes.data) ? teamRes.data[0] : teamRes.data;
+          } else if (typeof teamRes === "object" && "id" in teamRes) {
+            return teamRes;
+          }
+        }
+        return null;
+      } catch (err) {
+        console.error(`Failed to fetch team ${teamId}:`, err);
+        return null;
+      }
+    });
+
+    const teamDetails = await Promise.all(teamPromises);
+    return teamDetails.filter((team) => team !== null);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(
+          "[TeamsPage] Starting fetchData with petId from URL:",
+          petId
+        );
+
         if (!petId) {
           setError("No pet ID provided");
           setLoading(false);
@@ -35,13 +78,14 @@ const TeamsPage: React.FC = () => {
         }
 
         let currentPetId = petId;
+        console.log("[TeamsPage] Initial currentPetId from URL:", currentPetId);
 
         // If petId is "default", fetch the first available pet
         if (petId === "default") {
-        const petsRes = await petServices.getPetsByOwner();
-        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        if (!petsArr) petsArr = [];
-        if (!Array.isArray(petsArr)) petsArr = [petsArr];
+          const petsRes = await petServices.getPetsByOwner();
+          let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
+          if (!petsArr) petsArr = [];
+          if (!Array.isArray(petsArr)) petsArr = [petsArr];
 
           if (petsArr.length === 0) {
             setError("No pets found. Please create a pet profile first.");
@@ -57,7 +101,12 @@ const TeamsPage: React.FC = () => {
         }
 
         // Fetch pet details
+        console.log(
+          "[TeamsPage] Fetching pet details with getPetById for ID:",
+          currentPetId
+        );
         const petRes = await petServices.getPetById(currentPetId);
+        console.log("[TeamsPage] getPetById response:", petRes);
         let petData = null;
 
         // Handle different response structures
@@ -72,17 +121,94 @@ const TeamsPage: React.FC = () => {
         }
 
         setPet(petData);
+        console.log("[TeamsPage] Extracted petData:", petData);
         if (!petData) {
           setError("Pet not found");
           setLoading(false);
           return;
         }
 
-        // Fetch teams
+        console.log(
+          "[TeamsPage] Successfully fetched pet:",
+          petData.pet_name,
+          "with ID:",
+          petData.id
+        );
+
+        // Fetch teams - using the same methodology as VaccinesPage
         setLoading(true);
         const teamsRes = await teamServices.getAllTeams();
         console.log("TeamsPage received backend data:", teamsRes);
-        setTeams(Array.isArray(teamsRes) ? teamsRes : []);
+
+        let teamsArr: any[] = [];
+
+        // Handle different response structures for teams
+        if (teamsRes) {
+          if (teamsRes.data) {
+            teamsArr = Array.isArray(teamsRes.data)
+              ? teamsRes.data
+              : [teamsRes.data];
+          } else if (Array.isArray(teamsRes)) {
+            teamsArr = teamsRes;
+          } else if (typeof teamsRes === "object" && "id" in teamsRes) {
+            teamsArr = [teamsRes];
+          }
+        }
+
+        // Log full team objects to debug structure
+        console.log("Raw team objects:", teamsArr);
+        console.log("All teams with their pet IDs:");
+        teamsArr.forEach((team, index) => {
+          console.log(`Team ${index}:`, {
+            teamId: team.id,
+            teamName: team.business?.business_name || "Unknown",
+            petId: team.pet?.id || "No pet ID",
+            petName: team.pet?.pet_name || "Unknown pet",
+          });
+        });
+
+        // Filter teams by pet_id
+        const matchingTeams: any[] = teamsArr.filter((team) => {
+          const petIdMatch = team.pet && team.pet.id === currentPetId;
+          console.log("Filtering team:", {
+            teamId: team.id,
+            teamName: team.business?.business_name || "Unknown",
+            petId: team.pet?.id,
+            currentPetId,
+            matches: petIdMatch,
+          });
+          return petIdMatch;
+        });
+
+        console.log("matchingTeams:", matchingTeams);
+
+        // Extract team IDs for detailed fetching
+        const teamIds = matchingTeams.map((team) => team.id).filter((id) => id); // Remove any undefined/null IDs
+
+        console.log("Filtered team IDs for pet:", teamIds);
+
+        if (teamIds.length === 0) {
+          console.log(
+            "No teams found for current pet. Available teams:",
+            teamsArr.length
+          );
+          setTeams([]);
+          if (teamsArr.length > 0) {
+            console.log(
+              "Teams exist but none match the current pet ID:",
+              currentPetId
+            );
+          }
+        } else {
+          // Fetch detailed team information using team IDs
+          const detailedTeams = await fetchTeamDetails(teamIds);
+          console.log("Detailed teams:", detailedTeams);
+
+          // Remove duplicates before setting state
+          const uniqueTeams = removeDuplicateTeams(detailedTeams);
+          setTeams(uniqueTeams);
+        }
+
         setError(null);
       } catch (err) {
         console.error("Failed to fetch data:", err);
@@ -96,6 +222,8 @@ const TeamsPage: React.FC = () => {
   }, [petId]);
 
   const handleDelete = (index: number) => {
+    console.log("[TeamsPage] handleDelete called with index:", index);
+    console.log("[TeamsPage] team to delete:", teams[index]);
     setSelectedTeam(teams[index]);
     setOpen(true);
   };
@@ -128,9 +256,7 @@ const TeamsPage: React.FC = () => {
       <div className="min-h-screen w-full bg-[var(--color-background)] text-[var(--color-text)] font-sans">
         <Navbar />
         <div className="container mx-auto max-w-7xl pt-8 pb-12 px-8">
-          <div className="text-center">
-            {error || "Pet not found"}
-          </div>
+          <div className="text-center">{error || "Pet not found"}</div>
         </div>
       </div>
     );
@@ -145,14 +271,14 @@ const TeamsPage: React.FC = () => {
             {pet.pet_name}'s Team
           </h1>
           <div className="flex gap-4">
-          <button
+            <button
               onClick={() =>
                 navigate(`/petowner/pet/${actualPetId || petId}/add-team`)
               }
               className="border border-[var(--color-primary)] text-[var(--color-primary)] px-6 py-2 rounded-lg font-semibold flex items-center gap-2 hover:bg-[var(--color-primary)] hover:text-[var(--color-background)] transition"
-          >
+            >
               <span className="text-lg">+</span> Add New Team
-          </button>
+            </button>
           </div>
         </div>
 
@@ -162,14 +288,14 @@ const TeamsPage: React.FC = () => {
           </div>
         )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teams.map((team, index) => (
-              <TeamBox
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {teams.map((team, index) => (
+            <TeamBox
               key={team.id}
-                team={team}
-                onDelete={() => handleDelete(index)}
-              />
-            ))}
+              team={team}
+              onDelete={() => handleDelete(index)}
+            />
+          ))}
         </div>
 
         {teams.length === 0 && !error && (

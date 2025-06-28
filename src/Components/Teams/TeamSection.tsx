@@ -2,12 +2,19 @@ import React from "react";
 import TeamBox from "./TeamInfo";
 
 interface Team {
-  name: string;
-  type: string;
-  phone: string;
-  email: string;
-  address: string;
-  avatar: string;
+  id: string;
+  business: {
+    business_name: string;
+    description: string;
+    phone: string;
+    email: string;
+    address: string;
+    profile_picture_document_id?: string;
+  };
+  pet: {
+    id: string;
+    pet_name: string;
+  };
 }
 
 interface TeamSectionProps {
@@ -26,7 +33,7 @@ const TeamSection: React.FC<TeamSectionProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-2">
         {teams.map((team, idx) => (
           <TeamBox
-            key={idx}
+            key={team.id}
             team={team}
             onDelete={onDeleteTeam ? () => onDeleteTeam(idx) : undefined}
           />

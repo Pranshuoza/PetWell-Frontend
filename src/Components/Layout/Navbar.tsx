@@ -38,26 +38,39 @@ const Navbar: React.FC<NavbarProps> = ({ onSwitchProfile }) => {
   useEffect(() => {
     (async () => {
       try {
-        const petsRes = await petServices.getPetsByOwner();
-        let petsArr = Array.isArray(petsRes) ? petsRes : petsRes.data;
-        if (!petsArr) petsArr = [];
-        if (!Array.isArray(petsArr)) petsArr = [petsArr];
-        if (petsArr.length > 0) {
-          setPetName(petsArr[0].pet_name || "Pet");
+        if (!petId) {
+          setPetName("Pet");
+          setPetImage("https://randomuser.me/api/portraits/men/32.jpg");
+          return;
+        }
+
+        // Fetch the specific pet by ID instead of all pets
+        const petRes = await petServices.getPetById(petId);
+        let petData: any = petRes;
+
+        // Handle different response structures
+        if (petRes && petRes.data) petData = petRes.data;
+        if (Array.isArray(petData)) petData = petData[0];
+
+        if (petData && petData.pet_name) {
+          setPetName(petData.pet_name);
           // If profile_picture is a string (URL), use it. If not, fallback.
-          const profilePic = petsArr[0].profile_picture;
+          const profilePic = petData.profile_picture;
           if (profilePic && typeof profilePic === "string") {
             setPetImage(profilePic);
           } else {
             setPetImage("https://randomuser.me/api/portraits/men/32.jpg");
           }
+        } else {
+          setPetName("Pet");
+          setPetImage("https://randomuser.me/api/portraits/men/32.jpg");
         }
       } catch {
         setPetName("Pet");
         setPetImage("https://randomuser.me/api/portraits/men/32.jpg");
       }
     })();
-  }, []);
+  }, [petId]);
 
   return (
     <nav className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-8 md:px-12 py-4 md:py-6 bg-transparent w-full">

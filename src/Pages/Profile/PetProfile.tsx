@@ -11,6 +11,7 @@ const PetProfile: React.FC = () => {
   const [showSwitchModal, setShowSwitchModal] = useState(false);
   const [pets, setPets] = useState<PetProfileType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPet, setCurrentPet] = useState<any>(null);
 
   useEffect(() => {
     const fetchPets = async () => {
@@ -43,6 +44,29 @@ const PetProfile: React.FC = () => {
 
     fetchPets();
   }, []);
+
+  // Fetch current pet data
+  useEffect(() => {
+    const fetchCurrentPet = async () => {
+      if (!petId) return;
+
+      try {
+        const petRes = await petServices.getPetById(petId);
+        let petData: any = petRes;
+
+        // Handle different response structures
+        if (petRes && petRes.data) petData = petRes.data;
+        if (Array.isArray(petData)) petData = petData[0];
+
+        setCurrentPet(petData);
+      } catch (error) {
+        console.error("Failed to fetch current pet:", error);
+        setCurrentPet(null);
+      }
+    };
+
+    fetchCurrentPet();
+  }, [petId]);
 
   // Navigation handlers
   const handleEditProfile = () =>
@@ -100,17 +124,24 @@ const PetProfile: React.FC = () => {
           <div className="bg-[#23272f] rounded-2xl p-6 flex flex-col items-center w-full max-w-xs min-w-[260px]">
             <div className="w-48 h-48 rounded-xl overflow-hidden mb-4 bg-[#23272f] flex items-center justify-center">
               <img
-                src="https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=400&h=400&q=80"
-                alt="Syd"
+                src={
+                  currentPet?.profile_picture ||
+                  "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=facearea&w=400&h=400&q=80"
+                }
+                alt={currentPet?.pet_name || "Pet"}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="w-full">
-              <div className="text-2xl font-bold mb-2">Syd</div>
+              <div className="text-2xl font-bold mb-2">
+                {currentPet?.pet_name || "Pet"}
+              </div>
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mb-2">
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Age</span>
-                  <div className="font-bold">13 years old</div>
+                  <div className="font-bold">
+                    {currentPet?.age || "Unknown"} years old
+                  </div>
                 </div>
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Gender</span>
@@ -120,11 +151,13 @@ const PetProfile: React.FC = () => {
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mb-2">
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Breed</span>
-                  <div className="font-bold">Chihuahua Mix</div>
+                  <div className="font-bold">Mixed Breed</div>
                 </div>
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Colour</span>
-                  <div className="font-bold">Brown Tan</div>
+                  <div className="font-bold">
+                    {currentPet?.color || "Unknown"}
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mb-2">
@@ -132,11 +165,15 @@ const PetProfile: React.FC = () => {
                   <span className="text-[#EBD5BD] opacity-70">
                     Microchip Number
                   </span>
-                  <div className="font-bold">0192837465</div>
+                  <div className="font-bold">
+                    {currentPet?.microchip || "Unknown"}
+                  </div>
                 </div>
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Birthdate</span>
-                  <div className="font-bold">21/8/13</div>
+                  <div className="font-bold">
+                    {currentPet?.dob || "Unknown"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -191,7 +228,9 @@ const PetProfile: React.FC = () => {
             <div className="flex flex-col md:flex-row gap-6">
               {/* Syd's Code */}
               <div className="bg-[#23272f] rounded-2xl p-6 flex-1 flex flex-col items-center min-w-[260px]">
-                <div className="text-xl font-bold mb-3 w-full">Syd's Code</div>
+                <div className="text-xl font-bold mb-3 w-full">
+                  {currentPet?.pet_name || "Pet"}'s Code
+                </div>
                 <div className="flex gap-2 mb-2 justify-center items-center">
                   <span
                     className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
