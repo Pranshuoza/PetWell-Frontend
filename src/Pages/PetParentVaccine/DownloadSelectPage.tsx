@@ -234,6 +234,19 @@ const DownloadSelectPage: React.FC = () => {
           </div>
         )}
 
+        <div className="flex items-center mb-4">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={selectAll}
+            className="accent-[var(--color-primary)] w-4 h-4 mr-2"
+            id="select-all-checkbox"
+          />
+          <label htmlFor="select-all-checkbox" className="text-[var(--color-text)] font-cabin text-base cursor-pointer">
+            Select All
+          </label>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {vaccines.map((vaccine, idx) => (
             <VaccineInfo

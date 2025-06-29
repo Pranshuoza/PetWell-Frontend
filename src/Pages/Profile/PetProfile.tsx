@@ -5,6 +5,9 @@ import SwitchProfileModal from "../../Components/Profile/SwitchProfileModal";
 import petServices from "../../Services/petServices";
 import humanOwnerServices from "../../Services/humanOwnerServices";
 import { storeLastPetId } from "../../utils/petNavigation";
+import { generatePetCode } from "../../utils/petCodeGenerator";
+import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "../../Components/ui/dialog";
+import QRCode from "react-qr-code";
 
 const PetProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +25,7 @@ const PetProfile: React.FC = () => {
     breed: string;
     avatar: string;
   }
+
   // Fetch all pets for switch modal
   useEffect(() => {
     const fetchPets = async () => {
@@ -220,6 +224,40 @@ const PetProfile: React.FC = () => {
                 </div>
               </div>
             </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className="mt-4 px-4 py-2 bg-[#FFB23E] text-black rounded-lg font-semibold hover:bg-[#e6a832] transition">
+                  Show QR Code
+                </button>
+              </DialogTrigger>
+              <DialogContent className="flex flex-col items-center bg-[#23272f] rounded-2xl border border-[#FFB23E] p-8 shadow-2xl max-w-xs w-full">
+                <DialogTitle className="text-xl font-bold text-[#FFB23E] mb-2">Pet QR Code</DialogTitle>
+                <div className="my-4 flex flex-col items-center">
+                  <div className="bg-white p-4 rounded-xl shadow-md border border-[#EBD5BD]">
+                    <QRCode value={`${currentPet?.id || ""}|${generatePetCode(currentPet?.id || "")}`} size={180} />
+                  </div>
+                  <button
+                    className="mt-4 px-4 py-2 bg-[#FFB23E] text-black rounded-lg font-semibold hover:bg-[#e6a832] transition"
+                    onClick={() => {
+                      const svg = document.querySelector("[data-slot='dialog-content'] svg");
+                      if (!svg) return;
+                      const serializer = new XMLSerializer();
+                      const source = serializer.serializeToString(svg);
+                      const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = `${currentPet?.pet_name || 'pet'}-qr.svg`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                  >
+                    Download QR
+                  </button>
+                </div>
+                <div className="text-center text-sm text-[var(--color-text)] mt-2">Scan this QR code to add this pet to a business</div>
+              </DialogContent>
+            </Dialog>
           </div>
           {/* Right: Main Info */}
           <div className="flex-1 flex flex-col gap-6">
@@ -269,36 +307,15 @@ const PetProfile: React.FC = () => {
                   {currentPet?.pet_name || "Pet"}'s Code
                 </div>
                 <div className="flex gap-2 mb-2 justify-center items-center">
-                  <span
-                    className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
-                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
-                  >
-                    X
-                  </span>
-                  <span
-                    className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
-                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
-                  >
-                    8
-                  </span>
-                  <span
-                    className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
-                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
-                  >
-                    T
-                  </span>
-                  <span
-                    className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
-                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
-                  >
-                    V
-                  </span>
-                  <span
-                    className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
-                    style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
-                  >
-                    4
-                  </span>
+                  {generatePetCode(currentPet?.id || "").split('').map((char, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex w-10 h-10 bg-[#fff] bg-opacity-80 text-[#23272f] text-xl font-extrabold rounded-lg items-center justify-center border-2 border-[#EBD5BD] shadow-sm tracking-widest select-all text-center"
+                      style={{ boxShadow: "0 2px 8px 0 rgba(44, 44, 44, 0.10)" }}
+                    >
+                      {char}
+                    </span>
+                  ))}
                 </div>
                 <div className="text-xs text-[#EBD5BD] text-opacity-70 text-center">
                   Share with care providers to give access to the profile.

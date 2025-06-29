@@ -16,15 +16,21 @@ const VaccinesPage: React.FC = () => {
   const [pet, setPet] = useState<any>(null);
   const [actualPetId, setActualPetId] = useState<string | null>(null);
 
-  // Helper function to remove duplicate vaccines based on ID
+  // Helper function to remove duplicate vaccines based on ID and key fields
   const removeDuplicateVaccines = (vaccinesArr: any[]): any[] => {
     const seen = new Set();
     return vaccinesArr.filter((vaccine) => {
-      const id = vaccine.id;
-      if (seen.has(id)) {
+      const key = [
+        vaccine.id,
+        vaccine.vaccine_name || vaccine.name,
+        vaccine.date_administered || vaccine.administered_date || vaccine.administered,
+        vaccine.date_due || vaccine.expiry_date || vaccine.expires,
+        vaccine.staff_id || vaccine.administered_by || ""
+      ].join("|");
+      if (seen.has(key)) {
         return false;
       }
-      seen.add(id);
+      seen.add(key);
       return true;
     });
   };
@@ -115,9 +121,11 @@ const VaccinesPage: React.FC = () => {
         return petIdMatch;
       });
 
+      console.log("matchingVaccines:", matchingVaccines);
+
       // Remove duplicates before setting state
       const uniqueVaccines = removeDuplicateVaccines(matchingVaccines);
-      console.log("matchingVaccines:", matchingVaccines);
+      console.log("uniqueVaccines:", uniqueVaccines);
       setVaccines(uniqueVaccines);
       setError(
         uniqueVaccines.length === 0 ? "No vaccines found for this pet." : null
