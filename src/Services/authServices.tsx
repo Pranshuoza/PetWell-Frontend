@@ -92,6 +92,8 @@ interface AuthResponse {
 
 interface OTPResponse {
   message: string;
+  token?: string;
+  access_token?: string;
 }
 
 interface ForgotPasswordResponse {
@@ -417,6 +419,8 @@ const authServices = {
 
   async resetPassword(data: ResetPasswordData): Promise<ResetPasswordResponse> {
     try {
+      console.log("resetPassword - Request data:", data);
+
       const response = await axios.post(
         `${SERVER_BASE_URL}/api/v1/auth/reset-password`,
         data,
@@ -429,8 +433,10 @@ const authServices = {
       if (!response.data) {
         throw new Error("Invalid response from server");
       }
+      console.log("resetPassword - Response:", response.data);
       return response.data;
     } catch (error: unknown) {
+      console.error("resetPassword - Error:", error);
       if (axios.isAxiosError(error) && error.response && error.response.data) {
         throw new Error(error.response.data.message || "Password reset failed");
       }

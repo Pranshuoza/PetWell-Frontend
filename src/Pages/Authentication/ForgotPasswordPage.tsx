@@ -65,10 +65,12 @@ const ForgotPasswordPage: React.FC = () => {
     setError("");
     setLoading(true);
     try {
-      await authServices.verifyOTP({
+      const response = await authServices.verifyOTP({
         identifier: email,
         otp_code: otp,
       });
+
+      console.log("OTP verification response:", response);
       setCurrentStep("reset");
     } catch (err: any) {
       setError(err.message);
@@ -93,6 +95,7 @@ const ForgotPasswordPage: React.FC = () => {
         otp_code: otp,
         new_password: newPassword,
       });
+
       // Redirect to login with success message
       navigate("/login", { state: { message: "Password reset successful" } });
     } catch (err: any) {
@@ -168,8 +171,15 @@ const ForgotPasswordPage: React.FC = () => {
         Reset Password
       </h2>
       <p className="text-sm text-[#EBD5BD]/60 text-center">
-        Enter your new password
+        Enter the OTP and your new password
       </p>
+      <Input
+        type="text"
+        placeholder="Enter OTP"
+        value={otp}
+        onChange={(e) => setOtp(e.target.value)}
+        required
+      />
       <Input
         type="password"
         placeholder="New Password"
@@ -198,7 +208,11 @@ const ForgotPasswordPage: React.FC = () => {
     <div className="min-h-screen bg-[#1C232E] flex flex-col items-center justify-center p-4 sm:p-6">
       {/* Logo */}
       <div className="absolute left-4 sm:left-8 top-4 sm:top-8">
-        <img src={PetWellLogo} alt="PetWell Logo" className="w-12 h-12 sm:w-16 sm:h-16" />
+        <img
+          src={PetWellLogo}
+          alt="PetWell Logo"
+          className="w-12 h-12 sm:w-16 sm:h-16"
+        />
       </div>
 
       {/* Main Content */}
