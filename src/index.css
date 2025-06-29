@@ -58,6 +58,13 @@ button, a, input, select, textarea {
   min-width: 44px;
 }
 
+input[type="checkbox"] {
+  min-width: unset;
+  min-height: unset;
+  width: 1rem;   /* or your preferred size */
+  height: 1rem;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

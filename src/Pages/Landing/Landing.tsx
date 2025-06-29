@@ -11,7 +11,7 @@ const Landing: React.FC = () => {
   };
 
   const handleSignUp = () => {
-    navigate('/signup');
+    navigate('/signup-type');
   };
 
   return (

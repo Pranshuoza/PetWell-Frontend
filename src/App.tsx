@@ -18,8 +18,11 @@ import ForgotPasswordPage from "./Pages/Authentication/ForgotPasswordPage";
 import SignupTypeSelectPage from "./Pages/Authentication/SignupTypeSelectPage";
 import PetParentSignupPage from "./Pages/Authentication/ProfileCreation/PetParentSignupPage";
 import AddPetProfile from "./Pages/Authentication/ProfileCreation/AddPetProfile";
-// import StaffSignupPage from "./Pages/Authentication/StaffSignupPage";
-// import BusinessSignupPage from "./Pages/Authentication/BusinessSignupPage";
+import UploadingDocAfterEnterPage from "./Pages/PetParentDocumentPage/UploadingDocAfterEnterPage";
+import BusinessSignupPage from "./Pages/Authentication/BusinessAuth/BusinessSignupPage";
+import AddCareTeamPage from "./Pages/Authentication/BusinessAuth/AddCareTeamPage";
+import CareTeamListPage from "./Pages/Authentication/BusinessAuth/CareTeamListPage";
+import BusinessHomePage from "./Pages/Business/BusinessHome/BusinessHomePage";
 
 function App() {
   return (
@@ -30,21 +33,27 @@ function App() {
         <Route path="/profile-creation" element={<ProfileCreation />} />
         <Route path="/signup-type" element={<SignupTypeSelectPage />} />
         <Route path="/signup/pet-parent" element={<PetParentSignupPage />} />
+        <Route path="/signup/business" element={<BusinessSignupPage />} />
+        <Route path="/signup/business/add-care-team" element={<AddCareTeamPage />} />
+        <Route path="/signup/business/care-team-list" element={<CareTeamListPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify" element={<VerificationPage />} />
         <Route path="/add-pet-profile" element={<AddPetProfile />} />
+        <Route path="/verify" element={<VerificationPage />} />
+        <Route path="/business/home" element={<BusinessHomePage />} />
 
-        {/* Pet Owner Routes with new format */}
+        {/* Pet Owner Routes */}
         <Route path="/petowner/pet/:petId/home" element={<HomePage />} />
         <Route path="/petowner/pet/:petId/vaccine" element={<VaccinesPage />} />
-        <Route path="/petowner/pet/:petId/documents" element={<DocumentPage />}/>
+        <Route path="/petowner/pet/:petId/documents" element={<DocumentPage />} />
         <Route path="/petowner/pet/:petId/team" element={<TeamsPage />} />
-        <Route path="/petowner/pet/:petId/add-vaccine" element={<AddVaccinePage />}/>
-        <Route path="/petowner/pet/:petId/upload" element={<UploadDocuments />}/>
+        <Route path="/petowner/pet/:petId/add-vaccine" element={<AddVaccinePage />} />
+        <Route path="/petowner/pet/:petId/upload" element={<UploadDocuments />} />
         <Route path="/petowner/pet/:petId/add-team" element={<AddTeamPage />} />
         <Route path="/petowner/pet/:petId/profile" element={<PetProfile />} />
-        <Route path="/petowner/pet/:petId/download-select" element={<DownloadSelectPage />}/>
+        <Route path="/petowner/pet/:petId/download-select" element={<DownloadSelectPage />} />
+        <Route path="/petowner/pet/:petId/upload-documents" element={<UploadingDocAfterEnterPage />} />
+        <Route path="/petowner/pet/:petId/verify" element={<VerificationPage />} />
 
         {/* Profile Management Routes */}
         <Route path="/switch-profile" element={<SwitchProfilePage />} />
