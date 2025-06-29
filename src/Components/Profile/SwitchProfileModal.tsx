@@ -102,7 +102,7 @@ const SwitchProfileModal: React.FC<SwitchProfileModalProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 mb-8">
+          <div className="flex flex-col gap-3 mb-8 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
             {pets.map((pet) => (
               <button
                 key={pet.id}

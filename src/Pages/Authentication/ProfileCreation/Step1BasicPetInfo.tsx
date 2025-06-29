@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PetWellLogo from "../../../Assets/PetWell.png";
 import Stepper from "./Stepper";
 import type { FormData } from "./types";
+import petServices from "../../../Services/petServices";
 
 interface Step1BasicPetInfoProps {
   form: FormData;
@@ -20,6 +21,20 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
   onNext,
   steps,
 }) => {
+  console.log("[Step1BasicPetInfo] Component rendered", { form });
+
+  const [speciesOptions, setSpeciesOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [breedOptions, setBreedOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [speciesLoading, setSpeciesLoading] = useState(false);
+  const [breedLoading, setBreedLoading] = useState(false);
+  const [showSpeciesDropdown, setShowSpeciesDropdown] = useState(false);
+  const [showBreedDropdown, setShowBreedDropdown] = useState(false);
+  const breedInputRef = useRef<HTMLInputElement>(null);
+
   const validateStep1 = () => {
     if (!form.pet_name.trim()) return "Pet name is required";
     if (
@@ -34,6 +49,7 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("[File Change] Triggered", { file: e.target.files?.[0]?.name });
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
@@ -49,14 +65,146 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSpeciesInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm((f) => ({
+      ...f,
+      pet_species: "",
+      pet_species_name: value,
+      pet_breed: "",
+      pet_breed_name: "",
+    }));
     setError(null);
-    const error = validateStep1();
-    if (error) {
-      setError(error);
+    setShowSpeciesDropdown(true);
+    setSpeciesLoading(true);
+    console.log("[Species Input] Triggered", { value });
+    try {
+      const res = await petServices.searchSpecies({
+        search_txt: value,
+        skip: 0,
+        limit: 10,
+      });
+      console.log("[Species API full response]", res);
+      const arr = Array.isArray(res) ? res : res.data || [];
+      console.log("[Species Search] API response:", arr);
+      setSpeciesOptions(
+        arr.map((item: any) => ({
+          id: item.id,
+          name: item.species_name || item.name,
+        }))
+      );
+    } catch (err) {
+      console.error("[Species Search] Error:", err);
+      setSpeciesOptions([]);
+      setError("Failed to fetch species. Please try again.");
+    }
+    setSpeciesLoading(false);
+    console.log("[Species Search] Dropdown options:", speciesOptions);
+  };
+
+  const handleSelectSpecies = async (option: { id: string; name: string }) => {
+    console.log("[Species Select] Triggered", { option });
+    setForm((f) => ({
+      ...f,
+      pet_species: option.id,
+      pet_species_name: option.name,
+      pet_breed: "",
+      pet_breed_name: "",
+    }));
+    setShowSpeciesDropdown(false);
+    setBreedOptions([]);
+    try {
+      setBreedLoading(true);
+      const res = await petServices.searchBreeds({
+        breed_species_id: option.id,
+        search_txt: "",
+      });
+      console.log("[Breed API raw data]", res);
+      const arr = Array.isArray(res) ? res : res.data || [];
+      const mapped = arr.map((item: any) => ({
+        id: item.id,
+        name: item.breed_name || item.name,
+      }));
+      console.log("[Breed mapped options]", mapped);
+      setBreedOptions(mapped);
+    } catch (err) {
+      console.error("[Breed Search] Error:", err);
+      setBreedOptions([]);
+      setError("Failed to fetch breeds. Please try again.");
+    }
+    setBreedLoading(false);
+    if (breedInputRef.current) breedInputRef.current.focus();
+  };
+
+  const handleBreedInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    console.log("[Breed Input] Triggered", {
+      value,
+      speciesId: form.pet_species,
+    });
+    setForm((f) => ({
+      ...f,
+      pet_breed: "",
+      pet_breed_name: value,
+    }));
+    setError(null);
+    if (!form.pet_species) {
+      setBreedOptions([]);
+      setShowBreedDropdown(false);
+      setBreedLoading(false);
+      console.log("[Breed Input] No species selected, skipping API call");
       return;
     }
+    setShowBreedDropdown(true);
+    setBreedLoading(true);
+    try {
+      const res = await petServices.searchBreeds({
+        breed_species_id: form.pet_species,
+        search_txt: value,
+      });
+      console.log("[Breed API raw data]", res);
+      const arr = Array.isArray(res) ? res : res.data || [];
+      const mapped = arr.map((item: any) => ({
+        id: item.id,
+        name: item.breed_name || item.name,
+      }));
+      console.log("[Breed mapped options]", mapped);
+      setBreedOptions(mapped);
+    } catch (err) {
+      console.error("[Breed Search] Error:", err);
+      setBreedOptions([]);
+      setError("Failed to fetch breeds. Please try again.");
+    }
+    setBreedLoading(false);
+    console.log("[Breed Search] Dropdown options:", breedOptions);
+  };
+
+  const handleSelectBreed = (option: { id: string; name: string }) => {
+    console.log("[Breed Select] Triggered", { option });
+    setForm((f) => ({
+      ...f,
+      pet_breed: option.id,
+      pet_breed_name: option.name,
+    }));
+    setShowBreedDropdown(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("[Submit] Triggered", { form });
+    setError(null);
+    const errorMsg = validateStep1();
+    if (errorMsg) {
+      setError(errorMsg);
+      console.log("[Submit] Validation failed", { errorMsg });
+      return;
+    }
+    console.log(
+      "[Submit] Submitting with species ID:",
+      form.pet_species,
+      "and breed ID:",
+      form.pet_breed
+    );
     onNext();
   };
 
@@ -81,6 +229,7 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
         <form
           className="w-full max-w-2xl flex flex-col gap-5"
           onSubmit={handleSubmit}
+          autoComplete="off"
         >
           <div>
             <label className="block text-[#EBD5BD] text-base mb-2">
@@ -108,43 +257,93 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
               className="w-full rounded-md px-4 py-3 text-base bg-white text-black focus:outline-none"
               value={form.pet_age}
               onChange={(e) => {
+                console.log("[Age Input] Triggered", { value: e.target.value });
                 setForm((f) => ({ ...f, pet_age: e.target.value }));
                 setError(null);
               }}
               required
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-[#EBD5BD] text-base mb-2">
               What species are they?
             </label>
             <input
               type="text"
-              placeholder="Type species ID"
+              placeholder="Type species name"
               className="w-full rounded-md px-4 py-3 text-base bg-white text-black focus:outline-none"
-              value={form.pet_species}
-              onChange={(e) => {
-                setForm((f) => ({ ...f, pet_species: e.target.value }));
-                setError(null);
+              value={form.pet_species_name ?? ""}
+              onChange={handleSpeciesInput}
+              onFocus={() => {
+                console.log("[Species Input Focus] Triggered");
+                setShowSpeciesDropdown(true);
               }}
+              onBlur={() =>
+                setTimeout(() => setShowSpeciesDropdown(false), 300)
+              }
+              autoComplete="off"
               required
             />
+            {(speciesLoading || speciesOptions.length > 0) &&
+              showSpeciesDropdown && (
+                <div className="absolute z-50 bg-white w-full rounded-md shadow-lg mt-1 max-h-56 overflow-y-auto border border-gray-200">
+                  {speciesLoading ? (
+                    <div className="p-2 text-gray-500">Loading...</div>
+                  ) : speciesOptions.length > 0 ? (
+                    speciesOptions.map((option) => (
+                      <div
+                        key={option.id}
+                        className="px-4 py-2 hover:bg-[#FFB23E] hover:text-black cursor-pointer"
+                        onMouseDown={() => handleSelectSpecies(option)}
+                      >
+                        {option.name}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-2 text-gray-500">No results</div>
+                  )}
+                </div>
+              )}
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-[#EBD5BD] text-base mb-2">
               What breed are they?
             </label>
             <input
               type="text"
-              placeholder="Type breed ID"
+              placeholder="Type breed name"
               className="w-full rounded-md px-4 py-3 text-base bg-white text-black focus:outline-none"
-              value={form.pet_breed}
-              onChange={(e) => {
-                setForm((f) => ({ ...f, pet_breed: e.target.value }));
-                setError(null);
+              value={form.pet_breed_name ?? ""}
+              onChange={handleBreedInput}
+              onFocus={() => {
+                console.log("[Breed Input Focus] Triggered");
+                setShowBreedDropdown(true);
               }}
+              onBlur={() => setTimeout(() => setShowBreedDropdown(false), 300)}
+              autoComplete="off"
+              ref={breedInputRef}
               required
+              disabled={!form.pet_species}
             />
+            {(breedLoading || breedOptions.length > 0) && showBreedDropdown && (
+              <div className="absolute z-50 bg-white w-full rounded-md shadow-lg mt-1 max-h-56 overflow-y-auto border border-gray-200">
+                {breedLoading ? (
+                  <div className="p-2 text-gray-500">Loading...</div>
+                ) : breedOptions.length > 0 ? (
+                  breedOptions.map((option) => (
+                    <div
+                      key={option.id}
+                      className="px-4 py-2 hover:bg-[#FFB23E] hover:text-black cursor-pointer"
+                      onMouseDown={() => handleSelectBreed(option)}
+                    >
+                      {option.name}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-2 text-gray-500">No results</div>
+                )}
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-[#EBD5BD] text-base mb-2">
@@ -192,4 +391,4 @@ const Step1BasicPetInfo: React.FC<Step1BasicPetInfoProps> = ({
   );
 };
 
-export default Step1BasicPetInfo; 
+export default Step1BasicPetInfo;
