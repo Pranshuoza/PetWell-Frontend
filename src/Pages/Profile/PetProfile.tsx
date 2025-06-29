@@ -5,8 +5,6 @@ import SwitchProfileModal from "../../Components/Profile/SwitchProfileModal";
 import petServices from "../../Services/petServices";
 import humanOwnerServices from "../../Services/humanOwnerServices";
 import { storeLastPetId } from "../../utils/petNavigation";
-import { Input } from "../../Components/ui/input";
-import { Button } from "../../Components/ui/button";
 
 const PetProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -16,14 +14,6 @@ const PetProfile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentPet, setCurrentPet] = useState<any>(null);
   const [humanProfile, setHumanProfile] = useState<any>(null);
-  const [speciesQuery, setSpeciesQuery] = useState("");
-  const [speciesResults, setSpeciesResults] = useState<any[]>([]);
-  const [selectedSpecies, setSelectedSpecies] = useState<any>(null);
-  const [breedQuery, setBreedQuery] = useState("");
-  const [breedResults, setBreedResults] = useState<any[]>([]);
-  const [selectedBreed, setSelectedBreed] = useState<any>(null);
-  const [speciesLoading, setSpeciesLoading] = useState(false);
-  const [breedLoading, setBreedLoading] = useState(false);
 
   interface PetProfileType {
     id: string;
@@ -116,53 +106,6 @@ const PetProfile: React.FC = () => {
     fetchHumanProfile();
   }, []);
 
-  // Search species as user types
-  useEffect(() => {
-    if (!speciesQuery) {
-      setSpeciesResults([]);
-      return;
-    }
-    let active = true;
-    setSpeciesLoading(true);
-    petServices
-      .searchSpecies({ search_txt: speciesQuery, skip: 0, limit: 10 })
-      .then((res) => {
-        if (!active) return;
-        let arr = res.data || [];
-        setSpeciesResults(arr);
-      })
-      .catch(() => setSpeciesResults([]))
-      .finally(() => setSpeciesLoading(false));
-    return () => {
-      active = false;
-    };
-  }, [speciesQuery]);
-
-  // Search breeds as user types (only if species selected)
-  useEffect(() => {
-    if (!breedQuery || !selectedSpecies) {
-      setBreedResults([]);
-      return;
-    }
-    let active = true;
-    setBreedLoading(true);
-    petServices
-      .searchBreeds({
-        breed_species_id: selectedSpecies.id,
-        search_txt: breedQuery,
-      })
-      .then((res) => {
-        if (!active) return;
-        let arr = res.data || [];
-        setBreedResults(arr);
-      })
-      .catch(() => setBreedResults([]))
-      .finally(() => setBreedLoading(false));
-    return () => {
-      active = false;
-    };
-  }, [breedQuery, selectedSpecies]);
-
   // Navigation handlers
   const handleEditProfile = () =>
     navigate(`/petowner/pet/${petId}/edit-profile`);
@@ -248,19 +191,11 @@ const PetProfile: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mb-2">
                 <div>
-                  <span className="text-[#EBD5BD] opacity-70">Species</span>
-                  <div className="font-bold">
-                    {currentPet?.breed_species?.species_name || "Unknown"}
-                  </div>
-                </div>
-                <div>
                   <span className="text-[#EBD5BD] opacity-70">Breed</span>
                   <div className="font-bold">
-                    {currentPet?.breed?.breed_name || "Mixed Breed"}
+                    {currentPet?.breed_name || "Mixed Breed"}
                   </div>
                 </div>
-              </div>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm mb-2">
                 <div>
                   <span className="text-[#EBD5BD] opacity-70">Colour</span>
                   <div className="font-bold">

@@ -2,7 +2,9 @@ export interface FormData {
   pet_name: string;
   pet_age: string;
   pet_species: string;
+  pet_species_name?: string;
   pet_breed: string;
+  pet_breed_name?: string;
   pet_profile_picture?: File;
   pet_weight: string;
   pet_spay_neuter: string;

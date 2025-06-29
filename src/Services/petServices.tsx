@@ -161,7 +161,7 @@ const petServices = {
     }
   },
 
-  async getPetById(petId: string): Promise<PetResponse> {
+  async getPetById(petId: string): Promise<any> {
     try {
       const response = await axios.get(
         `${SERVER_BASE_URL}/api/v1/pets/get/${petId}`,
@@ -171,9 +171,6 @@ const petServices = {
           },
         }
       );
-      if (!response.data) {
-        throw new Error("Invalid response from server");
-      }
       return response.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {
@@ -401,6 +398,37 @@ const petServices = {
         );
       }
       throw new Error("Document name update failed");
+    }
+  },
+
+  async uploadMultipleDocuments(
+    petId: string,
+    files: File[]
+  ): Promise<{ message: string; results: any[] }> {
+    try {
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+      const response = await axios.post(
+        `${SERVER_BASE_URL}/api/v1/pets/documents/multiple/${petId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          },
+        }
+      );
+      // Return the full backend response (message, results)
+      return response.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        throw new Error(
+          error.response.data.message || "Multiple document upload failed"
+        );
+      }
+      throw new Error("Multiple document upload failed");
     }
   },
 };
