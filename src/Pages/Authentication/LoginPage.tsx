@@ -142,10 +142,9 @@ const LoginPage: React.FC = () => {
           >
             {loading && (
               <svg
-                className="animate-spin mr-2"
+                className="animate-spin mr-2 sm:w-5 sm:h-5"
                 width="18"
                 height="18"
-                className="sm:w-5 sm:h-5"
                 fill="none"
                 viewBox="0 0 24 24"
               >
