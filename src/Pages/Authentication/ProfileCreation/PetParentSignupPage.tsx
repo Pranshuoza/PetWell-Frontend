@@ -3,19 +3,32 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../../Components/ui/Loader";
 import UploadDocument from "../../../Components/UploadDocument/UploadDocuments";
 import PetWellLogo from "../../../Assets/PetWell.png";
+import autofillServices from "../../../Services/autofillServices";
 
 const PetParentSignupPage: React.FC = () => {
   const navigate = useNavigate();
   const [showLoader, setShowLoader] = useState(false);
+  const [parsing, setParsing] = useState(false);
 
   // Handler to upload a document (dummy for now, can be wired to autofillServices)
   const handleUpload = async (
     file: File,
     meta: { name: string; type: string }
   ) => {
-    // You can call autofillServices.createPetFromDocuments([file]) here if needed
-    // For now, just simulate upload
-    return Promise.resolve();
+    setShowLoader(true);
+    setParsing(true);
+    try {
+      await autofillServices.createPetFromDocuments([file]);
+      // Only after parsing is done, allow navigation
+      setShowLoader(false);
+      setParsing(false);
+      navigate("/verify");
+    } catch (err) {
+      setShowLoader(false);
+      setParsing(false);
+      // Optionally show error
+      alert("Failed to parse document. Please try again.");
+    }
   };
 
   return (
@@ -38,16 +51,7 @@ const PetParentSignupPage: React.FC = () => {
           <br />
           You can edit or add more info later.
         </p>
-        <UploadDocument
-          onUpload={handleUpload}
-          onNext={() => {
-            setShowLoader(true);
-            setTimeout(() => {
-              setShowLoader(false);
-              navigate("/verify");
-            }, 1200);
-          }}
-        />
+        <UploadDocument onUpload={handleUpload} onNext={undefined} />
         <div className="mt-2 text-center">
           <span className="text-[var(--color-label)] text-lg">
             Prefer to enter details yourself?{" "}
