@@ -7,4 +7,5 @@ export { default as Step4HumanInfo } from "./Step4HumanInfo";
 export { default as Step5OTPVerification } from "./Step5OTPVerification";
 export { default as Stepper } from "./Stepper";
 export { default as ProfileCreationSuccessModal } from "./ProfileCreationSuccessModal";
+export { default as PetParentOnboardingChoice } from "./PetParentOnboardingChoice";
 export type { FormData } from "./types"; 
